@@ -113,7 +113,7 @@ export default function InvoicesPage() {
                   </Badge>
                 </div>
                 <div className="flex items-end justify-between mt-4">
-                  <p className="text-2xl font-semibold text-gray-900">{formatCurrency(inv.total)}</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900">{formatCurrency(inv.total)}</p>
                   {inv.due_date && (
                     <p className="text-xs text-gray-400">Due {formatDate(inv.due_date)}</p>
                   )}

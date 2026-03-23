@@ -66,8 +66,8 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Filters */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search transactions..."
@@ -76,16 +76,18 @@ export default function TransactionsPage() {
             className="pl-9"
           />
         </div>
-        <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-          <option value="transfer">Transfer</option>
-        </Select>
-        <Button onClick={() => setShowAddDialog(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          Add
-        </Button>
+        <div className="flex gap-2">
+          <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="flex-1 sm:flex-none sm:w-36">
+            <option value="all">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="transfer">Transfer</option>
+          </Select>
+          <Button onClick={() => setShowAddDialog(true)} className="shrink-0">
+            <Plus className="h-4 w-4 mr-1" />
+            Add
+          </Button>
+        </div>
       </div>
 
       {/* Table */}
@@ -107,45 +109,70 @@ export default function TransactionsPage() {
               }
             />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile: card list */}
+              <div className="md:hidden divide-y divide-gray-50">
                 {transactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="text-gray-500 text-sm">{formatDate(tx.date)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-900">{tx.description}</span>
-                        {tx.ai_categorized && (
-                          <Sparkles className="h-3 w-3 text-indigo-400" />
-                        )}
+                  <div key={tx.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-gray-900 truncate">{tx.description}</p>
+                        {tx.ai_categorized && <Sparkles className="h-3 w-3 text-indigo-400 shrink-0" />}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-gray-500">{tx.category_name || "—"}</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className={`font-semibold ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}>
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={tx.type === 'income' ? 'success' : tx.type === 'expense' ? 'destructive' : 'secondary'}>
-                        {tx.type}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-gray-400">{formatDate(tx.date)}</span>
+                        {tx.category_name && <span className="text-xs text-gray-400">· {tx.category_name}</span>}
+                      </div>
+                    </div>
+                    <span className={`text-sm font-semibold shrink-0 ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
+                    </span>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              {/* Desktop: table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead>Type</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.map((tx) => (
+                      <TableRow key={tx.id}>
+                        <TableCell className="text-gray-500 text-sm">{formatDate(tx.date)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-gray-900">{tx.description}</span>
+                            {tx.ai_categorized && (
+                              <Sparkles className="h-3 w-3 text-indigo-400" />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-gray-500">{tx.category_name || "—"}</span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className={`font-semibold ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}>
+                            {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={tx.type === 'income' ? 'success' : tx.type === 'expense' ? 'destructive' : 'secondary'}>
+                            {tx.type}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

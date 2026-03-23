@@ -38,11 +38,11 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Tab Bar */}
-      <div className="inline-flex items-center gap-1 rounded-lg bg-gray-100 p-1">
+      <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 w-full sm:w-auto overflow-x-auto">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
+            className={`flex-1 sm:flex-none px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all whitespace-nowrap ${
               activeTab === tab.id ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}
             onClick={() => setActiveTab(tab.id)}
@@ -56,16 +56,16 @@ export default function ReportsPage() {
       {activeTab === "pl" && (
         plLoading ? <Skeleton className="h-96" /> : plData && (
           <div className="space-y-6">
-            <div className="grid grid-cols-3 gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Income</p><p className="text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(plData.total_income)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Expenses</p><p className="text-2xl font-semibold text-red-500 mt-1">{formatCurrency(plData.total_expenses)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Net Profit</p><p className={`text-2xl font-semibold mt-1 ${plData.net_profit >= 0 ? 'text-indigo-600' : 'text-red-500'}`}>{formatCurrency(plData.net_profit)}</p></CardContent></Card>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Income</p><p className="text-lg md:text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(plData.total_income)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Expenses</p><p className="text-lg md:text-2xl font-semibold text-red-500 mt-1">{formatCurrency(plData.total_expenses)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Net Profit</p><p className={`text-lg md:text-2xl font-semibold mt-1 ${plData.net_profit >= 0 ? 'text-indigo-600' : 'text-red-500'}`}>{formatCurrency(plData.net_profit)}</p></CardContent></Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader><CardTitle className="text-base">Monthly Trend</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="h-64">
+                  <div className="h-52 md:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={plData.monthly_data}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -82,7 +82,7 @@ export default function ReportsPage() {
               <Card>
                 <CardHeader><CardTitle className="text-base">Expenses by Category</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="h-64">
+                  <div className="h-52 md:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -122,10 +122,10 @@ export default function ReportsPage() {
       {activeTab === "bs" && (
         bsLoading ? <Skeleton className="h-96" /> : bsData && (
           <div className="space-y-6">
-            <div className="grid grid-cols-3 gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Assets</p><p className="text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(bsData.total_assets)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Liabilities</p><p className="text-2xl font-semibold text-red-500 mt-1">{formatCurrency(bsData.total_liabilities)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Equity</p><p className="text-2xl font-semibold text-indigo-600 mt-1">{formatCurrency(bsData.total_equity)}</p></CardContent></Card>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Assets</p><p className="text-lg md:text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(bsData.total_assets)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Liabilities</p><p className="text-lg md:text-2xl font-semibold text-red-500 mt-1">{formatCurrency(bsData.total_liabilities)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Equity</p><p className="text-lg md:text-2xl font-semibold text-indigo-600 mt-1">{formatCurrency(bsData.total_equity)}</p></CardContent></Card>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {bsData.accounts_by_type.map(group => (
@@ -153,15 +153,15 @@ export default function ReportsPage() {
         cfLoading ? <Skeleton className="h-96" /> : cfData && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Opening</p><p className="text-xl font-semibold mt-1">{formatCurrency(cfData.opening_balance)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Inflows</p><p className="text-xl font-semibold text-emerald-600 mt-1">+{formatCurrency(cfData.total_inflows)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Outflows</p><p className="text-xl font-semibold text-red-500 mt-1">-{formatCurrency(cfData.total_outflows)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Closing</p><p className="text-xl font-semibold text-indigo-600 mt-1">{formatCurrency(cfData.closing_balance)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Opening</p><p className="text-base md:text-xl font-semibold mt-1">{formatCurrency(cfData.opening_balance)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Inflows</p><p className="text-base md:text-xl font-semibold text-emerald-600 mt-1">+{formatCurrency(cfData.total_inflows)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Outflows</p><p className="text-base md:text-xl font-semibold text-red-500 mt-1">-{formatCurrency(cfData.total_outflows)}</p></CardContent></Card>
+              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Closing</p><p className="text-base md:text-xl font-semibold text-indigo-600 mt-1">{formatCurrency(cfData.closing_balance)}</p></CardContent></Card>
             </div>
             <Card>
               <CardHeader><CardTitle className="text-base">Cash Flow Trend</CardTitle></CardHeader>
               <CardContent>
-                <div className="h-72">
+                <div className="h-52 md:h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={cfData.monthly_data}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />

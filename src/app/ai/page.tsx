@@ -50,7 +50,7 @@ export default function AIPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] animate-fade-in">
+    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] animate-fade-in">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 pb-4">
         {messages.length === 0 && (
@@ -60,12 +60,12 @@ export default function AIPage() {
             </div>
             <h2 className="text-lg font-semibold text-gray-900 mb-2">AI Financial Assistant</h2>
             <p className="text-sm text-gray-500 mb-6 max-w-sm">Ask me anything about your finances. I can analyze spending, find trends, and provide insights.</p>
-            <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+            <div className="flex flex-wrap gap-2 justify-center max-w-lg px-4">
               {suggestions.map(s => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="px-3 py-1.5 text-sm text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
+                  className="px-3 py-1.5 text-xs md:text-sm text-indigo-600 bg-indigo-50 rounded-full hover:bg-indigo-100 transition-colors"
                 >
                   {s}
                 </button>
@@ -80,7 +80,7 @@ export default function AIPage() {
                 <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
               </div>
             )}
-            <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm ${
+            <div className={`max-w-[80%] md:max-w-[70%] rounded-2xl px-3 md:px-4 py-2 md:py-2.5 text-sm ${
               msg.role === 'user'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-800'

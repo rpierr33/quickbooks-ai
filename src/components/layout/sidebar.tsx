@@ -29,7 +29,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-gray-100 bg-white transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col border-r border-gray-100 bg-white transition-all duration-300 ease-in-out",
         expanded ? "w-56" : "w-16"
       )}
     >
@@ -95,5 +95,41 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+  );
+}
+
+// Mobile bottom navigation
+export function MobileNav() {
+  const pathname = usePathname();
+
+  const mobileItems = [
+    { href: "/", icon: LayoutDashboard, label: "Home" },
+    { href: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
+    { href: "/invoices", icon: FileText, label: "Invoices" },
+    { href: "/reports", icon: BarChart3, label: "Reports" },
+    { href: "/ai", icon: Sparkles, label: "AI" },
+  ];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md safe-area-bottom">
+      <div className="flex items-center justify-around px-2 py-1">
+        {mobileItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg min-w-0 transition-colors",
+                isActive ? "text-indigo-600" : "text-gray-400"
+              )}
+            >
+              <item.icon className={cn("h-5 w-5", isActive && "text-indigo-600")} />
+              <span className="text-[10px] font-medium truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

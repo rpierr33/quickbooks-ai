@@ -80,17 +80,17 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat) => (
           <Card key={stat.title}>
-            <CardContent className="p-5">
+            <CardContent className="p-4 md:p-5">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">{stat.title}</p>
-                <div className={`rounded-lg p-2 ${stat.bg}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <p className="text-xs md:text-sm text-gray-500">{stat.title}</p>
+                <div className={`rounded-lg p-1.5 md:p-2 ${stat.bg}`}>
+                  <stat.icon className={`h-3.5 w-3.5 md:h-4 md:w-4 ${stat.color}`} />
                 </div>
               </div>
-              <p className={`text-2xl font-semibold mt-2 ${stat.color}`}>
+              <p className={`text-lg md:text-2xl font-semibold mt-1 md:mt-2 ${stat.color}`}>
                 {formatCurrency(stat.value)}
               </p>
               {stat.change !== null && (
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                   <span className={`text-xs font-medium ${stat.change >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                     {Math.abs(stat.change)}%
                   </span>
-                  <span className="text-xs text-gray-400">vs last period</span>
+                  <span className="text-xs text-gray-400 hidden sm:inline">vs last period</span>
                 </div>
               )}
             </CardContent>
@@ -117,12 +117,12 @@ export default function DashboardPage() {
           <CardTitle className="text-base">Revenue vs Expenses</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-72">
+          <div className="h-52 md:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.monthly_data} barGap={4}>
+              <BarChart data={data.monthly_data} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={45} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
                 <Tooltip
                   formatter={(value) => formatCurrency(Number(value))}
                   contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}
@@ -146,12 +146,12 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-3">
               {data.recent_transactions.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{tx.description}</p>
+                <div key={tx.id} className="flex items-center justify-between gap-3 py-2 border-b border-gray-50 last:border-0">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">{tx.description}</p>
                     <p className="text-xs text-gray-400">{formatDate(tx.date)}</p>
                   </div>
-                  <span className={`text-sm font-semibold ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}>
+                  <span className={`text-sm font-semibold shrink-0 ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}>
                     {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                   </span>
                 </div>
