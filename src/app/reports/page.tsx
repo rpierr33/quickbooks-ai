@@ -12,7 +12,7 @@ const COLORS = ["#4f46e5", "#f43f5e", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState("pl");
   const tabs = [
-    { id: "pl", label: "Profit & Loss" },
+    { id: "pl", label: "P&L" },
     { id: "bs", label: "Balance Sheet" },
     { id: "cf", label: "Cash Flow" },
   ];
@@ -36,14 +36,14 @@ export default function ReportsPage() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Tab Bar */}
-      <div className="flex items-center gap-1 rounded-lg bg-gray-100 p-1 w-full sm:w-auto overflow-x-auto">
+      <div className="flex items-center gap-1 rounded-2xl bg-gray-100 p-1.5">
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`flex-1 sm:flex-none px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all whitespace-nowrap ${
-              activeTab === tab.id ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            className={`flex-1 px-3 py-2 text-sm font-semibold rounded-xl transition-all ${
+              activeTab === tab.id ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
             }`}
             onClick={() => setActiveTab(tab.id)}
           >
@@ -54,123 +54,138 @@ export default function ReportsPage() {
 
       {/* Profit & Loss */}
       {activeTab === "pl" && (
-        plLoading ? <Skeleton className="h-96" /> : plData && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Income</p><p className="text-lg md:text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(plData.total_income)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Expenses</p><p className="text-lg md:text-2xl font-semibold text-red-500 mt-1">{formatCurrency(plData.total_expenses)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Net Profit</p><p className={`text-lg md:text-2xl font-semibold mt-1 ${plData.net_profit >= 0 ? 'text-indigo-600' : 'text-red-500'}`}>{formatCurrency(plData.net_profit)}</p></CardContent></Card>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        plLoading ? <Skeleton className="h-80 rounded-2xl" /> : plData && (
+          <div className="space-y-3">
+            {/* Summary stats */}
+            <div className="grid grid-cols-3 gap-2">
               <Card>
-                <CardHeader><CardTitle className="text-base">Monthly Trend</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="h-52 md:h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={plData.monthly_data}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                        <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} />
-                        <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
-                        <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                        <Bar dataKey="income" name="Income" fill="#4f46e5" radius={[4,4,0,0]} />
-                        <Bar dataKey="expenses" name="Expenses" fill="#f43f5e" radius={[4,4,0,0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                <CardContent className="p-3 md:p-5 text-center">
+                  <p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Income</p>
+                  <p className="text-sm md:text-xl font-bold text-emerald-600 mt-1 tabular-nums">{formatCurrency(plData.total_income)}</p>
                 </CardContent>
               </Card>
               <Card>
-                <CardHeader><CardTitle className="text-base">Expenses by Category</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="h-52 md:h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={plData.expenses_by_category}
-                          dataKey="amount"
-                          nameKey="category"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={90}
-                          innerRadius={50}
-                          paddingAngle={2}
-                        >
-                          {plData.expenses_by_category.map((_, i) => (
-                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1 mt-2">
-                    {plData.expenses_by_category.slice(0, 6).map((cat, i) => (
-                      <div key={cat.category} className="flex items-center gap-2 text-xs">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                        <span className="text-gray-600 truncate">{cat.category}</span>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="p-3 md:p-5 text-center">
+                  <p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Expenses</p>
+                  <p className="text-sm md:text-xl font-bold text-red-500 mt-1 tabular-nums">{formatCurrency(plData.total_expenses)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-3 md:p-5 text-center">
+                  <p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Net</p>
+                  <p className={`text-sm md:text-xl font-bold mt-1 tabular-nums ${plData.net_profit >= 0 ? 'text-indigo-600' : 'text-red-500'}`}>{formatCurrency(plData.net_profit)}</p>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Chart */}
+            <Card>
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-700">Monthly Trend</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="h-48 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={plData.monthly_data} margin={{ left: -10, right: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <XAxis dataKey="period" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip formatter={(v) => formatCurrency(Number(v))} contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                      <Bar dataKey="income" name="Income" fill="#4f46e5" radius={[3,3,0,0]} />
+                      <Bar dataKey="expenses" name="Expenses" fill="#f43f5e" radius={[3,3,0,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pie */}
+            <Card>
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-700">Expenses by Category</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="h-48 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={plData.expenses_by_category} dataKey="amount" nameKey="category" cx="50%" cy="50%" outerRadius={75} innerRadius={40} paddingAngle={2}>
+                        {plData.expenses_by_category.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={(v) => formatCurrency(Number(v))} contentStyle={{ borderRadius: '12px', fontSize: '12px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-1">
+                  {plData.expenses_by_category.slice(0, 6).map((cat, i) => (
+                    <div key={cat.category} className="flex items-center gap-2 text-xs py-0.5">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                      <span className="text-gray-600 truncate">{cat.category}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )
       )}
 
       {/* Balance Sheet */}
       {activeTab === "bs" && (
-        bsLoading ? <Skeleton className="h-96" /> : bsData && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Assets</p><p className="text-lg md:text-2xl font-semibold text-emerald-600 mt-1">{formatCurrency(bsData.total_assets)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Liabilities</p><p className="text-lg md:text-2xl font-semibold text-red-500 mt-1">{formatCurrency(bsData.total_liabilities)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Total Equity</p><p className="text-lg md:text-2xl font-semibold text-indigo-600 mt-1">{formatCurrency(bsData.total_equity)}</p></CardContent></Card>
+        bsLoading ? <Skeleton className="h-80 rounded-2xl" /> : bsData && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              <Card><CardContent className="p-3 md:p-5 text-center"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Assets</p><p className="text-sm md:text-xl font-bold text-emerald-600 mt-1 tabular-nums">{formatCurrency(bsData.total_assets)}</p></CardContent></Card>
+              <Card><CardContent className="p-3 md:p-5 text-center"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Liabilities</p><p className="text-sm md:text-xl font-bold text-red-500 mt-1 tabular-nums">{formatCurrency(bsData.total_liabilities)}</p></CardContent></Card>
+              <Card><CardContent className="p-3 md:p-5 text-center"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Equity</p><p className="text-sm md:text-xl font-bold text-indigo-600 mt-1 tabular-nums">{formatCurrency(bsData.total_equity)}</p></CardContent></Card>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {bsData.accounts_by_type.map(group => (
-                <Card key={group.type}>
-                  <CardHeader><CardTitle className="text-base capitalize">{group.type}s</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {group.accounts.map(acc => (
-                        <div key={acc.name} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{acc.name}</span>
-                          <span className="font-medium">{formatCurrency(acc.balance)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {bsData.accounts_by_type.map(group => (
+              <Card key={group.type}>
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-sm font-semibold text-gray-700 capitalize">{group.type}s</CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  <div className="divide-y divide-gray-100">
+                    {group.accounts.map(acc => (
+                      <div key={acc.name} className="flex justify-between py-2.5 text-sm">
+                        <span className="text-gray-600">{acc.name}</span>
+                        <span className="font-semibold tabular-nums">{formatCurrency(acc.balance)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )
       )}
 
       {/* Cash Flow */}
       {activeTab === "cf" && (
-        cfLoading ? <Skeleton className="h-96" /> : cfData && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Opening</p><p className="text-base md:text-xl font-semibold mt-1">{formatCurrency(cfData.opening_balance)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Inflows</p><p className="text-base md:text-xl font-semibold text-emerald-600 mt-1">+{formatCurrency(cfData.total_inflows)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Outflows</p><p className="text-base md:text-xl font-semibold text-red-500 mt-1">-{formatCurrency(cfData.total_outflows)}</p></CardContent></Card>
-              <Card><CardContent className="p-5"><p className="text-sm text-gray-500">Closing</p><p className="text-base md:text-xl font-semibold text-indigo-600 mt-1">{formatCurrency(cfData.closing_balance)}</p></CardContent></Card>
+        cfLoading ? <Skeleton className="h-80 rounded-2xl" /> : cfData && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Card><CardContent className="p-3 md:p-5"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Inflows</p><p className="text-base md:text-xl font-bold text-emerald-600 mt-1 tabular-nums">+{formatCurrency(cfData.total_inflows)}</p></CardContent></Card>
+              <Card><CardContent className="p-3 md:p-5"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Outflows</p><p className="text-base md:text-xl font-bold text-red-500 mt-1 tabular-nums">-{formatCurrency(cfData.total_outflows)}</p></CardContent></Card>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Card><CardContent className="p-3 md:p-5"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Opening</p><p className="text-base md:text-xl font-bold mt-1 tabular-nums">{formatCurrency(cfData.opening_balance)}</p></CardContent></Card>
+              <Card><CardContent className="p-3 md:p-5"><p className="text-[10px] md:text-xs text-gray-500 uppercase font-medium">Closing</p><p className="text-base md:text-xl font-bold text-indigo-600 mt-1 tabular-nums">{formatCurrency(cfData.closing_balance)}</p></CardContent></Card>
             </div>
             <Card>
-              <CardHeader><CardTitle className="text-base">Cash Flow Trend</CardTitle></CardHeader>
-              <CardContent>
-                <div className="h-52 md:h-72">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-700">Cash Flow Trend</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="h-48 md:h-72">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={cfData.monthly_data}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                      <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} />
-                      <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
-                      <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                      <Line type="monotone" dataKey="inflows" name="Inflows" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="outflows" name="Outflows" stroke="#f43f5e" strokeWidth={2} dot={{ r: 4 }} />
-                      <Line type="monotone" dataKey="net" name="Net" stroke="#4f46e5" strokeWidth={2} dot={{ r: 4 }} strokeDasharray="5 5" />
+                    <LineChart data={cfData.monthly_data} margin={{ left: -10, right: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip formatter={(v) => formatCurrency(Number(v))} contentStyle={{ borderRadius: '12px', fontSize: '12px' }} />
+                      <Line type="monotone" dataKey="inflows" name="Inflows" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="outflows" name="Outflows" stroke="#f43f5e" strokeWidth={2} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="net" name="Net" stroke="#4f46e5" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="5 5" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
