@@ -68,18 +68,18 @@ export default function TransactionsPage() {
       {/* Filter Bar */}
       <div className="flex gap-2 items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+            className="pl-9 h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
         <Select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="w-24 h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+          className="w-24 h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
         >
           <option value="all">All</option>
           <option value="income">Income</option>
@@ -87,17 +87,17 @@ export default function TransactionsPage() {
         </Select>
         <button
           onClick={() => setShowAddDialog(true)}
-          className="h-12 w-12 shrink-0 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center cursor-pointer transition-colors"
+          className="h-11 w-11 shrink-0 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center cursor-pointer transition-colors"
         >
           <Plus className="h-4 w-4" />
         </button>
       </div>
 
       {/* Transaction List */}
-      <div className="rounded-2xl bg-white/75 backdrop-blur-xl border border-white/80 overflow-hidden">
+      <div className="rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-4 space-y-3">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)}
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 rounded-md" />)}
           </div>
         ) : !transactions || transactions.length === 0 ? (
           <EmptyState
@@ -105,28 +105,28 @@ export default function TransactionsPage() {
             title="No transactions yet"
             description="Add your first transaction to get started."
             action={
-              <Button size="sm" onClick={() => setShowAddDialog(true)} className="cursor-pointer rounded-2xl">
+              <Button size="sm" onClick={() => setShowAddDialog(true)} className="cursor-pointer rounded-md bg-emerald-500 hover:bg-emerald-600 text-white">
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
             }
           />
         ) : (
           <>
-            {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-slate-100/60">
+            {/* Mobile list */}
+            <div className="md:hidden divide-y divide-gray-200">
               {transactions.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between gap-3 px-4 py-3.5 cursor-pointer hover:bg-white/40 transition-colors">
+                <div key={tx.id} className="flex items-center justify-between gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-[13px] font-semibold text-slate-900 truncate">{tx.description}</p>
-                      {tx.ai_categorized && <Sparkles className="h-3 w-3 text-violet-400 shrink-0" />}
+                      <p className="text-[13px] font-semibold text-gray-900 truncate">{tx.description}</p>
+                      {tx.ai_categorized && <Sparkles className="h-3 w-3 text-emerald-500 shrink-0" />}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-gray-400 mt-0.5">
                       {formatDate(tx.date)}
                       {tx.category_name && <span> · {tx.category_name}</span>}
                     </p>
                   </div>
-                  <span className={`text-sm tabular-nums font-bold shrink-0 ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-500'}`}>
+                  <span className={`text-sm tabular-nums font-extrabold shrink-0 ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
                     {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
                   </span>
                 </div>
@@ -138,26 +138,26 @@ export default function TransactionsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[11px] uppercase text-slate-400 font-medium">Date</TableHead>
-                    <TableHead className="text-[11px] uppercase text-slate-400 font-medium">Description</TableHead>
-                    <TableHead className="text-[11px] uppercase text-slate-400 font-medium">Category</TableHead>
-                    <TableHead className="text-right text-[11px] uppercase text-slate-400 font-medium">Amount</TableHead>
-                    <TableHead className="text-[11px] uppercase text-slate-400 font-medium">Type</TableHead>
+                    <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date</TableHead>
+                    <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wider">Description</TableHead>
+                    <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wider">Category</TableHead>
+                    <TableHead className="text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Amount</TableHead>
+                    <TableHead className="text-xs font-bold text-gray-500 uppercase tracking-wider">Type</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transactions.map((tx) => (
-                    <TableRow key={tx.id} className="cursor-pointer hover:bg-white/40">
-                      <TableCell className="text-slate-500 text-[13px]">{formatDate(tx.date)}</TableCell>
+                    <TableRow key={tx.id} className="cursor-pointer hover:bg-gray-50">
+                      <TableCell className="text-[13px] text-gray-700">{formatDate(tx.date)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-900 text-[13px]">{tx.description}</span>
-                          {tx.ai_categorized && <Sparkles className="h-3 w-3 text-violet-400" />}
+                          <span className="font-semibold text-gray-900 text-[13px]">{tx.description}</span>
+                          {tx.ai_categorized && <Sparkles className="h-3 w-3 text-emerald-500" />}
                         </div>
                       </TableCell>
-                      <TableCell><span className="text-[13px] text-slate-500">{tx.category_name || "—"}</span></TableCell>
+                      <TableCell><span className="text-[13px] text-gray-700">{tx.category_name || "—"}</span></TableCell>
                       <TableCell className="text-right">
-                        <span className={`tabular-nums font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-500'}`}>
+                        <span className={`tabular-nums font-extrabold ${tx.type === 'income' ? 'text-emerald-500' : 'text-red-500'}`}>
                           {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
                         </span>
                       </TableCell>
@@ -176,42 +176,42 @@ export default function TransactionsPage() {
       {/* Add Transaction Dialog */}
       <Dialog open={showAddDialog} onClose={() => { setShowAddDialog(false); setStep(1); }}>
         <DialogHeader>
-          <DialogTitle className="text-slate-900">{step === 1 ? "New Transaction" : "Details"}</DialogTitle>
+          <DialogTitle className="text-gray-900">{step === 1 ? "New Transaction" : "Details"}</DialogTitle>
           <div className="flex gap-1.5 mt-3">
-            <div className={`h-1.5 flex-1 rounded-full transition-colors ${step >= 1 ? 'bg-gradient-to-r from-indigo-600 to-violet-600' : 'bg-slate-200'}`} />
-            <div className={`h-1.5 flex-1 rounded-full transition-colors ${step >= 2 ? 'bg-gradient-to-r from-indigo-600 to-violet-600' : 'bg-slate-200'}`} />
+            <div className={`h-1.5 flex-1 rounded-full transition-colors ${step >= 1 ? 'bg-emerald-500' : 'bg-gray-200'}`} />
+            <div className={`h-1.5 flex-1 rounded-full transition-colors ${step >= 2 ? 'bg-emerald-500' : 'bg-gray-200'}`} />
           </div>
         </DialogHeader>
         <DialogContent>
           {step === 1 ? (
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Description</label>
+                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Description</label>
                 <Input
                   placeholder="e.g., AWS Monthly Bill"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Amount</label>
+                  <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Amount</label>
                   <Input
                     type="number"
                     step="0.01"
                     placeholder="0.00"
                     value={form.amount}
                     onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+                    className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Type</label>
+                  <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Type</label>
                   <Select
                     value={form.type}
                     onChange={(e) => setForm({ ...form, type: e.target.value })}
-                    className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+                    className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   >
                     <option value="expense">Expense</option>
                     <option value="income">Income</option>
@@ -223,40 +223,40 @@ export default function TransactionsPage() {
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Date</label>
+                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Date</label>
                 <Input
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Notes (optional)</label>
+                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Notes (optional)</label>
                 <Input
                   placeholder="Add any notes..."
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
-              <div className="rounded-2xl bg-indigo-50/70 backdrop-blur-sm p-3.5 flex items-start gap-2.5 border border-indigo-100/50">
-                <Sparkles className="h-4 w-4 text-indigo-600 mt-0.5 shrink-0" />
-                <p className="text-[11px] text-indigo-700 leading-relaxed">AI will automatically categorize this transaction based on the description.</p>
+              <div className="rounded-md bg-emerald-50 p-3.5 flex items-start gap-2.5 border border-emerald-200">
+                <Sparkles className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                <p className="text-[11px] text-emerald-700 leading-relaxed">AI will automatically categorize this transaction based on the description.</p>
               </div>
             </div>
           )}
         </DialogContent>
         <DialogFooter className="flex gap-2">
           {step === 2 && (
-            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 w-full cursor-pointer rounded-2xl h-12">
+            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 w-full cursor-pointer rounded-md h-11 border border-gray-300">
               Back
             </Button>
           )}
           <Button
             onClick={handleSubmit}
             disabled={createMutation.isPending}
-            className="flex-1 w-full cursor-pointer rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700"
+            className="flex-1 w-full cursor-pointer rounded-md h-11 bg-emerald-500 hover:bg-emerald-600 text-white"
           >
             {step === 1 ? "Next" : createMutation.isPending ? "Saving..." : "Save"}
           </Button>

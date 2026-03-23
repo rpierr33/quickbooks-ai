@@ -10,10 +10,9 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const navItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -25,31 +24,22 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col bg-white/60 backdrop-blur-2xl border-r border-white/70 transition-all duration-300 ease-in-out",
-        expanded ? "w-56" : "w-[68px]"
-      )}
-    >
+    <aside className={cn(
+      "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col bg-[#1a2332] transition-all duration-200",
+      expanded ? "w-52" : "w-16"
+    )}>
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center px-4">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/20">
-            <span className="text-sm font-extrabold text-white">Q</span>
-          </div>
-          {expanded && (
-            <span className="text-sm font-bold text-slate-800 animate-fade-in">
-              QuickBooks AI
-            </span>
-          )}
+      <div className="flex items-center gap-2.5 h-14 px-4 border-b border-white/10">
+        <div className="flex h-7 w-7 items-center justify-center rounded bg-emerald-500 shrink-0">
+          <span className="text-[11px] font-extrabold text-white">Q</span>
         </div>
+        {expanded && <span className="text-[13px] font-bold text-white truncate">QuickBooks AI</span>}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-3 px-2.5 space-y-1">
+      <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -57,49 +47,48 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 cursor-pointer",
+                "flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer",
                 isActive
-                  ? "bg-indigo-50/80 text-indigo-600 shadow-sm shadow-indigo-500/5"
-                  : "text-slate-500 hover:bg-slate-50/80 hover:text-slate-700"
+                  ? "bg-white/10 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
               )}
             >
-              <item.icon className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-indigo-600" : "text-slate-400")} />
-              {expanded && <span className="animate-fade-in">{item.label}</span>}
+              <item.icon className="h-[18px] w-[18px] shrink-0" />
+              {expanded && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* AI Assistant */}
-      <div className="px-2.5 pb-2">
+      {/* AI Button */}
+      <div className="px-2 pb-2">
         <Link
           href="/ai"
           className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-200 cursor-pointer",
+            "flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer",
             pathname === "/ai"
-              ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25"
-              : "bg-indigo-50/60 text-indigo-600 hover:bg-indigo-50"
+              ? "bg-emerald-500 text-white"
+              : "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
           )}
         >
           <Sparkles className="h-[18px] w-[18px] shrink-0" />
-          {expanded && <span className="animate-fade-in">AI Assistant</span>}
+          {expanded && <span>AI Assistant</span>}
         </Link>
       </div>
 
-      {/* Toggle */}
-      <div className="border-t border-slate-100/60 p-2.5">
+      <div className="border-t border-white/10 p-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex w-full items-center justify-center rounded-xl p-2 text-slate-400 hover:bg-slate-50/80 hover:text-slate-600 transition-colors cursor-pointer"
+          className="flex w-full items-center justify-center rounded-md p-1.5 text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-colors cursor-pointer"
         >
-          {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {expanded ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
         </button>
       </div>
     </aside>
   );
 }
 
-// Floating pill mobile nav
+// Mobile bottom nav — simple, solid
 const mobileItems = [
   { href: "/", icon: LayoutDashboard, label: "Home" },
   { href: "/transactions", icon: ArrowLeftRight, label: "Activity" },
@@ -110,48 +99,26 @@ const mobileItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
-
   return (
-    <motion.nav
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.1 }}
-      className="fixed bottom-4 left-3 right-3 z-50 md:hidden"
-    >
-      <div className="flex items-center justify-around rounded-2xl bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)] px-1 py-1.5 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-200 safe-area-bottom">
+      <div className="flex items-center justify-around h-14">
         {mobileItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center px-3 py-1.5 rounded-xl cursor-pointer"
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="mobile-nav-active"
-                  className="absolute inset-0 bg-indigo-50/80 rounded-xl"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
+              className={cn(
+                "flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer",
+                isActive ? "text-emerald-600" : "text-gray-400"
               )}
-              <item.icon
-                className={cn(
-                  "h-5 w-5 relative z-10 transition-colors duration-200",
-                  isActive ? "text-indigo-600" : "text-slate-400"
-                )}
-              />
-              <span
-                className={cn(
-                  "text-[10px] font-semibold mt-0.5 relative z-10 transition-colors duration-200",
-                  isActive ? "text-indigo-600" : "text-slate-400"
-                )}
-              >
-                {item.label}
-              </span>
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-[10px] font-semibold">{item.label}</span>
             </Link>
           );
         })}
       </div>
-    </motion.nav>
+    </nav>
   );
 }
