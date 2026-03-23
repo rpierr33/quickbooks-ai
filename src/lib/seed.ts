@@ -1,0 +1,391 @@
+// Seed data for mock development mode
+// Generates 6 months of realistic small business financial data
+
+function uuid(index: number): string {
+  const hex = index.toString(16).padStart(12, '0');
+  return `00000000-0000-4000-8000-${hex}`;
+}
+
+export function seedMockStore() {
+  // ── Accounts ──────────────────────────────────────────────
+  const accounts = [
+    { id: uuid(1), name: 'Business Checking', type: 'asset', sub_type: 'bank', balance: '47250.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(2), name: 'Business Savings', type: 'asset', sub_type: 'bank', balance: '25000.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(3), name: 'Chase Ink Credit Card', type: 'liability', sub_type: 'credit_card', balance: '3842.50', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(4), name: 'Accounts Receivable', type: 'asset', sub_type: 'accounts_receivable', balance: '18500.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(5), name: 'Accounts Payable', type: 'liability', sub_type: 'accounts_payable', balance: '4200.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(6), name: 'Owner Equity', type: 'equity', sub_type: 'owner_equity', balance: '50000.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(7), name: 'Retained Earnings', type: 'equity', sub_type: 'retained_earnings', balance: '32450.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+    { id: uuid(8), name: 'Petty Cash', type: 'asset', sub_type: 'cash', balance: '350.00', currency: 'USD', is_active: true, created_at: '2025-09-01T00:00:00Z', updated_at: '2026-03-23T00:00:00Z' },
+  ];
+
+  // ── Categories ────────────────────────────────────────────
+  const categories = [
+    { id: uuid(101), name: 'Rent', type: 'expense', parent_id: null, icon: 'Building2', color: '#EF4444', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(102), name: 'Utilities', type: 'expense', parent_id: null, icon: 'Zap', color: '#F59E0B', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(103), name: 'Payroll', type: 'expense', parent_id: null, icon: 'Users', color: '#8B5CF6', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(104), name: 'Marketing', type: 'expense', parent_id: null, icon: 'Megaphone', color: '#EC4899', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(105), name: 'Software & SaaS', type: 'expense', parent_id: null, icon: 'Monitor', color: '#6366F1', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(106), name: 'Office Supplies', type: 'expense', parent_id: null, icon: 'Package', color: '#14B8A6', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(107), name: 'Travel', type: 'expense', parent_id: null, icon: 'Plane', color: '#0EA5E9', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(108), name: 'Meals & Entertainment', type: 'expense', parent_id: null, icon: 'UtensilsCrossed', color: '#F97316', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(109), name: 'Insurance', type: 'expense', parent_id: null, icon: 'Shield', color: '#64748B', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(110), name: 'Professional Services', type: 'expense', parent_id: null, icon: 'Briefcase', color: '#A855F7', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(111), name: 'Client Payments', type: 'income', parent_id: null, icon: 'DollarSign', color: '#22C55E', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(112), name: 'Consulting Revenue', type: 'income', parent_id: null, icon: 'TrendingUp', color: '#10B981', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(113), name: 'Product Sales', type: 'income', parent_id: null, icon: 'ShoppingCart', color: '#06B6D4', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(114), name: 'Interest Income', type: 'income', parent_id: null, icon: 'Percent', color: '#84CC16', is_system: true, created_at: '2025-09-01T00:00:00Z' },
+    { id: uuid(115), name: 'Refunds', type: 'income', parent_id: null, icon: 'RotateCcw', color: '#78716C', is_system: false, created_at: '2025-09-01T00:00:00Z' },
+  ];
+
+  // ── Transactions (60+ spanning Oct 2025 - Mar 2026) ───────
+  const transactions = [
+    // ── October 2025 ──
+    { id: uuid(201), date: '2025-10-01', description: 'Office Rent - October', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2025-10-01T09:00:00Z', updated_at: '2025-10-01T09:00:00Z' },
+    { id: uuid(202), date: '2025-10-02', description: 'Gusto Payroll - Oct Period 1', amount: '8500.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-10-02T10:00:00Z', updated_at: '2025-10-02T10:00:00Z' },
+    { id: uuid(203), date: '2025-10-03', description: 'Payment from Acme Corp - Website Redesign', amount: '12000.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'Invoice #INV-001', attachments: '[]', created_at: '2025-10-03T14:00:00Z', updated_at: '2025-10-03T14:00:00Z' },
+    { id: uuid(204), date: '2025-10-05', description: 'AWS Monthly - Cloud Hosting', amount: '487.32', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2025-10-05T08:00:00Z', updated_at: '2025-10-05T08:00:00Z' },
+    { id: uuid(205), date: '2025-10-07', description: 'Starbucks - Team Meeting', amount: '34.50', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.88', notes: null, attachments: '[]', created_at: '2025-10-07T11:30:00Z', updated_at: '2025-10-07T11:30:00Z' },
+    { id: uuid(206), date: '2025-10-10', description: 'Google Ads - October Campaign', amount: '1200.00', type: 'expense', account_id: uuid(3), category_id: uuid(104), category_name: 'Marketing', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.95', notes: 'Q4 lead gen campaign', attachments: '[]', created_at: '2025-10-10T09:00:00Z', updated_at: '2025-10-10T09:00:00Z' },
+    { id: uuid(207), date: '2025-10-12', description: 'ConEd - Electric Bill', amount: '245.80', type: 'expense', account_id: uuid(1), category_id: uuid(102), category_name: 'Utilities', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: null, attachments: '[]', created_at: '2025-10-12T08:00:00Z', updated_at: '2025-10-12T08:00:00Z' },
+    { id: uuid(208), date: '2025-10-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-10-15T10:00:00Z', updated_at: '2025-10-15T10:00:00Z' },
+    { id: uuid(209), date: '2025-10-18', description: 'Amazon - Office Chair & Supplies', amount: '389.99', type: 'expense', account_id: uuid(3), category_id: uuid(106), category_name: 'Office Supplies', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.78', notes: null, attachments: '[]', created_at: '2025-10-18T15:00:00Z', updated_at: '2025-10-18T15:00:00Z' },
+    { id: uuid(210), date: '2025-10-22', description: 'Slack Business+ Subscription', amount: '125.00', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.91', notes: null, attachments: '[]', created_at: '2025-10-22T08:00:00Z', updated_at: '2025-10-22T08:00:00Z' },
+
+    // ── November 2025 ──
+    { id: uuid(211), date: '2025-11-01', description: 'Office Rent - November', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2025-11-01T09:00:00Z', updated_at: '2025-11-01T09:00:00Z' },
+    { id: uuid(212), date: '2025-11-02', description: 'Gusto Payroll - Nov Period 1', amount: '8500.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-11-02T10:00:00Z', updated_at: '2025-11-02T10:00:00Z' },
+    { id: uuid(213), date: '2025-11-04', description: 'Payment from Bright Ideas LLC - App Development', amount: '8500.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'Phase 1 milestone payment', attachments: '[]', created_at: '2025-11-04T11:00:00Z', updated_at: '2025-11-04T11:00:00Z' },
+    { id: uuid(214), date: '2025-11-05', description: 'AWS Monthly - Cloud Hosting', amount: '512.18', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2025-11-05T08:00:00Z', updated_at: '2025-11-05T08:00:00Z' },
+    { id: uuid(215), date: '2025-11-08', description: 'Uber - Client Meeting Downtown', amount: '28.45', type: 'expense', account_id: uuid(3), category_id: uuid(107), category_name: 'Travel', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.85', notes: null, attachments: '[]', created_at: '2025-11-08T14:00:00Z', updated_at: '2025-11-08T14:00:00Z' },
+    { id: uuid(216), date: '2025-11-10', description: 'State Farm - Business Insurance Premium', amount: '475.00', type: 'expense', account_id: uuid(1), category_id: uuid(109), category_name: 'Insurance', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(502), ai_categorized: false, ai_confidence: null, notes: 'Monthly premium', attachments: '[]', created_at: '2025-11-10T09:00:00Z', updated_at: '2025-11-10T09:00:00Z' },
+    { id: uuid(217), date: '2025-11-12', description: 'Chipotle - Team Lunch', amount: '67.80', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.82', notes: null, attachments: '[]', created_at: '2025-11-12T12:30:00Z', updated_at: '2025-11-12T12:30:00Z' },
+    { id: uuid(218), date: '2025-11-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-11-15T10:00:00Z', updated_at: '2025-11-15T10:00:00Z' },
+    { id: uuid(219), date: '2025-11-18', description: 'Facebook Ads - Holiday Campaign', amount: '1800.00', type: 'expense', account_id: uuid(3), category_id: uuid(104), category_name: 'Marketing', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.93', notes: 'Holiday promo push', attachments: '[]', created_at: '2025-11-18T09:00:00Z', updated_at: '2025-11-18T09:00:00Z' },
+    { id: uuid(220), date: '2025-11-20', description: 'Figma - Team Plan', amount: '75.00', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: uuid(503), ai_categorized: true, ai_confidence: '0.89', notes: null, attachments: '[]', created_at: '2025-11-20T08:00:00Z', updated_at: '2025-11-20T08:00:00Z' },
+    { id: uuid(221), date: '2025-11-25', description: 'Interest Income - Business Savings', amount: '42.15', type: 'income', account_id: uuid(2), category_id: uuid(114), category_name: 'Interest Income', account_name: 'Business Savings', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-11-25T08:00:00Z', updated_at: '2025-11-25T08:00:00Z' },
+
+    // ── December 2025 ──
+    { id: uuid(222), date: '2025-12-01', description: 'Office Rent - December', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2025-12-01T09:00:00Z', updated_at: '2025-12-01T09:00:00Z' },
+    { id: uuid(223), date: '2025-12-02', description: 'Gusto Payroll - Dec Period 1', amount: '8500.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-12-02T10:00:00Z', updated_at: '2025-12-02T10:00:00Z' },
+    { id: uuid(224), date: '2025-12-03', description: 'Payment from GreenLeaf Co - Brand Strategy', amount: '7500.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'Final payment', attachments: '[]', created_at: '2025-12-03T15:00:00Z', updated_at: '2025-12-03T15:00:00Z' },
+    { id: uuid(225), date: '2025-12-05', description: 'AWS Monthly - Cloud Hosting', amount: '534.90', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2025-12-05T08:00:00Z', updated_at: '2025-12-05T08:00:00Z' },
+    { id: uuid(226), date: '2025-12-07', description: 'Starbucks - Client Coffee', amount: '18.75', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.88', notes: null, attachments: '[]', created_at: '2025-12-07T10:00:00Z', updated_at: '2025-12-07T10:00:00Z' },
+    { id: uuid(227), date: '2025-12-10', description: 'State Farm - Business Insurance Premium', amount: '475.00', type: 'expense', account_id: uuid(1), category_id: uuid(109), category_name: 'Insurance', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(502), ai_categorized: false, ai_confidence: null, notes: 'Monthly premium', attachments: '[]', created_at: '2025-12-10T09:00:00Z', updated_at: '2025-12-10T09:00:00Z' },
+    { id: uuid(228), date: '2025-12-12', description: 'ConEd - Electric Bill', amount: '312.45', type: 'expense', account_id: uuid(1), category_id: uuid(102), category_name: 'Utilities', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: 'Winter heating increase', attachments: '[]', created_at: '2025-12-12T08:00:00Z', updated_at: '2025-12-12T08:00:00Z' },
+    { id: uuid(229), date: '2025-12-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-12-15T10:00:00Z', updated_at: '2025-12-15T10:00:00Z' },
+    { id: uuid(230), date: '2025-12-16', description: 'Gusto Payroll - Dec Period 2', amount: '8500.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-12-16T10:00:00Z', updated_at: '2025-12-16T10:00:00Z' },
+    { id: uuid(231), date: '2025-12-18', description: 'Amazon - Printer Paper & Toner', amount: '124.50', type: 'expense', account_id: uuid(3), category_id: uuid(106), category_name: 'Office Supplies', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.80', notes: null, attachments: '[]', created_at: '2025-12-18T11:00:00Z', updated_at: '2025-12-18T11:00:00Z' },
+    { id: uuid(232), date: '2025-12-20', description: 'Product Sale - Template Bundle', amount: '299.00', type: 'income', account_id: uuid(1), category_id: uuid(113), category_name: 'Product Sales', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.77', notes: null, attachments: '[]', created_at: '2025-12-20T16:00:00Z', updated_at: '2025-12-20T16:00:00Z' },
+    { id: uuid(233), date: '2025-12-22', description: 'Holiday Team Dinner - Nobu', amount: '485.00', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.75', notes: 'Holiday party', attachments: '[]', created_at: '2025-12-22T20:00:00Z', updated_at: '2025-12-22T20:00:00Z' },
+    { id: uuid(234), date: '2025-12-28', description: 'Interest Income - Business Savings', amount: '44.30', type: 'income', account_id: uuid(2), category_id: uuid(114), category_name: 'Interest Income', account_name: 'Business Savings', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2025-12-28T08:00:00Z', updated_at: '2025-12-28T08:00:00Z' },
+
+    // ── January 2026 ──
+    { id: uuid(235), date: '2026-01-01', description: 'Office Rent - January', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2026-01-01T09:00:00Z', updated_at: '2026-01-01T09:00:00Z' },
+    { id: uuid(236), date: '2026-01-02', description: 'Gusto Payroll - Jan Period 1', amount: '8750.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'New year raise adjustments', attachments: '[]', created_at: '2026-01-02T10:00:00Z', updated_at: '2026-01-02T10:00:00Z' },
+    { id: uuid(237), date: '2026-01-05', description: 'AWS Monthly - Cloud Hosting', amount: '498.55', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2026-01-05T08:00:00Z', updated_at: '2026-01-05T08:00:00Z' },
+    { id: uuid(238), date: '2026-01-07', description: 'Payment from Acme Corp - Maintenance Contract', amount: '3500.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'Q1 maintenance', attachments: '[]', created_at: '2026-01-07T14:00:00Z', updated_at: '2026-01-07T14:00:00Z' },
+    { id: uuid(239), date: '2026-01-08', description: 'Staples - Office Supplies', amount: '156.30', type: 'expense', account_id: uuid(3), category_id: uuid(106), category_name: 'Office Supplies', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.82', notes: null, attachments: '[]', created_at: '2026-01-08T13:00:00Z', updated_at: '2026-01-08T13:00:00Z' },
+    { id: uuid(240), date: '2026-01-10', description: 'State Farm - Business Insurance Premium', amount: '475.00', type: 'expense', account_id: uuid(1), category_id: uuid(109), category_name: 'Insurance', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(502), ai_categorized: false, ai_confidence: null, notes: 'Monthly premium', attachments: '[]', created_at: '2026-01-10T09:00:00Z', updated_at: '2026-01-10T09:00:00Z' },
+    { id: uuid(241), date: '2026-01-12', description: 'Google Ads - January Campaign', amount: '950.00', type: 'expense', account_id: uuid(3), category_id: uuid(104), category_name: 'Marketing', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.95', notes: null, attachments: '[]', created_at: '2026-01-12T09:00:00Z', updated_at: '2026-01-12T09:00:00Z' },
+    { id: uuid(242), date: '2026-01-14', description: 'DoorDash - Working Lunch', amount: '42.90', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.84', notes: null, attachments: '[]', created_at: '2026-01-14T12:00:00Z', updated_at: '2026-01-14T12:00:00Z' },
+    { id: uuid(243), date: '2026-01-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-01-15T10:00:00Z', updated_at: '2026-01-15T10:00:00Z' },
+    { id: uuid(244), date: '2026-01-18', description: 'CPA Tax Prep - Quarterly Filing', amount: '850.00', type: 'expense', account_id: uuid(1), category_id: uuid(110), category_name: 'Professional Services', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.87', notes: 'Q4 2025 quarterly taxes', attachments: '[]', created_at: '2026-01-18T10:00:00Z', updated_at: '2026-01-18T10:00:00Z' },
+    { id: uuid(245), date: '2026-01-20', description: 'Notion - Team Workspace', amount: '96.00', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: null, attachments: '[]', created_at: '2026-01-20T08:00:00Z', updated_at: '2026-01-20T08:00:00Z' },
+    { id: uuid(246), date: '2026-01-22', description: 'ConEd - Electric Bill', amount: '298.60', type: 'expense', account_id: uuid(1), category_id: uuid(102), category_name: 'Utilities', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: null, attachments: '[]', created_at: '2026-01-22T08:00:00Z', updated_at: '2026-01-22T08:00:00Z' },
+    { id: uuid(247), date: '2026-01-25', description: 'Product Sale - UI Kit License', amount: '149.00', type: 'income', account_id: uuid(1), category_id: uuid(113), category_name: 'Product Sales', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.78', notes: null, attachments: '[]', created_at: '2026-01-25T14:00:00Z', updated_at: '2026-01-25T14:00:00Z' },
+    { id: uuid(248), date: '2026-01-28', description: 'Interest Income - Business Savings', amount: '45.80', type: 'income', account_id: uuid(2), category_id: uuid(114), category_name: 'Interest Income', account_name: 'Business Savings', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-01-28T08:00:00Z', updated_at: '2026-01-28T08:00:00Z' },
+
+    // ── February 2026 ──
+    { id: uuid(249), date: '2026-02-01', description: 'Office Rent - February', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2026-02-01T09:00:00Z', updated_at: '2026-02-01T09:00:00Z' },
+    { id: uuid(250), date: '2026-02-02', description: 'Gusto Payroll - Feb Period 1', amount: '8750.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-02-02T10:00:00Z', updated_at: '2026-02-02T10:00:00Z' },
+    { id: uuid(251), date: '2026-02-04', description: 'Payment from Bright Ideas LLC - App Development Phase 2', amount: '10000.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: 'Phase 2 milestone', attachments: '[]', created_at: '2026-02-04T11:00:00Z', updated_at: '2026-02-04T11:00:00Z' },
+    { id: uuid(252), date: '2026-02-05', description: 'AWS Monthly - Cloud Hosting', amount: '523.40', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2026-02-05T08:00:00Z', updated_at: '2026-02-05T08:00:00Z' },
+    { id: uuid(253), date: '2026-02-07', description: 'Delta Airlines - NYC to Chicago', amount: '387.00', type: 'expense', account_id: uuid(3), category_id: uuid(107), category_name: 'Travel', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.91', notes: 'Client meeting travel', attachments: '[]', created_at: '2026-02-07T07:00:00Z', updated_at: '2026-02-07T07:00:00Z' },
+    { id: uuid(254), date: '2026-02-08', description: 'Hilton Chicago - 2 Night Stay', amount: '456.00', type: 'expense', account_id: uuid(3), category_id: uuid(107), category_name: 'Travel', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.88', notes: 'Client meeting hotel', attachments: '[]', created_at: '2026-02-08T15:00:00Z', updated_at: '2026-02-08T15:00:00Z' },
+    { id: uuid(255), date: '2026-02-10', description: 'State Farm - Business Insurance Premium', amount: '475.00', type: 'expense', account_id: uuid(1), category_id: uuid(109), category_name: 'Insurance', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(502), ai_categorized: false, ai_confidence: null, notes: 'Monthly premium', attachments: '[]', created_at: '2026-02-10T09:00:00Z', updated_at: '2026-02-10T09:00:00Z' },
+    { id: uuid(256), date: '2026-02-12', description: 'Restaurant Depot - Team Lunch Supplies', amount: '89.50', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.72', notes: null, attachments: '[]', created_at: '2026-02-12T12:00:00Z', updated_at: '2026-02-12T12:00:00Z' },
+    { id: uuid(257), date: '2026-02-14', description: 'ConEd - Electric Bill', amount: '275.30', type: 'expense', account_id: uuid(1), category_id: uuid(102), category_name: 'Utilities', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: null, attachments: '[]', created_at: '2026-02-14T08:00:00Z', updated_at: '2026-02-14T08:00:00Z' },
+    { id: uuid(258), date: '2026-02-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-02-15T10:00:00Z', updated_at: '2026-02-15T10:00:00Z' },
+    { id: uuid(259), date: '2026-02-18', description: 'Meta Ads - February Campaign', amount: '1450.00', type: 'expense', account_id: uuid(3), category_id: uuid(104), category_name: 'Marketing', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.94', notes: null, attachments: '[]', created_at: '2026-02-18T09:00:00Z', updated_at: '2026-02-18T09:00:00Z' },
+    { id: uuid(260), date: '2026-02-20', description: 'Figma - Team Plan', amount: '75.00', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: uuid(503), ai_categorized: true, ai_confidence: '0.89', notes: null, attachments: '[]', created_at: '2026-02-20T08:00:00Z', updated_at: '2026-02-20T08:00:00Z' },
+    { id: uuid(261), date: '2026-02-22', description: 'Amazon - Webcams & Headsets', amount: '234.80', type: 'expense', account_id: uuid(3), category_id: uuid(106), category_name: 'Office Supplies', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.76', notes: 'Remote work equipment', attachments: '[]', created_at: '2026-02-22T14:00:00Z', updated_at: '2026-02-22T14:00:00Z' },
+    { id: uuid(262), date: '2026-02-25', description: 'Refund - Unused Software License', amount: '199.00', type: 'income', account_id: uuid(1), category_id: uuid(115), category_name: 'Refunds', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.85', notes: 'Canceled annual plan', attachments: '[]', created_at: '2026-02-25T10:00:00Z', updated_at: '2026-02-25T10:00:00Z' },
+    { id: uuid(263), date: '2026-02-28', description: 'Interest Income - Business Savings', amount: '47.25', type: 'income', account_id: uuid(2), category_id: uuid(114), category_name: 'Interest Income', account_name: 'Business Savings', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-02-28T08:00:00Z', updated_at: '2026-02-28T08:00:00Z' },
+
+    // ── March 2026 ──
+    { id: uuid(264), date: '2026-03-01', description: 'Office Rent - March', amount: '3500.00', type: 'expense', account_id: uuid(1), category_id: uuid(101), category_name: 'Rent', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(501), ai_categorized: false, ai_confidence: null, notes: 'Monthly office lease', attachments: '[]', created_at: '2026-03-01T09:00:00Z', updated_at: '2026-03-01T09:00:00Z' },
+    { id: uuid(265), date: '2026-03-02', description: 'Gusto Payroll - Mar Period 1', amount: '8750.00', type: 'expense', account_id: uuid(1), category_id: uuid(103), category_name: 'Payroll', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-03-02T10:00:00Z', updated_at: '2026-03-02T10:00:00Z' },
+    { id: uuid(266), date: '2026-03-03', description: 'Payment from NovaTech - SEO Audit', amount: '4500.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-03-03T13:00:00Z', updated_at: '2026-03-03T13:00:00Z' },
+    { id: uuid(267), date: '2026-03-05', description: 'AWS Monthly - Cloud Hosting', amount: '541.20', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.92', notes: null, attachments: '[]', created_at: '2026-03-05T08:00:00Z', updated_at: '2026-03-05T08:00:00Z' },
+    { id: uuid(268), date: '2026-03-07', description: 'Starbucks - Morning Coffee', amount: '12.40', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.88', notes: null, attachments: '[]', created_at: '2026-03-07T08:30:00Z', updated_at: '2026-03-07T08:30:00Z' },
+    { id: uuid(269), date: '2026-03-10', description: 'State Farm - Business Insurance Premium', amount: '475.00', type: 'expense', account_id: uuid(1), category_id: uuid(109), category_name: 'Insurance', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: uuid(502), ai_categorized: false, ai_confidence: null, notes: 'Monthly premium', attachments: '[]', created_at: '2026-03-10T09:00:00Z', updated_at: '2026-03-10T09:00:00Z' },
+    { id: uuid(270), date: '2026-03-12', description: 'Google Ads - March Campaign', amount: '1100.00', type: 'expense', account_id: uuid(3), category_id: uuid(104), category_name: 'Marketing', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.95', notes: null, attachments: '[]', created_at: '2026-03-12T09:00:00Z', updated_at: '2026-03-12T09:00:00Z' },
+    { id: uuid(271), date: '2026-03-14', description: 'Lyft - Airport Transfer', amount: '45.80', type: 'expense', account_id: uuid(3), category_id: uuid(107), category_name: 'Travel', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.86', notes: null, attachments: '[]', created_at: '2026-03-14T17:00:00Z', updated_at: '2026-03-14T17:00:00Z' },
+    { id: uuid(272), date: '2026-03-15', description: 'Consulting - TechStart Inc Monthly Retainer', amount: '5000.00', type: 'income', account_id: uuid(1), category_id: uuid(112), category_name: 'Consulting Revenue', account_name: 'Business Checking', is_recurring: true, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-03-15T10:00:00Z', updated_at: '2026-03-15T10:00:00Z' },
+    { id: uuid(273), date: '2026-03-17', description: 'Vercel - Pro Plan', amount: '20.00', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.88', notes: null, attachments: '[]', created_at: '2026-03-17T08:00:00Z', updated_at: '2026-03-17T08:00:00Z' },
+    { id: uuid(274), date: '2026-03-18', description: 'ConEd - Electric Bill', amount: '258.90', type: 'expense', account_id: uuid(1), category_id: uuid(102), category_name: 'Utilities', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.90', notes: null, attachments: '[]', created_at: '2026-03-18T08:00:00Z', updated_at: '2026-03-18T08:00:00Z' },
+    { id: uuid(275), date: '2026-03-19', description: 'Grubhub - Team Lunch', amount: '58.25', type: 'expense', account_id: uuid(3), category_id: uuid(108), category_name: 'Meals & Entertainment', account_name: 'Chase Ink Credit Card', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.83', notes: null, attachments: '[]', created_at: '2026-03-19T12:30:00Z', updated_at: '2026-03-19T12:30:00Z' },
+    { id: uuid(276), date: '2026-03-20', description: 'Payment from Acme Corp - Website Support Q1', amount: '6000.00', type: 'income', account_id: uuid(1), category_id: uuid(111), category_name: 'Client Payments', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: false, ai_confidence: null, notes: null, attachments: '[]', created_at: '2026-03-20T15:00:00Z', updated_at: '2026-03-20T15:00:00Z' },
+    { id: uuid(277), date: '2026-03-21', description: 'Adobe Creative Cloud - Annual', amount: '659.88', type: 'expense', account_id: uuid(3), category_id: uuid(105), category_name: 'Software & SaaS', account_name: 'Chase Ink Credit Card', is_recurring: true, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.91', notes: 'Annual renewal', attachments: '[]', created_at: '2026-03-21T08:00:00Z', updated_at: '2026-03-21T08:00:00Z' },
+    { id: uuid(278), date: '2026-03-22', description: 'Product Sale - Design System License', amount: '499.00', type: 'income', account_id: uuid(1), category_id: uuid(113), category_name: 'Product Sales', account_name: 'Business Checking', is_recurring: false, recurring_rule_id: null, ai_categorized: true, ai_confidence: '0.80', notes: null, attachments: '[]', created_at: '2026-03-22T11:00:00Z', updated_at: '2026-03-22T11:00:00Z' },
+  ];
+
+  // ── Invoices ──────────────────────────────────────────────
+  const invoices = [
+    {
+      id: uuid(301),
+      invoice_number: 'INV-001',
+      client_name: 'Acme Corp',
+      client_email: 'billing@acmecorp.com',
+      items: JSON.stringify([
+        { description: 'Website Redesign - Full Project', quantity: 1, rate: 12000, amount: 12000 }
+      ]),
+      subtotal: '12000.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '12000.00',
+      status: 'paid',
+      due_date: '2025-10-15',
+      paid_date: '2025-10-03',
+      notes: 'Thank you for your business!',
+      created_at: '2025-09-20T10:00:00Z',
+      updated_at: '2025-10-03T14:00:00Z'
+    },
+    {
+      id: uuid(302),
+      invoice_number: 'INV-002',
+      client_name: 'Bright Ideas LLC',
+      client_email: 'accounts@brightideas.co',
+      items: JSON.stringify([
+        { description: 'App Development - Phase 1', quantity: 1, rate: 8500, amount: 8500 },
+        { description: 'UI/UX Design Consultation', quantity: 5, rate: 200, amount: 1000 }
+      ]),
+      subtotal: '9500.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '9500.00',
+      status: 'paid',
+      due_date: '2025-11-15',
+      paid_date: '2025-11-04',
+      notes: null,
+      created_at: '2025-10-15T10:00:00Z',
+      updated_at: '2025-11-04T11:00:00Z'
+    },
+    {
+      id: uuid(303),
+      invoice_number: 'INV-003',
+      client_name: 'GreenLeaf Co',
+      client_email: 'finance@greenleaf.com',
+      items: JSON.stringify([
+        { description: 'Brand Strategy & Guidelines', quantity: 1, rate: 7500, amount: 7500 }
+      ]),
+      subtotal: '7500.00',
+      tax_rate: '8.875',
+      tax_amount: '665.63',
+      total: '8165.63',
+      status: 'paid',
+      due_date: '2025-12-15',
+      paid_date: '2025-12-03',
+      notes: 'Includes NYC sales tax',
+      created_at: '2025-11-20T10:00:00Z',
+      updated_at: '2025-12-03T15:00:00Z'
+    },
+    {
+      id: uuid(304),
+      invoice_number: 'INV-004',
+      client_name: 'NovaTech',
+      client_email: 'ap@novatech.io',
+      items: JSON.stringify([
+        { description: 'SEO Audit & Recommendations', quantity: 1, rate: 4500, amount: 4500 },
+        { description: 'Technical SEO Implementation', quantity: 10, rate: 150, amount: 1500 }
+      ]),
+      subtotal: '6000.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '6000.00',
+      status: 'sent',
+      due_date: '2026-04-03',
+      paid_date: null,
+      notes: 'Net 30',
+      created_at: '2026-03-03T10:00:00Z',
+      updated_at: '2026-03-03T10:00:00Z'
+    },
+    {
+      id: uuid(305),
+      invoice_number: 'INV-005',
+      client_name: 'Bright Ideas LLC',
+      client_email: 'accounts@brightideas.co',
+      items: JSON.stringify([
+        { description: 'App Development - Phase 2', quantity: 1, rate: 10000, amount: 10000 },
+        { description: 'QA Testing', quantity: 20, rate: 125, amount: 2500 }
+      ]),
+      subtotal: '12500.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '12500.00',
+      status: 'overdue',
+      due_date: '2026-03-10',
+      paid_date: null,
+      notes: 'Phase 2 - partial payment received',
+      created_at: '2026-02-01T10:00:00Z',
+      updated_at: '2026-03-10T00:00:00Z'
+    },
+  ];
+
+  // ── Insights ──────────────────────────────────────────────
+  const insights = [
+    {
+      id: uuid(401),
+      type: 'trend',
+      title: 'Software costs trending up',
+      description: 'Your SaaS subscriptions have increased 15% over the last 3 months, from $687 to $790 monthly. Consider auditing unused subscriptions.',
+      severity: 'info',
+      data: JSON.stringify({ increase_pct: 15, current_monthly: 790, previous_monthly: 687 }),
+      is_read: false,
+      created_at: '2026-03-20T08:00:00Z'
+    },
+    {
+      id: uuid(402),
+      type: 'anomaly',
+      title: 'Unusual marketing spend in November',
+      description: 'Marketing expenses in November ($1,800) were 50% higher than your 3-month average ($1,200). This was due to the holiday campaign push.',
+      severity: 'warning',
+      data: JSON.stringify({ month: 'November', amount: 1800, average: 1200 }),
+      is_read: true,
+      created_at: '2025-12-01T08:00:00Z'
+    },
+    {
+      id: uuid(403),
+      type: 'suggestion',
+      title: 'Outstanding invoices need follow-up',
+      description: 'You have 2 outstanding invoices totaling $18,500. INV-005 is overdue by 13 days. Consider sending a reminder to Bright Ideas LLC.',
+      severity: 'warning',
+      data: JSON.stringify({ outstanding_count: 2, total: 18500, overdue_count: 1 }),
+      is_read: false,
+      created_at: '2026-03-22T08:00:00Z'
+    },
+    {
+      id: uuid(404),
+      type: 'trend',
+      title: 'Revenue growing steadily',
+      description: 'Your monthly revenue has grown 12% quarter-over-quarter. Consulting retainers provide a stable $5,000/month baseline.',
+      severity: 'info',
+      data: JSON.stringify({ growth_pct: 12, stable_revenue: 5000 }),
+      is_read: false,
+      created_at: '2026-03-18T08:00:00Z'
+    },
+    {
+      id: uuid(405),
+      type: 'anomaly',
+      title: 'Travel expenses spike in February',
+      description: 'Travel costs in February ($888.80) were significantly higher than usual due to the Chicago client trip. This is 3x your monthly average.',
+      severity: 'info',
+      data: JSON.stringify({ month: 'February', amount: 888.80, average: 296 }),
+      is_read: true,
+      created_at: '2026-03-01T08:00:00Z'
+    },
+  ];
+
+  // ── Rules ─────────────────────────────────────────────────
+  const rules = [
+    {
+      id: uuid(601),
+      name: 'Amazon purchases → Office Supplies',
+      conditions: JSON.stringify([
+        { field: 'description', operator: 'contains', value: 'Amazon' }
+      ]),
+      actions: JSON.stringify([
+        { action: 'set_category', value: 'Office Supplies' }
+      ]),
+      is_active: true,
+      priority: 10,
+      created_at: '2025-09-15T10:00:00Z'
+    },
+    {
+      id: uuid(602),
+      name: 'Starbucks → Meals & Entertainment',
+      conditions: JSON.stringify([
+        { field: 'description', operator: 'contains', value: 'Starbucks' }
+      ]),
+      actions: JSON.stringify([
+        { action: 'set_category', value: 'Meals & Entertainment' }
+      ]),
+      is_active: true,
+      priority: 10,
+      created_at: '2025-09-15T10:00:00Z'
+    },
+    {
+      id: uuid(603),
+      name: 'Large payments → Client Payments',
+      conditions: JSON.stringify([
+        { field: 'description', operator: 'contains', value: 'Payment from' },
+        { field: 'amount', operator: 'greater_than', value: '1000' }
+      ]),
+      actions: JSON.stringify([
+        { action: 'set_category', value: 'Client Payments' },
+        { action: 'set_type', value: 'income' }
+      ]),
+      is_active: true,
+      priority: 20,
+      created_at: '2025-09-15T10:00:00Z'
+    },
+  ];
+
+  // ── Recurring Transactions ────────────────────────────────
+  const recurring_transactions = [
+    {
+      id: uuid(501),
+      description: 'Office Rent',
+      amount: '3500.00',
+      type: 'expense',
+      account_id: uuid(1),
+      category_id: uuid(101),
+      frequency: 'monthly',
+      next_run: '2026-04-01',
+      last_run: '2026-03-01',
+      is_active: true,
+      created_at: '2025-09-01T00:00:00Z'
+    },
+    {
+      id: uuid(502),
+      description: 'State Farm - Business Insurance Premium',
+      amount: '475.00',
+      type: 'expense',
+      account_id: uuid(1),
+      category_id: uuid(109),
+      frequency: 'monthly',
+      next_run: '2026-04-10',
+      last_run: '2026-03-10',
+      is_active: true,
+      created_at: '2025-09-01T00:00:00Z'
+    },
+    {
+      id: uuid(503),
+      description: 'Figma - Team Plan',
+      amount: '75.00',
+      type: 'expense',
+      account_id: uuid(3),
+      category_id: uuid(105),
+      frequency: 'monthly',
+      next_run: '2026-04-20',
+      last_run: '2026-03-20',
+      is_active: true,
+      created_at: '2025-09-01T00:00:00Z'
+    },
+  ];
+
+  // ── AI Cache (empty initially) ────────────────────────────
+  const ai_cache: Record<string, any>[] = [];
+
+  return {
+    accounts,
+    categories,
+    transactions,
+    invoices,
+    insights,
+    rules,
+    recurring_transactions,
+    ai_cache,
+  };
+}
