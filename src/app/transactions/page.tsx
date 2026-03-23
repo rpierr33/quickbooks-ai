@@ -64,7 +64,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="space-y-3 md:space-y-4 animate-fade-in font-[family-name:var(--font-plus-jakarta)]">
+    <div className="space-y-3 md:space-y-4 animate-fade-in">
       {/* Filter Bar */}
       <div className="flex gap-2 items-center">
         <div className="relative flex-1">

@@ -44,7 +44,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in font-[family-name:var(--font-plus-jakarta)]">
+    <div className="space-y-4 animate-fade-in">
       {/* Tab Bar */}
       <div className="flex items-center rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
         {tabs.map(tab => (

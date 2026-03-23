@@ -81,7 +81,7 @@ export default function InvoicesPage() {
   const total = subtotal + taxAmount;
 
   return (
-    <div className="space-y-3 md:space-y-4 animate-fade-in font-[family-name:var(--font-plus-jakarta)]">
+    <div className="space-y-3 md:space-y-4 animate-fade-in">
       <div className="flex justify-end">
         <button
           onClick={() => setShowCreate(true)}

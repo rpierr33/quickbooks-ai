@@ -9,7 +9,7 @@ import { Building2, CreditCard, Shield } from "lucide-react";
 
 export default function SettingsPage() {
   return (
-    <div className="max-w-xl space-y-5 animate-fade-in font-[family-name:var(--font-plus-jakarta)]">
+    <div className="max-w-xl space-y-5 animate-fade-in">
       {/* Company Info */}
       <div className="rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-5 pb-3">
