@@ -16,13 +16,13 @@ export function Header() {
   const title = pageTitles[pathname] || "Dashboard";
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center justify-between border-b border-gray-100 bg-white/80 backdrop-blur-md px-4 md:px-6">
-      {/* Mobile: logo + title */}
+    <header className="sticky top-0 z-30 flex h-14 md:h-16 items-center justify-between bg-white/50 backdrop-blur-xl border-b border-white/60 px-4 md:px-6">
       <div className="flex items-center gap-3">
-        <div className="flex md:hidden h-7 w-7 items-center justify-center rounded-lg bg-indigo-600">
-          <span className="text-xs font-bold text-white">Q</span>
+        {/* Mobile logo */}
+        <div className="flex md:hidden h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-md shadow-indigo-500/20">
+          <span className="text-xs font-extrabold text-white">Q</span>
         </div>
-        <h1 className="text-base md:text-lg font-semibold text-gray-900">{title}</h1>
+        <h1 className="text-base md:text-lg font-bold text-slate-800">{title}</h1>
       </div>
     </header>
   );

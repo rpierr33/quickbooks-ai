@@ -9,87 +9,114 @@ import { Building2, CreditCard, Shield } from "lucide-react";
 
 export default function SettingsPage() {
   return (
-    <div className="max-w-2xl space-y-6 animate-fade-in">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-gray-400" />
+    <div className="max-w-xl space-y-5 animate-fade-in font-[family-name:var(--font-plus-jakarta)]">
+      {/* Company Info */}
+      <div className="rounded-2xl bg-white/75 backdrop-blur-xl border border-white/80 overflow-hidden">
+        <div className="p-5 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-white" />
+            </div>
             <div>
-              <CardTitle>Company Info</CardTitle>
-              <CardDescription>Basic information about your business</CardDescription>
+              <h3 className="text-[13px] font-semibold text-slate-900">Company Info</h3>
+              <p className="text-[11px] text-slate-400">Basic information about your business</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        </div>
+        <div className="px-5 pb-5 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Company Name</label>
-            <Input defaultValue="My Business" />
+            <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Company Name</label>
+            <Input
+              defaultValue="My Business"
+              className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+            />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Email</label>
-            <Input type="email" defaultValue="admin@mybusiness.com" />
+            <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Email</label>
+            <Input
+              type="email"
+              defaultValue="admin@mybusiness.com"
+              className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+            />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Currency</label>
-            <Select defaultValue="USD">
+            <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide mb-1.5 block">Currency</label>
+            <Select
+              defaultValue="USD"
+              className="h-12 rounded-xl bg-white/60 border-slate-200/60 focus:ring-indigo-500/30 text-[13px]"
+            >
               <option value="USD">USD — US Dollar</option>
               <option value="EUR">EUR — Euro</option>
               <option value="GBP">GBP — British Pound</option>
               <option value="CAD">CAD — Canadian Dollar</option>
             </Select>
           </div>
-          <Button>Save Changes</Button>
-        </CardContent>
-      </Card>
+          <Button className="cursor-pointer rounded-2xl h-12 bg-indigo-600 hover:bg-indigo-700 text-[13px] font-semibold px-6">
+            Save Changes
+          </Button>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-gray-400" />
+      {/* Connected Accounts */}
+      <div className="rounded-2xl bg-white/75 backdrop-blur-xl border border-white/80 overflow-hidden">
+        <div className="p-5 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center shrink-0">
+              <CreditCard className="h-5 w-5 text-white" />
+            </div>
             <div>
-              <CardTitle>Connected Accounts</CardTitle>
-              <CardDescription>Link your bank accounts for automatic import</CardDescription>
+              <h3 className="text-[13px] font-semibold text-slate-900">Connected Accounts</h3>
+              <p className="text-[11px] text-slate-400">Link your bank accounts for automatic import</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between py-4 border-b border-gray-50">
+        </div>
+        <div className="px-5 pb-5">
+          <div className="flex items-center justify-between py-4 border-b border-slate-100/60">
             <div>
-              <p className="text-sm font-medium text-gray-900">Bank Connection</p>
-              <p className="text-xs text-gray-500">Connect via Plaid for automatic transaction import</p>
+              <p className="text-[13px] font-semibold text-slate-900">Bank Connection</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Connect via Plaid for automatic transaction import</p>
             </div>
-            <Badge variant="secondary">Coming Soon</Badge>
+            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600">
+              Coming Soon
+            </span>
           </div>
           <div className="flex items-center justify-between py-4">
             <div>
-              <p className="text-sm font-medium text-gray-900">CSV Import</p>
-              <p className="text-xs text-gray-500">Upload bank statements manually</p>
+              <p className="text-[13px] font-semibold text-slate-900">CSV Import</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Upload bank statements manually</p>
             </div>
-            <Badge variant="success">Available</Badge>
+            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600">
+              Available
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-gray-400" />
+      {/* Security */}
+      <div className="rounded-2xl bg-white/75 backdrop-blur-xl border border-white/80 overflow-hidden">
+        <div className="p-5 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shrink-0">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
             <div>
-              <CardTitle>Security</CardTitle>
-              <CardDescription>Authentication and access control</CardDescription>
+              <h3 className="text-[13px] font-semibold text-slate-900">Security</h3>
+              <p className="text-[11px] text-slate-400">Authentication and access control</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="px-5 pb-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-900">Authentication</p>
-              <p className="text-xs text-gray-500">User login and session management</p>
+              <p className="text-[13px] font-semibold text-slate-900">Authentication</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">User login and session management</p>
             </div>
-            <Badge variant="secondary">Coming Soon</Badge>
+            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600">
+              Coming Soon
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
