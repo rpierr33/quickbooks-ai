@@ -18,10 +18,14 @@ interface MockStore {
   categories: Record<string, any>[];
   transactions: Record<string, any>[];
   invoices: Record<string, any>[];
+  estimates: Record<string, any>[];
   insights: Record<string, any>[];
   rules: Record<string, any>[];
   recurring_transactions: Record<string, any>[];
   ai_cache: Record<string, any>[];
+  budgets: Record<string, any>[];
+  scanned_receipts: Record<string, any>[];
+  journal_entries: Record<string, any>[];
 }
 
 let mockStore: MockStore | null = null;
@@ -73,10 +77,14 @@ function mockQuery(sql: string, params?: any[]): { rows: any[] } {
     else if (sqlLower.includes('from accounts')) table = 'accounts';
     else if (sqlLower.includes('from categories')) table = 'categories';
     else if (sqlLower.includes('from invoices')) table = 'invoices';
+    else if (sqlLower.includes('from estimates')) table = 'estimates';
     else if (sqlLower.includes('from insights')) table = 'insights';
     else if (sqlLower.includes('from rules')) table = 'rules';
     else if (sqlLower.includes('from recurring_transactions')) table = 'recurring_transactions';
     else if (sqlLower.includes('from ai_cache')) table = 'ai_cache';
+    else if (sqlLower.includes('from budgets')) table = 'budgets';
+    else if (sqlLower.includes('from scanned_receipts')) table = 'scanned_receipts';
+    else if (sqlLower.includes('from journal_entries')) table = 'journal_entries';
 
     if (!table) return { rows: [] };
 
@@ -155,6 +163,26 @@ function mockQuery(sql: string, params?: any[]): { rows: any[] } {
   }
 
   return { rows: [] };
+}
+
+// Direct mock store access for API routes that bypass SQL
+export function addToStore(table: string, record: Record<string, any>): void {
+  if (pool) return; // Real DB — records are inserted via SQL
+  const store = getMockStore();
+  if (store[table as keyof MockStore]) {
+    (store[table as keyof MockStore] as any[]).push(record);
+  }
+}
+
+export function updateInStore(table: string, id: string, updates: Record<string, any>): Record<string, any> | null {
+  if (pool) return null;
+  const store = getMockStore();
+  const rows = store[table as keyof MockStore] as any[];
+  if (!rows) return null;
+  const idx = rows.findIndex(r => r.id === id);
+  if (idx === -1) return null;
+  rows[idx] = { ...rows[idx], ...updates };
+  return rows[idx];
 }
 
 export { pool };

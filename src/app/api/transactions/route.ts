@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, addToStore } from '@/lib/db';
 import { categorizeTransaction } from '@/lib/ai';
 import { applyRules } from '@/lib/rules-engine';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const search = searchParams.get('search');
@@ -38,6 +41,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const body = await request.json();
     const { date, description, amount, type, account_id, category_id, notes } = body;
 
@@ -95,6 +100,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
+    addToStore('transactions', newTransaction);
     return NextResponse.json(newTransaction, { status: 201 });
   } catch (error) {
     console.error('Transactions POST error:', error);

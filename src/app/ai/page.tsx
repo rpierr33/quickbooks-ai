@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Sparkles, User } from "lucide-react";
+import { Send, Sparkles, User, MessageSquare, ArrowRight, Database } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -32,11 +32,7 @@ export default function AIPage() {
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("/api/ai/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text }),
-      });
+      const res = await fetch("/api/ai/query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: text }) });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", content: data.answer || data.error || "I couldn't process that." }]);
     } catch {
@@ -47,79 +43,122 @@ export default function AIPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] animate-fade-in">
-      <div className="flex-1 overflow-y-auto space-y-3 pb-4">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-5 mb-5">
-              <Sparkles className="h-8 w-8 text-emerald-500" />
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'calc(100vh - 160px)', minHeight: 400 }} className="animate-fade-in">
+      {/* Chat Messages */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 16, minHeight: 0 }}>
+        {messages.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', padding: '0 16px' }}>
+            {/* Icon */}
+            <div style={{ borderRadius: 20, padding: 20, marginBottom: 24, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', boxShadow: '0 8px 24px rgba(124,58,237,0.25)' }}>
+              <Sparkles style={{ width: 32, height: 32, color: '#fff' }} />
             </div>
-            <h2 className="text-xl font-extrabold text-gray-900 mb-2">AI Financial Assistant</h2>
-            <p className="text-[13px] text-gray-700 mb-8 max-w-xs leading-relaxed">Ask anything about your finances. I analyze spending, find trends, and surface insights.</p>
-            <div className="flex flex-wrap gap-2 justify-center max-w-md">
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>AI Financial Assistant</h2>
+            <p style={{ fontSize: 14, color: '#64748B', maxWidth: 340, lineHeight: 1.6 }}>
+              Ask anything about your finances. I analyze spending, find trends, and surface insights.
+            </p>
+
+            {/* Data context badge */}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#EDE9FE', color: '#7C3AED', fontSize: 12, fontWeight: 500,
+              padding: '6px 14px', borderRadius: 99, border: '1px solid #DDD6FE', marginTop: 12,
+            }}>
+              <Database style={{ width: 14, height: 14 }} />
+              I have access to your transactions, invoices, and financial reports.
+            </div>
+
+            {/* Try Asking */}
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94A3B8', marginTop: 28, marginBottom: 12 }}>
+              Try asking
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: '100%', maxWidth: 480 }}>
               {suggestions.map(s => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200"
+                  className="group cursor-pointer"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: 14, minHeight: 56, borderRadius: 12, textAlign: 'left',
+                    background: '#FFFFFF', border: '1px solid #E2E8F0',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A78BFA'; e.currentTarget.style.background = '#FAFAFE'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
                 >
-                  {s}
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <MessageSquare style={{ width: 14, height: 14, color: '#7C3AED' }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: '#0F172A' }}>{s}</span>
+                  <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ width: 14, height: 14, color: '#7C3AED', flexShrink: 0 }} />
                 </button>
               ))}
             </div>
           </div>
-        )}
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.role === 'assistant' && (
-              <div className="shrink-0 w-7 h-7 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {messages.map((msg, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                {msg.role === 'assistant' && (
+                  <div style={{ width: 32, height: 32, borderRadius: 12, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Sparkles style={{ width: 16, height: 16, color: '#fff' }} />
+                  </div>
+                )}
+                <div style={{
+                  maxWidth: '78%', borderRadius: 16, padding: '12px 16px', fontSize: 14, lineHeight: 1.6,
+                  ...(msg.role === 'user'
+                    ? { background: '#7C3AED', color: '#FFFFFF' }
+                    : { background: '#FFFFFF', color: '#475569', border: '1px solid #E2E8F0' })
+                }}>
+                  {msg.content}
+                </div>
+                {msg.role === 'user' && (
+                  <div style={{ width: 32, height: 32, borderRadius: 12, background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <User style={{ width: 16, height: 16, color: '#fff' }} />
+                  </div>
+                )}
+              </div>
+            ))}
+            {loading && (
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 12, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Sparkles style={{ width: 16, height: 16, color: '#fff' }} />
+                </div>
+                <div style={{ borderRadius: 16, padding: '14px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '0ms' }} />
+                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '150ms' }} />
+                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '300ms' }} />
+                  </div>
+                </div>
               </div>
             )}
-            <div className={`max-w-[78%] rounded-lg px-4 py-2.5 text-[13px] leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-white text-gray-700 border border-gray-200 shadow-sm'
-            }`}>
-              {msg.content}
-            </div>
-            {msg.role === 'user' && (
-              <div className="shrink-0 w-7 h-7 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center">
-                <User className="h-3.5 w-3.5 text-gray-500" />
-              </div>
-            )}
-          </div>
-        ))}
-        {loading && (
-          <div className="flex gap-2.5">
-            <div className="shrink-0 w-7 h-7 rounded-md bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
-            </div>
-            <div className="bg-white rounded-lg px-4 py-3 border border-gray-200 shadow-sm">
-              <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
-            </div>
+            <div ref={bottomRef} />
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
-      <div className="pt-3">
-        <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} className="flex gap-2">
+      {/* Chat Input */}
+      <div style={{ paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
+        <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', gap: 12 }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Ask about your finances..."
             disabled={loading}
-            className="flex-1 h-11 rounded-md border border-gray-300 px-4 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+            style={{
+              flex: 1, height: 44, borderRadius: 10, padding: '0 16px', fontSize: 14,
+              border: '1.5px solid #CBD5E1', color: '#0F172A', background: '#FFFFFF',
+              outline: 'none', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', transition: 'all 0.15s',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)'; }}
           />
-          <Button type="submit" disabled={loading || !input.trim()} size="icon" className="h-11 w-11 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer">
-            <Send className="h-4 w-4" />
+          <Button type="submit" disabled={loading || !input.trim()} className="cursor-pointer shrink-0" style={{ width: 44, height: 44, borderRadius: 10, padding: 0 }}>
+            <Send style={{ width: 16, height: 16 }} />
           </Button>
         </form>
+        <p style={{ fontSize: 10, color: '#CBD5E1', textAlign: 'center', marginTop: 8 }}>Press Enter to send</p>
       </div>
     </div>
   );

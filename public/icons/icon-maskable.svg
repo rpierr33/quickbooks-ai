@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <!-- Full bleed background for maskable safe zone -->
+  <rect width="512" height="512" fill="#FFFFFF"/>
+  <rect x="72" y="72" width="368" height="368" rx="68" fill="url(#g)"/>
+  <!-- Ledger book spine -->
+  <rect x="158" y="142" width="28" height="228" rx="7" fill="#FFFFFF" opacity="0.95"/>
+  <!-- Ledger book pages -->
+  <rect x="186" y="142" width="168" height="228" rx="9" fill="#FFFFFF" opacity="0.95"/>
+  <!-- Ledger lines -->
+  <line x1="208" y1="196" x2="334" y2="196" stroke="#7C3AED" stroke-width="5.5" opacity="0.4"/>
+  <line x1="208" y1="232" x2="334" y2="232" stroke="#7C3AED" stroke-width="5.5" opacity="0.4"/>
+  <line x1="208" y1="268" x2="334" y2="268" stroke="#7C3AED" stroke-width="5.5" opacity="0.4"/>
+  <line x1="208" y1="304" x2="334" y2="304" stroke="#7C3AED" stroke-width="5.5" opacity="0.4"/>
+  <!-- Dollar sign -->
+  <text x="270" y="354" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="42" font-weight="700" fill="#7C3AED" opacity="0.6">$</text>
+  <!-- Checkmark on first line -->
+  <polyline points="208,196 218,208 236,182" fill="none" stroke="#7C3AED" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+</svg>

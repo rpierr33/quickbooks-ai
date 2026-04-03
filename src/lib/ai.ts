@@ -194,6 +194,107 @@ export async function generateInsights(transactionSummary: string): Promise<{ ti
   }
 }
 
+// ── Receipt / Invoice Extraction via GPT-4o Vision ──
+export interface ExtractedReceiptData {
+  vendor: string;
+  date: string;
+  amount: number;
+  tax: number;
+  tip: number;
+  subtotal: number;
+  currency: string;
+  category: string;
+  payment_method: string | null;
+  line_items: { description: string; quantity: number; unit_price: number; amount: number }[];
+  notes: string | null;
+  confidence: number;
+}
+
+export async function extractReceiptData(base64Image: string, mimeType: string): Promise<ExtractedReceiptData> {
+  if (!openai) {
+    return fallbackReceiptExtraction();
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert receipt and invoice OCR system. Extract all financial data from the image with high accuracy. Return JSON:
+{
+  "vendor": "Business name",
+  "date": "YYYY-MM-DD",
+  "amount": 0.00,
+  "tax": 0.00,
+  "tip": 0.00,
+  "subtotal": 0.00,
+  "currency": "USD",
+  "category": "one of: Rent, Utilities, Payroll, Marketing, Software & SaaS, Office Supplies, Travel, Meals & Entertainment, Insurance, Professional Services, Other",
+  "payment_method": "cash|credit|debit|null",
+  "line_items": [{"description": "...", "quantity": 1, "unit_price": 0.00, "amount": 0.00}],
+  "notes": "any extra info or null",
+  "confidence": 0.0-1.0
+}
+If a field cannot be determined, use reasonable defaults. Date should be ISO format. Amount is the final total paid.`
+        },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Extract all data from this receipt/invoice image.' },
+            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}`, detail: 'high' } }
+          ]
+        }
+      ],
+      response_format: { type: 'json_object' },
+      max_tokens: 2000,
+      temperature: 0.1,
+    });
+
+    const result = JSON.parse(completion.choices[0].message.content || '{}');
+
+    return {
+      vendor: result.vendor || 'Unknown Vendor',
+      date: result.date || new Date().toISOString().split('T')[0],
+      amount: parseFloat(result.amount) || 0,
+      tax: parseFloat(result.tax) || 0,
+      tip: parseFloat(result.tip) || 0,
+      subtotal: parseFloat(result.subtotal) || 0,
+      currency: result.currency || 'USD',
+      category: result.category || 'Other',
+      payment_method: result.payment_method || null,
+      line_items: Array.isArray(result.line_items) ? result.line_items.map((item: any) => ({
+        description: item.description || '',
+        quantity: parseFloat(item.quantity) || 1,
+        unit_price: parseFloat(item.unit_price) || 0,
+        amount: parseFloat(item.amount) || 0,
+      })) : [],
+      notes: result.notes || null,
+      confidence: parseFloat(result.confidence) || 0.7,
+    };
+  } catch (error) {
+    console.error('Receipt extraction error:', error);
+    return fallbackReceiptExtraction();
+  }
+}
+
+function fallbackReceiptExtraction(): ExtractedReceiptData {
+  return {
+    vendor: 'Unable to read — enter manually',
+    date: new Date().toISOString().split('T')[0],
+    amount: 0,
+    tax: 0,
+    tip: 0,
+    subtotal: 0,
+    currency: 'USD',
+    category: 'Other',
+    payment_method: null,
+    line_items: [],
+    notes: 'AI extraction unavailable — OPENAI_API_KEY not set',
+    confidence: 0,
+  };
+}
+
 function fallbackInsights(summary: string): { title: string; description: string; type: string; severity: string }[] {
   return [
     {

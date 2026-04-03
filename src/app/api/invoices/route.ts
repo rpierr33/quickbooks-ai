@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, addToStore } from '@/lib/db';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const result = await query('SELECT * FROM invoices ORDER BY created_at DESC');
     const rows = result.rows.map(r => ({
       ...r,
@@ -20,6 +23,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const body = await request.json();
     const { client_name, client_email, items, tax_rate, due_date, notes } = body;
 
@@ -53,6 +58,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
+    addToStore('invoices', newInvoice);
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });

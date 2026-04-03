@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     // Current period (last 30 days)
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -39,11 +42,23 @@ export async function GET() {
       .filter(a => a.type === 'asset')
       .reduce((sum, a) => sum + parseFloat(a.balance), 0);
 
-    // Recent transactions
-    const recentTx = transactions.slice(0, 5);
+    // Recent transactions — parseFloat amounts for PostgreSQL DECIMAL columns
+    const recentTx = transactions.slice(0, 5).map(t => ({
+      ...t,
+      amount: parseFloat(t.amount),
+    }));
 
     // Insights
     const insightsResult = await query('SELECT * FROM insights ORDER BY created_at DESC LIMIT 5');
+
+    // Invoice totals
+    const invoicesResult = await query('SELECT * FROM invoices');
+    const invoiceOverdue = invoicesResult.rows
+      .filter(inv => inv.status === 'overdue')
+      .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
+    const invoicePaid30d = invoicesResult.rows
+      .filter(inv => inv.status === 'paid' && inv.paid_date && new Date(inv.paid_date) >= thirtyDaysAgo)
+      .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
 
     // Monthly data (last 6 months)
     const monthlyData = [];
@@ -78,6 +93,8 @@ export async function GET() {
       recent_transactions: recentTx,
       insights: insightsResult.rows,
       monthly_data: monthlyData,
+      invoice_overdue: parseFloat(invoiceOverdue.toFixed(2)),
+      invoice_paid_30d: parseFloat(invoicePaid30d.toFixed(2)),
     });
   } catch (error) {
     console.error('Dashboard error:', error);

@@ -1,0 +1,282 @@
+"use client";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { formatCurrency } from "@/lib/utils";
+import { Plus, Search, Users, Building2, Mail, Phone, MapPin, FileText, DollarSign, AlertCircle } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+import type { Client } from "@/types";
+
+const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
+
+export default function ClientsPage() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [showCreate, setShowCreate] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', address: '', tax_id: '', type: 'client' as string, notes: '' });
+
+  const { data: clients = [], isLoading } = useQuery<Client[]>({
+    queryKey: ["clients"],
+    queryFn: () => fetch("/api/clients").then(r => r.json()),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: typeof form) => fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); resetForm(); toast("Contact created successfully"); },
+    onError: () => { toast("Failed to create contact", "error"); },
+  });
+
+  const resetForm = () => {
+    setShowCreate(false);
+    setForm({ name: '', email: '', phone: '', company: '', address: '', tax_id: '', type: 'client', notes: '' });
+  };
+
+  const filtered = clients.filter(c => {
+    const matchesSearch = !search || c.name.toLowerCase().includes(search.toLowerCase()) || (c.email && c.email.toLowerCase().includes(search.toLowerCase())) || (c.company && c.company.toLowerCase().includes(search.toLowerCase()));
+    const matchesType = typeFilter === 'all' || c.type === typeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  const totalOutstanding = clients.reduce((s, c) => s + c.outstanding_balance, 0);
+  const totalInvoiced = clients.reduce((s, c) => s + c.total_invoiced, 0);
+  const activeClients = clients.filter(c => c.is_active).length;
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }} className="animate-fade-in">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-2xl animate-shimmer" />)}
+        </div>
+        <div className="h-96 rounded-2xl animate-shimmer" />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
+        <div style={{ ...card, borderLeft: '4px solid #7C3AED', padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Users style={{ width: 16, height: 16, color: '#7C3AED' }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Active Contacts</span>
+          </div>
+          <p style={{ fontSize: 28, fontWeight: 800, color: '#0F172A' }}>{activeClients}</p>
+        </div>
+        <div style={{ ...card, borderLeft: '4px solid #059669', padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <DollarSign style={{ width: 16, height: 16, color: '#059669' }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Total Invoiced</span>
+          </div>
+          <p style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{formatCurrency(totalInvoiced)}</p>
+        </div>
+        <div style={{ ...card, borderLeft: '4px solid #F59E0B', padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AlertCircle style={{ width: 16, height: 16, color: '#F59E0B' }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Outstanding</span>
+          </div>
+          <p style={{ fontSize: 28, fontWeight: 800, color: '#F59E0B' }}>{formatCurrency(totalOutstanding)}</p>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between" style={{ gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, maxWidth: 400 }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8' }} />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search contacts..." style={{ paddingLeft: 38 }} />
+          </div>
+          <Select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ width: 140 }}>
+            <option value="all">All Types</option>
+            <option value="client">Clients</option>
+            <option value="vendor">Vendors</option>
+            <option value="both">Both</option>
+          </Select>
+        </div>
+        <Button onClick={() => setShowCreate(true)} className="cursor-pointer">
+          <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Contact
+        </Button>
+      </div>
+
+      {/* Contacts List */}
+      {filtered.length === 0 ? (
+        <div style={{ ...card, padding: 48, textAlign: 'center' }}>
+          <Users style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
+          <p style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>No contacts found</p>
+          <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>Add clients and vendors to track invoices, payments, and balances.</p>
+          <Button onClick={() => setShowCreate(true)} size="sm" className="cursor-pointer"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Add Contact</Button>
+        </div>
+      ) : (
+        <div style={{ ...card }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Contact</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden sm:table-cell">Type</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Invoiced</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Paid</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Outstanding</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((client, i) => (
+                <tr
+                  key={client.id}
+                  onClick={() => setSelectedClient(client)}
+                  className="cursor-pointer"
+                  style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', transition: 'background 0.1s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFBFC'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <td style={{ padding: '14px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <div>
+                        <p style={{ fontWeight: 600, color: '#0F172A' }}>{client.name}</p>
+                        {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{client.email}</p>}
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '14px 16px' }} className="hidden sm:table-cell">
+                    <span style={{
+                      fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
+                      background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE',
+                      color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED',
+                      textTransform: 'capitalize',
+                    }}>
+                      {client.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#0F172A' }} className="hidden md:table-cell">{formatCurrency(client.total_invoiced)}</td>
+                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#059669' }} className="hidden md:table-cell">{formatCurrency(client.total_paid)}</td>
+                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Detail Dialog */}
+      {selectedClient && (
+        <Dialog open={!!selectedClient} onClose={() => setSelectedClient(null)}>
+          <DialogHeader>
+            <DialogTitle>{selectedClient.name}</DialogTitle>
+          </DialogHeader>
+          <DialogContent>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
+                <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Invoiced</p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_invoiced)}</p>
+                </div>
+                <div style={{ background: '#F0FDF4', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Paid</p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: '#059669', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_paid)}</p>
+                </div>
+                <div style={{ background: selectedClient.outstanding_balance > 0 ? '#FEF2F2' : '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Outstanding</p>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: selectedClient.outstanding_balance > 0 ? '#EF4444' : '#94A3B8', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.outstanding_balance)}</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {selectedClient.email && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Mail style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.email}</span>
+                  </div>
+                )}
+                {selectedClient.phone && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Phone style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.phone}</span>
+                  </div>
+                )}
+                {selectedClient.company && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Building2 style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.company}</span>
+                  </div>
+                )}
+                {selectedClient.address && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <MapPin style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedClient(null)} className="w-full cursor-pointer">Close</Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+
+      {/* Create Dialog */}
+      <Dialog open={showCreate} onClose={resetForm}>
+        <DialogHeader>
+          <DialogTitle>New Contact</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Name *</label>
+              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Contact name" />
+            </div>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
+                <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@example.com" />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Phone</label>
+                <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(555) 123-4567" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Company</label>
+                <Input value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} placeholder="Company name" />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Type</label>
+                <Select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+                  <option value="client">Client</option>
+                  <option value="vendor">Vendor</option>
+                  <option value="both">Both</option>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Address</label>
+              <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Full address" />
+            </div>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax ID / EIN</label>
+              <Input value={form.tax_id} onChange={e => setForm({ ...form, tax_id: e.target.value })} placeholder="XX-XXXXXXX" />
+            </div>
+          </div>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={resetForm} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button onClick={() => createMutation.mutate(form)} disabled={!form.name} className="flex-1 w-full cursor-pointer">Create Contact</Button>
+        </DialogFooter>
+      </Dialog>
+    </div>
+  );
+}

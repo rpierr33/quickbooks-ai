@@ -1,119 +1,285 @@
 "use client";
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Building2, CreditCard, Shield } from "lucide-react";
+import { Building2, CreditCard, Shield, Bell, Database, Receipt, Users, Plus, Trash2, Mail } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+
+const card: React.CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid #E2E8F0',
+  borderRadius: 16,
+  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  overflow: 'hidden',
+};
+
+const sectionHeader = (icon: React.ReactNode, iconBg: string, title: string, desc: string) => (
+  <div style={{ padding: '20px 24px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ width: 36, height: 36, borderRadius: 8, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      {icon}
+    </div>
+    <div>
+      <h3 style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{title}</h3>
+      <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{desc}</p>
+    </div>
+  </div>
+);
+
+const settingRow = (title: string, desc: string, right: React.ReactNode, border = true) => (
+  <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: border ? '1px solid #F1F5F9' : 'none' }}>
+    <div style={{ minWidth: 0, flex: 1, marginRight: 16 }}>
+      <p style={{ fontSize: 14, fontWeight: 500, color: '#0F172A' }}>{title}</p>
+      <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{desc}</p>
+    </div>
+    {right}
+  </div>
+);
+
+const badge = (text: string, variant: 'coming' | 'available' | 'active') => {
+  const styles = {
+    coming: { background: '#F1F5F9', color: '#64748B' },
+    available: { background: '#ECFDF5', color: '#059669' },
+    active: { background: '#EDE9FE', color: '#7C3AED' },
+  };
+  return <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 99, flexShrink: 0, ...styles[variant] }}>{text}</span>;
+};
+
+interface TeamMember {
+  name: string;
+  email: string;
+  role: string;
+}
 
 export default function SettingsPage() {
+  const { toast } = useToast();
+  const [taxEnabled, setTaxEnabled] = useState(true);
+  const [defaultTaxRate, setDefaultTaxRate] = useState("8.875");
+  const [taxName, setTaxName] = useState("Sales Tax");
+  const [team, setTeam] = useState<TeamMember[]>([
+    { name: 'John Doe', email: 'john@mybusiness.com', role: 'admin' },
+    { name: 'Sarah Chen', email: 'sarah@mybusiness.com', role: 'accountant' },
+    { name: 'Mike Wilson', email: 'mike@mybusiness.com', role: 'viewer' },
+  ]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('viewer');
+
+  const addTeamMember = () => {
+    if (!inviteEmail.trim()) return;
+    setTeam([...team, { name: inviteEmail.split('@')[0], email: inviteEmail, role: inviteRole }]);
+    setInviteEmail('');
+    setInviteRole('viewer');
+    toast("Teammate added");
+  };
+
+  const removeTeamMember = (idx: number) => {
+    if (team[idx].role === 'admin' && team.filter(m => m.role === 'admin').length <= 1) return;
+    setTeam(team.filter((_, i) => i !== idx));
+  };
+
+  const roleColors: Record<string, { bg: string; color: string }> = {
+    admin: { bg: '#FEF2F2', color: '#DC2626' },
+    accountant: { bg: '#EDE9FE', color: '#7C3AED' },
+    viewer: { bg: '#F1F5F9', color: '#64748B' },
+  };
+
   return (
-    <div className="max-w-xl space-y-5 animate-fade-in">
-      {/* Company Info */}
-      <div className="rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-5 pb-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-              <Building2 className="h-5 w-5 text-gray-500" />
+    <div className="animate-fade-in" style={{ maxWidth: 720, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Company Info */}
+        <div style={card}>
+          {sectionHeader(<Building2 style={{ width: 18, height: 18, color: '#7C3AED' }} />, '#EDE9FE', 'Company Information', 'Basic details about your business')}
+          <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Company Name</label>
+              <Input defaultValue="My Business" />
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-gray-900">Company Info</h3>
-              <p className="text-[11px] text-gray-400">Basic information about your business</p>
+              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
+              <Input type="email" defaultValue="admin@mybusiness.com" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
+                <Select defaultValue="USD">
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="CAD">CAD — Canadian Dollar</option>
+                </Select>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Fiscal Year Start</label>
+                <Select defaultValue="jan">
+                  <option value="jan">January</option>
+                  <option value="apr">April</option>
+                  <option value="jul">July</option>
+                  <option value="oct">October</option>
+                </Select>
+              </div>
+            </div>
+            <div style={{ paddingTop: 4 }}>
+              <Button onClick={() => toast("Company settings saved")} className="cursor-pointer" style={{ padding: '0 20px' }}>Save Changes</Button>
             </div>
           </div>
         </div>
-        <div className="px-5 pb-5 space-y-4">
-          <div>
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Company Name</label>
-            <Input
-              defaultValue="My Business"
-              className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Email</label>
-            <Input
-              type="email"
-              defaultValue="admin@mybusiness.com"
-              className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Currency</label>
-            <Select
-              defaultValue="USD"
-              className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-            >
-              <option value="USD">USD — US Dollar</option>
-              <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — British Pound</option>
-              <option value="CAD">CAD — Canadian Dollar</option>
-            </Select>
-          </div>
-          <Button className="cursor-pointer rounded-md h-11 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-semibold px-6">
-            Save Changes
-          </Button>
-        </div>
-      </div>
 
-      {/* Connected Accounts */}
-      <div className="rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-5 pb-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-              <CreditCard className="h-5 w-5 text-gray-500" />
+        {/* Sales Tax */}
+        <div style={card}>
+          {sectionHeader(<Receipt style={{ width: 18, height: 18, color: '#059669' }} />, '#ECFDF5', 'Sales Tax', 'Configure tax rates for invoices and transactions')}
+          <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#0F172A' }}>Enable Sales Tax</p>
+                <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>Automatically apply tax to new invoices</p>
+              </div>
+              <button
+                onClick={() => setTaxEnabled(!taxEnabled)}
+                className="cursor-pointer"
+                style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none',
+                  background: taxEnabled ? '#7C3AED' : '#E2E8F0',
+                  position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                }}
+              >
+                <span style={{
+                  position: 'absolute', top: 2, left: taxEnabled ? 22 : 2,
+                  width: 20, height: 20, borderRadius: 10, background: '#FFFFFF',
+                  transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                }} />
+              </button>
             </div>
-            <div>
-              <h3 className="text-[13px] font-semibold text-gray-900">Connected Accounts</h3>
-              <p className="text-[11px] text-gray-400">Link your bank accounts for automatic import</p>
-            </div>
+            {taxEnabled && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax Name</label>
+                    <Input value={taxName} onChange={e => setTaxName(e.target.value)} placeholder="Sales Tax" />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Default Rate (%)</label>
+                    <Input type="number" step="0.001" value={defaultTaxRate} onChange={e => setDefaultTaxRate(e.target.value)} />
+                  </div>
+                </div>
+                <div style={{ padding: 12, borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                  <p style={{ fontSize: 12, color: '#64748B' }}>
+                    Tax will be calculated at <strong style={{ color: '#0F172A' }}>{defaultTaxRate}%</strong> ({taxName}) on all new invoices. You can override the rate per invoice.
+                  </p>
+                </div>
+                <div style={{ paddingTop: 4 }}>
+                  <Button onClick={() => toast("Tax settings saved")} className="cursor-pointer" style={{ padding: '0 20px' }}>Save Tax Settings</Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
-        <div className="px-5 pb-5">
-          <div className="flex items-center justify-between py-4 border-b border-gray-200">
-            <div>
-              <p className="text-[13px] font-semibold text-gray-900">Bank Connection</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">Connect via Plaid for automatic transaction import</p>
-            </div>
-            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
-              Coming Soon
-            </span>
-          </div>
-          <div className="flex items-center justify-between py-4">
-            <div>
-              <p className="text-[13px] font-semibold text-gray-900">CSV Import</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">Upload bank statements manually</p>
-            </div>
-            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600">
-              Available
-            </span>
-          </div>
-        </div>
-      </div>
 
-      {/* Security */}
-      <div className="rounded-lg bg-white border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-5 pb-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-              <Shield className="h-5 w-5 text-gray-500" />
+        {/* Team & Roles */}
+        <div style={card}>
+          {sectionHeader(<Users style={{ width: 18, height: 18, color: '#2563EB' }} />, '#EFF6FF', 'Team & Roles', 'Manage who has access to your account')}
+          <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Current team */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {team.map((member, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                  padding: '12px 0', borderBottom: i < team.length - 1 ? '1px solid #F1F5F9' : 'none',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                    <div style={{
+                      width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+                      background: 'linear-gradient(135deg, #7C3AED, #9333EA)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>
+                        {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </span>
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A' }}>{member.name}</p>
+                      <p style={{ fontSize: 11, color: '#94A3B8' }}>{member.email}</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, textTransform: 'capitalize',
+                      ...roleColors[member.role] || roleColors.viewer,
+                    }}>
+                      {member.role}
+                    </span>
+                    {member.role !== 'admin' && (
+                      <button onClick={() => removeTeamMember(i)} className="cursor-pointer" style={{ color: '#94A3B8', background: 'transparent', border: 'none', padding: 4 }}>
+                        <Trash2 style={{ width: 14, height: 14 }} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <h3 className="text-[13px] font-semibold text-gray-900">Security</h3>
-              <p className="text-[11px] text-gray-400">Authentication and access control</p>
+
+            {/* Invite new member */}
+            <div style={{ padding: 16, borderRadius: 10, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 10 }}>Invite Team Member</p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <Input
+                    type="email"
+                    placeholder="colleague@company.com"
+                    value={inviteEmail}
+                    onChange={e => setInviteEmail(e.target.value)}
+                  />
+                </div>
+                <Select value={inviteRole} onChange={e => setInviteRole(e.target.value)} className="w-32">
+                  <option value="viewer">Viewer</option>
+                  <option value="accountant">Accountant</option>
+                  <option value="admin">Admin</option>
+                </Select>
+                <Button onClick={addTeamMember} className="cursor-pointer shrink-0" size="sm">
+                  <Mail style={{ width: 14, height: 14, marginRight: 6 }} /> Invite
+                </Button>
+              </div>
+            </div>
+
+            <div style={{ padding: 12, borderRadius: 8, background: '#FFFBEB', border: '1px solid #FDE68A' }}>
+              <p style={{ fontSize: 12, color: '#92400E' }}>
+                <strong>Role permissions:</strong> Admin — full access. Accountant — manage transactions, invoices, reports. Viewer — read-only access to dashboards and reports.
+              </p>
             </div>
           </div>
         </div>
-        <div className="px-5 pb-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[13px] font-semibold text-gray-900">Authentication</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">User login and session management</p>
-            </div>
-            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
-              Coming Soon
-            </span>
+
+        {/* Connected Accounts */}
+        <div style={card}>
+          {sectionHeader(<CreditCard style={{ width: 18, height: 18, color: '#8B5CF6' }} />, '#F5F3FF', 'Connected Accounts', 'Link your bank accounts for automatic import')}
+          <div>
+            {settingRow('Bank Connection', 'Connect via Plaid for automatic transaction import', badge('Coming Soon', 'coming'))}
+            {settingRow('CSV Import', 'Upload bank statements manually', badge('Available', 'available'), false)}
+          </div>
+        </div>
+
+        {/* Notifications */}
+        <div style={card}>
+          {sectionHeader(<Bell style={{ width: 18, height: 18, color: '#D97706' }} />, '#FEF3C7', 'Notifications', 'Configure how and when you receive alerts')}
+          <div>
+            {settingRow('Invoice Reminders', 'Automatically email clients when invoices are overdue', badge('Coming Soon', 'coming'))}
+            {settingRow('Spending Alerts', 'AI-powered alerts for unusual spending patterns', badge('Coming Soon', 'coming'), false)}
+          </div>
+        </div>
+
+        {/* Data & Export */}
+        <div style={card}>
+          {sectionHeader(<Database style={{ width: 18, height: 18, color: '#059669' }} />, '#ECFDF5', 'Data & Export', 'Export your data or manage backups')}
+          {settingRow('Export All Data', 'Download all transactions, invoices, and reports as CSV',
+            <Button variant="outline" size="sm" className="cursor-pointer shrink-0">Export CSV</Button>, false
+          )}
+        </div>
+
+        {/* Security */}
+        <div style={card}>
+          {sectionHeader(<Shield style={{ width: 18, height: 18, color: '#F59E0B' }} />, '#FFFBEB', 'Security', 'Authentication and access control')}
+          <div>
+            {settingRow('Two-Factor Authentication', 'Add an extra layer of security to your account', badge('Coming Soon', 'coming'))}
+            {settingRow('Session Management', 'View and manage active sessions', badge('Coming Soon', 'coming'), false)}
           </div>
         </div>
       </div>

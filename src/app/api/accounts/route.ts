@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, addToStore } from '@/lib/db';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const result = await query('SELECT * FROM accounts ORDER BY name');
     const rows = result.rows.map(r => ({
       ...r,
@@ -16,6 +19,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const body = await request.json();
     const { name, type, sub_type } = body;
 
@@ -35,6 +40,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
+    addToStore('accounts', newAccount);
     return NextResponse.json(newAccount, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });

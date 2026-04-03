@@ -1,41 +1,38 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Plus, FileText, Trash2 } from "lucide-react";
+import { Plus, FileText, Trash2, Mail, CheckCircle2, Download, CreditCard, Send } from "lucide-react";
+import { exportInvoices } from "@/lib/export";
+import { downloadInvoicePDF } from "@/lib/invoice-pdf";
+import { useToast } from "@/components/ui/toast";
 import type { Invoice, InvoiceItem } from "@/types";
 
-const statusVariant: Record<string, "success" | "warning" | "destructive" | "secondary"> = {
-  draft: "secondary",
-  sent: "default" as "secondary",
-  paid: "success",
-  overdue: "destructive",
+const statusConfig: Record<string, { bg: string; color: string; border: string; borderLeft: string }> = {
+  draft: { bg: '#F8FAFC', color: '#475569', border: '#E2E8F0', borderLeft: '#94A3B8' },
+  sent: { bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE', borderLeft: '#F59E0B' },
+  paid: { bg: '#ECFDF5', color: '#059669', border: '#A7F3D0', borderLeft: '#059669' },
+  overdue: { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA', borderLeft: '#EF4444' },
 };
 
-const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  sent: "bg-blue-50 text-blue-600",
-  paid: "bg-emerald-50 text-emerald-600",
-  overdue: "bg-red-50 text-red-600",
+const card: React.CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid #E2E8F0',
+  borderRadius: 16,
+  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
 };
 
 export default function InvoicesPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [showCreate, setShowCreate] = useState(false);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    client_name: "",
-    client_email: "",
-    due_date: "",
-    tax_rate: "0",
-    notes: "",
+    client_name: "", client_email: "", due_date: "", tax_rate: "0", notes: "",
     items: [{ description: "", quantity: 1, rate: 0, amount: 0 }] as InvoiceItem[],
   });
 
@@ -46,24 +43,21 @@ export default function InvoicesPage() {
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) =>
-      fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, tax_rate: parseFloat(data.tax_rate) }),
-      }).then(r => r.json()),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      setShowCreate(false);
-      resetForm();
-    },
+      fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, tax_rate: parseFloat(data.tax_rate) }) }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["invoices"] }); setShowCreate(false); resetForm(); toast("Invoice created successfully"); },
+    onError: () => { toast("Failed to create invoice", "error"); },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      fetch(`/api/invoices/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["invoices"] }); queryClient.invalidateQueries({ queryKey: ["dashboard"] }); toast("Invoice status updated"); },
+    onError: () => { toast("Failed to update invoice", "error"); },
   });
 
   const resetForm = () => {
     setStep(1);
-    setForm({
-      client_name: "", client_email: "", due_date: "", tax_rate: "0", notes: "",
-      items: [{ description: "", quantity: 1, rate: 0, amount: 0 }],
-    });
+    setForm({ client_name: "", client_email: "", due_date: "", tax_rate: "0", notes: "", items: [{ description: "", quantity: 1, rate: 0, amount: 0 }] });
   };
 
   const updateItem = (index: number, field: keyof InvoiceItem, value: string | number) => {
@@ -80,194 +74,183 @@ export default function InvoicesPage() {
   const taxAmount = subtotal * (parseFloat(form.tax_rate) / 100);
   const total = subtotal + taxAmount;
 
+  const stats = useMemo(() => {
+    if (!invoices) return { overdue: 0, paid: 0, outstanding: 0 };
+    const parseTotal = (i: Invoice) => typeof i.total === 'string' ? parseFloat(i.total) : i.total;
+    return {
+      overdue: invoices.filter(i => i.status === 'overdue').reduce((s, i) => s + parseTotal(i), 0),
+      paid: invoices.filter(i => i.status === 'paid').reduce((s, i) => s + parseTotal(i), 0),
+      outstanding: invoices.filter(i => i.status === 'sent' || i.status === 'draft').reduce((s, i) => s + parseTotal(i), 0),
+    };
+  }, [invoices]);
+
   return (
-    <div className="space-y-3 md:space-y-4 animate-fade-in">
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="h-11 px-5 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
-        >
-          <Plus className="h-4 w-4" /> Create Invoice
-        </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <p style={{ fontSize: 14, color: '#64748B' }}>{invoices?.length || 0} total invoices</p>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {invoices && invoices.length > 0 && (
+            <button
+              onClick={() => exportInvoices(invoices)}
+              className="cursor-pointer"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#475569' }}
+            >
+              <Download style={{ width: 14, height: 14 }} /> Export
+            </button>
+          )}
+          <Button onClick={() => setShowCreate(true)} className="cursor-pointer shrink-0 whitespace-nowrap">
+            <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Create Invoice
+          </Button>
+        </div>
       </div>
 
+      {/* Summary Stats */}
+      {invoices && invoices.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
+          <div style={{ ...card, borderLeft: '4px solid #EF4444', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#EF4444' }}>Overdue</p>
+            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#DC2626', marginTop: 4 }}>{formatCurrency(stats.overdue)}</p>
+          </div>
+          <div style={{ ...card, borderLeft: '4px solid #F59E0B', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#D97706' }}>Outstanding</p>
+            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A', marginTop: 4 }}>{formatCurrency(stats.outstanding)}</p>
+          </div>
+          <div style={{ ...card, borderLeft: '4px solid #059669', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#059669' }}>Paid</p>
+            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#059669', marginTop: 4 }}>{formatCurrency(stats.paid)}</p>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
-        <div className="space-y-3">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
+          {[...Array(3)].map((_, i) => <div key={i} className="h-44 rounded-2xl animate-shimmer" />)}
         </div>
       ) : !invoices || invoices.length === 0 ? (
-        <EmptyState
-          icon={FileText}
-          title="No invoices yet"
-          description="Create your first invoice to start billing."
-          action={
-            <Button size="sm" onClick={() => setShowCreate(true)} className="cursor-pointer rounded-md bg-emerald-500 hover:bg-emerald-600 text-white">
-              <Plus className="h-4 w-4 mr-1" /> Create
-            </Button>
-          }
-        />
+        <EmptyState icon={FileText} title="No invoices yet" description="Create your first invoice to start billing."
+          action={<Button size="sm" onClick={() => setShowCreate(true)} className="cursor-pointer"><Plus style={{ width: 16, height: 16, marginRight: 4 }} /> Create</Button>} />
       ) : (
-        <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-          {invoices.map((inv) => (
-            <div
-              key={inv.id}
-              className="rounded-lg bg-white border border-gray-200 shadow-sm p-4 md:p-5 cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <p className="text-[11px] font-mono text-gray-400 tracking-wide">{inv.invoice_number}</p>
-                  <p className="font-semibold text-gray-900 text-[13px] mt-0.5">{inv.client_name}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
+          {invoices.map((inv) => {
+            const sc = statusConfig[inv.status] || statusConfig.draft;
+            const isOverdue = inv.status === 'overdue';
+            const isPaid = inv.status === 'paid';
+            return (
+              <div key={inv.id} className="group" style={{ ...card, borderLeft: `4px solid ${sc.borderLeft}`, overflow: 'hidden' }}>
+                <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: '#94A3B8' }}>{inv.invoice_number}</p>
+                      <p style={{ fontSize: 14, fontWeight: 500, color: '#64748B', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.client_name}</p>
+                    </div>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, textTransform: 'capitalize', flexShrink: 0, marginLeft: 8,
+                      background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`,
+                    }}>
+                      {inv.status}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 26, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A', marginTop: 8 }}>{formatCurrency(inv.total)}</p>
+                  {inv.due_date && (
+                    <p style={{
+                      fontSize: 13, marginTop: 4,
+                      color: isOverdue ? '#DC2626' : isPaid ? '#94A3B8' : '#64748B',
+                      fontWeight: isOverdue ? 600 : 400,
+                      textDecoration: isPaid ? 'line-through' : 'none',
+                    }}>
+                      Due {formatDate(inv.due_date)}
+                    </p>
+                  )}
                 </div>
-                <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${statusColors[inv.status] || 'bg-gray-100 text-gray-600'}`}>
-                  {inv.status}
-                </span>
+                {/* Quick Actions on hover */}
+                <div
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', flexWrap: 'wrap' }}
+                >
+                  {isOverdue && inv.client_email && (
+                    <a
+                      href={`mailto:${inv.client_email}?subject=Payment Reminder: ${inv.invoice_number}&body=Hi ${inv.client_name},%0A%0AThis is a friendly reminder that invoice ${inv.invoice_number} for ${formatCurrency(inv.total)} was due on ${inv.due_date ? formatDate(inv.due_date) : 'N/A'}.%0A%0APlease let us know if you have any questions.%0A%0AThank you!`}
+                      className="cursor-pointer"
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: 'none', textDecoration: 'none' }}
+                    >
+                      <Send style={{ width: 12, height: 12 }} /> Send Reminder
+                    </a>
+                  )}
+                  {isOverdue && !inv.client_email && (
+                    <button className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: 'none' }}>
+                      <Mail style={{ width: 12, height: 12 }} /> Remind
+                    </button>
+                  )}
+                  {!isPaid && (
+                    <button onClick={() => window.open(`/pay/${inv.id}`, '_blank')} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#7C3AED', background: '#EDE9FE', border: 'none' }}>
+                      <CreditCard style={{ width: 12, height: 12 }} /> Pay Link
+                    </button>
+                  )}
+                  {!isPaid && (
+                    <button onClick={() => updateStatusMutation.mutate({ id: inv.id, status: 'paid' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#059669', background: '#ECFDF5', border: 'none' }}>
+                      <CheckCircle2 style={{ width: 12, height: 12 }} /> Mark Paid
+                    </button>
+                  )}
+                  <button onClick={() => downloadInvoicePDF(inv)} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}>
+                    <Download style={{ width: 12, height: 12 }} /> PDF
+                  </button>
+                </div>
               </div>
-              <div className="flex items-end justify-between mt-3">
-                <p className="text-xl tabular-nums font-extrabold text-gray-900">{formatCurrency(inv.total)}</p>
-                {inv.due_date && <p className="text-[11px] text-gray-400">Due {formatDate(inv.due_date)}</p>}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* Create Invoice Dialog */}
       <Dialog open={showCreate} onClose={() => { setShowCreate(false); resetForm(); }}>
         <DialogHeader>
-          <DialogTitle className="text-gray-900">{step === 1 ? "Client Info" : step === 2 ? "Line Items" : "Review"}</DialogTitle>
-          <div className="flex gap-1.5 mt-3">
-            {[1, 2, 3].map(s => (
-              <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${step >= s ? 'bg-emerald-500' : 'bg-gray-200'}`} />
-            ))}
+          <DialogTitle>{step === 1 ? "Client Information" : step === 2 ? "Line Items" : "Review & Create"}</DialogTitle>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            {[1, 2, 3].map(s => <div key={s} style={{ height: 4, flex: 1, borderRadius: 99, background: step >= s ? '#7C3AED' : '#E2E8F0' }} />)}
           </div>
         </DialogHeader>
         <DialogContent>
           {step === 1 && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Client Name</label>
-                <Input
-                  value={form.client_name}
-                  onChange={e => setForm({ ...form, client_name: e.target.value })}
-                  placeholder="Acme Corp"
-                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Email</label>
-                <Input
-                  type="email"
-                  value={form.client_email}
-                  onChange={e => setForm({ ...form, client_email: e.target.value })}
-                  placeholder="billing@acme.com"
-                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Due Date</label>
-                <Input
-                  type="date"
-                  value={form.due_date}
-                  onChange={e => setForm({ ...form, due_date: e.target.value })}
-                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Client Name</label><Input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} placeholder="Acme Corp" /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label><Input type="email" value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })} placeholder="billing@acme.com" /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Due Date</label><Input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} /></div>
             </div>
           )}
           {step === 2 && (
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {form.items.map((item, i) => (
-                <div key={i} className="rounded-lg border border-gray-200 bg-white p-3.5 space-y-2.5">
-                  <Input
-                    value={item.description}
-                    onChange={e => updateItem(i, 'description', e.target.value)}
-                    placeholder="Description"
-                    className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                  <div className="flex gap-2 items-center">
-                    <div className="flex-1">
-                      <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Qty</label>
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 0)}
-                        className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Rate</label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={item.rate}
-                        onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)}
-                        className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                      />
-                    </div>
-                    <div className="flex flex-col items-center pt-4">
-                      <button onClick={() => removeItem(i)} className="p-1.5 text-gray-400 hover:text-red-500 cursor-pointer transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                <div key={i} style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                  <Input value={item.description} onChange={e => updateItem(i, 'description', e.target.value)} placeholder="Item description" />
+                  <div className="flex gap-3 items-end">
+                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Qty</label><Input type="number" value={item.quantity} onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 0)} /></div>
+                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Rate</label><Input type="number" step="0.01" value={item.rate} onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)} /></div>
+                    <button onClick={() => removeItem(i)} className="cursor-pointer" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: '#94A3B8', background: 'transparent', border: 'none' }} aria-label="Remove"><Trash2 style={{ width: 16, height: 16 }} /></button>
                   </div>
-                  {item.amount > 0 && (
-                    <p className="text-right text-[11px] font-extrabold text-gray-900 tabular-nums">{formatCurrency(item.amount)}</p>
-                  )}
+                  {item.amount > 0 && <p style={{ textAlign: 'right', fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(item.amount)}</p>}
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={addItem} className="w-full cursor-pointer rounded-md h-10 border-dashed border-gray-300 text-[13px] text-gray-700">
-                <Plus className="h-3 w-3 mr-1" /> Add Line
-              </Button>
+              <Button variant="outline" size="sm" onClick={addItem} className="w-full cursor-pointer border-dashed"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Add Line Item</Button>
             </div>
           )}
           {step === 3 && (
-            <div className="space-y-4">
-              <div className="rounded-lg bg-gray-50 p-4 space-y-2.5 border border-gray-200">
-                <div className="flex justify-between text-[13px]">
-                  <span className="text-gray-500">Client</span>
-                  <span className="font-semibold text-gray-900">{form.client_name}</span>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Client</span><span style={{ fontWeight: 600, color: '#0F172A' }}>{form.client_name}</span></div>
                 {form.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-[13px] text-gray-700">
-                    <span className="truncate mr-2">{item.description} x{item.quantity}</span>
-                    <span className="shrink-0 tabular-nums font-extrabold text-gray-900">{formatCurrency(item.amount)}</span>
-                  </div>
+                  <div key={i} className="flex justify-between text-sm" style={{ color: '#475569' }}><span className="truncate mr-3">{item.description} &times;{item.quantity}</span><span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(item.amount)}</span></div>
                 ))}
-                <div className="border-t border-gray-200 pt-2.5 mt-2.5">
-                  <div className="flex justify-between text-[13px]">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span className="tabular-nums font-extrabold text-gray-900">{formatCurrency(subtotal)}</span>
-                  </div>
-                </div>
+                <div style={{ paddingTop: 12, marginTop: 12, borderTop: '1px solid #E2E8F0' }}><div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(subtotal)}</span></div></div>
               </div>
-              <div>
-                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Tax Rate (%)</label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.tax_rate}
-                  onChange={e => setForm({ ...form, tax_rate: e.target.value })}
-                  className="h-11 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-              </div>
-              <div className="flex justify-between font-extrabold text-xl pt-2 text-gray-900">
-                <span>Total</span>
-                <span className="tabular-nums">{formatCurrency(total)}</span>
-              </div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax Rate (%)</label><Input type="number" step="0.01" value={form.tax_rate} onChange={e => setForm({ ...form, tax_rate: e.target.value })} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 20, paddingTop: 8, color: '#0F172A' }}><span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(total)}</span></div>
             </div>
           )}
         </DialogContent>
-        <DialogFooter className="flex gap-2">
-          {step > 1 && (
-            <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1 w-full cursor-pointer rounded-md h-11 border border-gray-300">
-              Back
-            </Button>
-          )}
-          <Button
-            onClick={() => { if (step < 3) { setStep(step + 1); return; } createMutation.mutate(form); }}
-            disabled={createMutation.isPending}
-            className="flex-1 w-full cursor-pointer rounded-md h-11 bg-emerald-500 hover:bg-emerald-600 text-white"
-          >
+        <DialogFooter className="flex gap-3">
+          {step > 1 && <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1 w-full cursor-pointer">Back</Button>}
+          <Button onClick={() => { if (step < 3) { setStep(step + 1); return; } createMutation.mutate(form); }} disabled={createMutation.isPending} className="flex-1 w-full cursor-pointer">
             {step < 3 ? "Next" : createMutation.isPending ? "Creating..." : "Create Invoice"}
           </Button>
         </DialogFooter>

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { processNLPQuery } from '@/lib/ai';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function POST(request: NextRequest) {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const { question } = await request.json();
 
     if (!question) {

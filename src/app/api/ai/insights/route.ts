@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { generateInsights } from '@/lib/ai';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     // Get existing insights from DB
     const existing = await query('SELECT * FROM insights ORDER BY created_at DESC LIMIT 10');
 

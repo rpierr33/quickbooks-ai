@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Ledgr User Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #0F172A;
+    background: #fff;
+    line-height: 1.7;
+    font-size: 11pt;
+  }
+
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7C3AED, #9333EA);
+    color: #fff;
+    text-align: center;
+    page-break-after: always;
+  }
+  .cover-logo {
+    width: 80px; height: 80px; border-radius: 20px;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; margin-bottom: 32px;
+    backdrop-filter: blur(8px);
+  }
+  .cover h1 { font-size: 42pt; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .cover h2 { font-size: 16pt; font-weight: 400; opacity: 0.85; margin-bottom: 48px; }
+  .cover .version { font-size: 10pt; opacity: 0.6; }
+
+  .page { padding: 48px 56px; max-width: 800px; margin: 0 auto; }
+  .page-break { page-break-before: always; }
+
+  h1 { font-size: 22pt; font-weight: 800; color: #7C3AED; margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 16pt; font-weight: 700; color: #0F172A; margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #EDE9FE; }
+  h3 { font-size: 12pt; font-weight: 700; color: #1E293B; margin: 24px 0 8px; }
+  h4 { font-size: 10pt; font-weight: 600; color: #475569; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  p { margin: 0 0 12px; color: #334155; }
+  ul, ol { margin: 0 0 16px 20px; color: #334155; }
+  li { margin-bottom: 6px; }
+
+  .subtitle { font-size: 11pt; color: #64748B; margin-bottom: 24px; }
+
+  .card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .card-title { font-size: 11pt; font-weight: 700; color: #7C3AED; margin-bottom: 8px; }
+
+  .persona-card {
+    background: #FAFAFE;
+    border-left: 4px solid #7C3AED;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .persona-card h4 { margin-top: 0; color: #7C3AED; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 10pt;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    font-weight: 600;
+    color: #475569;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td {
+    padding: 8px 12px;
+    border: 1px solid #E2E8F0;
+    color: #334155;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .badge-purple { background: #EDE9FE; color: #7C3AED; }
+  .badge-green { background: #ECFDF5; color: #059669; }
+  .badge-red { background: #FEF2F2; color: #EF4444; }
+  .badge-gray { background: #F1F5F9; color: #64748B; }
+
+  .tip {
+    background: #EDE9FE;
+    border: 1px solid #DDD6FE;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 10pt;
+    color: #5B21B6;
+  }
+  .tip::before { content: "💡 Tip: "; font-weight: 700; }
+
+  .warning {
+    background: #FEF3C7;
+    border: 1px solid #FDE68A;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 10pt;
+    color: #92400E;
+  }
+  .warning::before { content: "⚠️ Note: "; font-weight: 700; }
+
+  .step-list { counter-reset: step; list-style: none; margin-left: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding-left: 36px;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #7C3AED; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9pt; font-weight: 700;
+  }
+
+  .toc { list-style: none; margin: 0; padding: 0; }
+  .toc li { padding: 8px 0; border-bottom: 1px solid #F1F5F9; }
+  .toc li a { color: #0F172A; text-decoration: none; font-weight: 500; }
+  .toc li span { color: #94A3B8; float: right; font-variant-numeric: tabular-nums; }
+
+  .footer {
+    text-align: center; color: #94A3B8; font-size: 8pt; margin-top: 48px;
+    padding-top: 16px; border-top: 1px solid #E2E8F0;
+  }
+
+  @media print {
+    body { font-size: 10pt; }
+    .page { padding: 32px 40px; }
+    .cover { height: auto; padding: 120px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-logo">L</div>
+  <h1>Ledgr</h1>
+  <h2>User Guide & Product Walkthrough</h2>
+  <p style="max-width:400px;opacity:0.8;font-size:11pt;">AI-powered accounting platform for modern businesses. Smart enough to categorize, insightful enough to advise, simple enough to love.</p>
+  <br><br>
+  <p class="version">Version 1.0 — March 2026</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ TOC -->
+<div class="page">
+  <h1>Table of Contents</h1>
+  <p class="subtitle">Quick navigation to every section of this guide.</p>
+  <ul class="toc">
+    <li><a href="#overview">1. Product Overview</a><span>3</span></li>
+    <li><a href="#personas">2. Who Is Ledgr For?</a><span>4</span></li>
+    <li><a href="#getting-started">3. Getting Started</a><span>5</span></li>
+    <li><a href="#dashboard">4. Dashboard</a><span>6</span></li>
+    <li><a href="#transactions">5. Transactions</a><span>7</span></li>
+    <li><a href="#accounts">6. Chart of Accounts</a><span>8</span></li>
+    <li><a href="#reconciliation">7. Bank Reconciliation</a><span>9</span></li>
+    <li><a href="#invoices">8. Invoices</a><span>10</span></li>
+    <li><a href="#estimates">9. Estimates & Quotes</a><span>11</span></li>
+    <li><a href="#recurring">10. Recurring Transactions</a><span>12</span></li>
+    <li><a href="#budgets">11. Budgets</a><span>13</span></li>
+    <li><a href="#reports">12. Reports</a><span>14</span></li>
+    <li><a href="#activity">13. Activity Log & Audit Trail</a><span>15</span></li>
+    <li><a href="#ai">14. AI Assistant</a><span>16</span></li>
+    <li><a href="#settings">15. Settings & Configuration</a><span>17</span></li>
+    <li><a href="#integrations">16. Integrations & Credentials</a><span>18</span></li>
+    <li><a href="#roles">17. Team Roles & Permissions</a><span>19</span></li>
+    <li><a href="#mobile">18. Mobile Access (PWA)</a><span>20</span></li>
+    <li><a href="#faq">19. FAQ</a><span>21</span></li>
+  </ul>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ OVERVIEW -->
+<div class="page page-break" id="overview">
+  <h1>1. Product Overview</h1>
+  <p class="subtitle">What Ledgr is, what it does, and why it exists.</p>
+
+  <p>Ledgr is an AI-powered accounting platform built for small businesses, freelancers, and startups that want modern, intelligent financial management without the complexity of legacy tools.</p>
+
+  <h3>Core Capabilities</h3>
+  <table>
+    <tr><th>Area</th><th>What Ledgr Does</th></tr>
+    <tr><td>Transactions</td><td>Track all income and expenses with AI auto-categorization, receipt capture, and rule-based automation.</td></tr>
+    <tr><td>Invoicing</td><td>Create, send, and track invoices. Convert estimates to invoices. Accept online payments (with Stripe).</td></tr>
+    <tr><td>Accounting</td><td>Full chart of accounts, bank reconciliation, double-entry bookkeeping structure.</td></tr>
+    <tr><td>Reporting</td><td>Profit & Loss, Balance Sheet, Cash Flow statements with CSV export.</td></tr>
+    <tr><td>Budgets</td><td>Set monthly budgets per category, track actual vs. planned with variance analysis.</td></tr>
+    <tr><td>AI Assistant</td><td>Ask natural language questions about your finances. Get insights, anomaly detection, and categorization suggestions.</td></tr>
+    <tr><td>Tax Prep</td><td>Sales tax configuration, 1099 contractor identification, exportable tax data.</td></tr>
+  </table>
+
+  <h3>Tech Stack</h3>
+  <p>Ledgr is built with Next.js 16, React 19, TypeScript, Tailwind CSS, Recharts for data visualization, and React Query for data management. AI features use OpenAI's GPT-4o-mini with intelligent fallbacks.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ PERSONAS -->
+<div class="page page-break" id="personas">
+  <h1>2. Who Is Ledgr For?</h1>
+  <p class="subtitle">Five user personas and how each uses the platform.</p>
+
+  <div class="persona-card">
+    <h4>Small Business Owner</h4>
+    <p><strong>Goal:</strong> Understand profitability, send invoices, track expenses.</p>
+    <p><strong>Primary flow:</strong> Dashboard → Invoices → Transactions → Reports → AI Assistant</p>
+    <p><strong>Key features:</strong> KPI cards with trend indicators, AI insights that surface anomalies, one-click invoice creation, payment reminders for overdue invoices.</p>
+  </div>
+
+  <div class="persona-card">
+    <h4>Bookkeeper / Accountant</h4>
+    <p><strong>Goal:</strong> Maintain accurate books, reconcile accounts, prepare for audits.</p>
+    <p><strong>Primary flow:</strong> Accounts → Reconciliation → Transactions → Activity Log → Reports (export)</p>
+    <p><strong>Key features:</strong> Chart of accounts with asset/liability/equity totals, bank reconciliation with cleared/uncleared split, full audit trail, CSV export on every page.</p>
+  </div>
+
+  <div class="persona-card">
+    <h4>Freelancer / Solopreneur</h4>
+    <p><strong>Goal:</strong> Simple invoicing, expense tracking, tax prep.</p>
+    <p><strong>Primary flow:</strong> Estimates → Invoices → Transactions (with receipts) → Budgets → Settings (tax)</p>
+    <p><strong>Key features:</strong> Estimates that convert to invoices, receipt upload via drag-and-drop, budget tracking per category, sales tax auto-calculation.</p>
+  </div>
+
+  <div class="persona-card">
+    <h4>Startup CFO / Finance Lead</h4>
+    <p><strong>Goal:</strong> Monitor burn rate, control budgets, manage team access.</p>
+    <p><strong>Primary flow:</strong> Dashboard → Budgets → Reports (Cash Flow) → Settings (Team) → AI Assistant</p>
+    <p><strong>Key features:</strong> Budget vs. actual variance analysis, cash flow trend charts, team role management (Admin/Accountant/Viewer), AI-powered financial Q&A.</p>
+  </div>
+
+  <div class="persona-card">
+    <h4>Tax Preparer</h4>
+    <p><strong>Goal:</strong> Clean financial data, 1099 prep, compliance verification.</p>
+    <p><strong>Primary flow:</strong> Transactions (export) → Activity Log → Reports (P&L export) → Settings (sales tax)</p>
+    <p><strong>Key features:</strong> Full-year CSV exports, 1099 contractor identification (via /api/tax), audit trail for change verification, sales tax configuration.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ GETTING STARTED -->
+<div class="page page-break" id="getting-started">
+  <h1>3. Getting Started</h1>
+  <p class="subtitle">Your first 5 minutes with Ledgr.</p>
+
+  <h3>Quick Setup Checklist</h3>
+  <ol class="step-list">
+    <li><strong>Open the Dashboard</strong> — Navigate to Ledgr's URL. You'll see four KPI cards (Cash Balance, Income, Expenses, Net Profit), a monthly overview chart, and AI insights.</li>
+    <li><strong>Review your Chart of Accounts</strong> — Go to <strong>Accounts</strong> in the sidebar. Ledgr comes pre-configured with standard accounts (Checking, Savings, Credit Card, A/R, A/P, Equity). Add or modify as needed.</li>
+    <li><strong>Add your first transaction</strong> — Go to <strong>Transactions</strong> → click <strong>+ Add Transaction</strong>. Enter a description and amount. AI will auto-categorize it. In step 2, upload the receipt.</li>
+    <li><strong>Create your first invoice</strong> — Go to <strong>Invoices</strong> → <strong>+ Create Invoice</strong>. Enter client details, add line items, and set a due date.</li>
+    <li><strong>Set your budgets</strong> — Go to <strong>Budgets</strong> → <strong>Set Budget</strong>. Choose a category (e.g., Marketing) and set the monthly limit. Ledgr will track actual spending against it.</li>
+    <li><strong>Configure sales tax</strong> — Go to <strong>Settings</strong> → <strong>Sales Tax</strong>. Enable it and set your default rate. This will auto-apply to new invoices.</li>
+    <li><strong>Ask the AI</strong> — Go to <strong>AI Assistant</strong>. Try: "How much did I spend last month?" or "What's my most expensive category?"</li>
+  </ol>
+
+  <div class="tip">Install Ledgr on your phone — open the app in your mobile browser, tap "Add to Home Screen." It works as a Progressive Web App with full functionality.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ DASHBOARD -->
+<div class="page page-break" id="dashboard">
+  <h1>4. Dashboard</h1>
+  <p class="subtitle">Your financial command center at a glance.</p>
+
+  <h3>KPI Cards (Row 1)</h3>
+  <p>Four cards at the top provide instant financial health:</p>
+  <table>
+    <tr><th>Card</th><th>What It Shows</th><th>Color Coding</th></tr>
+    <tr><td>Cash Balance</td><td>Total available cash across all accounts</td><td>Neutral (violet icon)</td></tr>
+    <tr><td>Income</td><td>Total income with % change vs last month</td><td>Green arrow up = growth</td></tr>
+    <tr><td>Expenses</td><td>Total expenses with % change vs last month</td><td>Red arrow up = increasing costs</td></tr>
+    <tr><td>Net Profit</td><td>Income minus expenses, with income/expense ratio bar</td><td>Green = profitable, Red = loss</td></tr>
+  </table>
+
+  <h3>Monthly Overview Chart (Row 2, Left)</h3>
+  <p>A bar chart showing income (green) vs expenses (red) for the last 6 months. Hover over any bar to see exact values. Y-axis shows dollar amounts, x-axis shows months.</p>
+
+  <h3>AI Insights Panel (Row 2, Right)</h3>
+  <p>Up to 4 AI-generated insights about your finances. Types include:</p>
+  <ul>
+    <li><span class="badge badge-red">Anomaly</span> — Unusual spending detected (e.g., "Travel expenses spike in February")</li>
+    <li><span class="badge badge-purple">Suggestion</span> — Actionable advice (e.g., "Consider auditing unused subscriptions")</li>
+    <li><span class="badge badge-green">Trend</span> — Positive patterns (e.g., "Revenue growing steadily")</li>
+  </ul>
+  <p>Click <strong>Ask AI →</strong> to open the full AI Assistant for deeper questions.</p>
+
+  <h3>Invoices & Recent Transactions (Row 3)</h3>
+  <p>Quick-glance panels showing overdue/paid invoice totals and your 5 most recent transactions with color-coded amounts.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ TRANSACTIONS -->
+<div class="page page-break" id="transactions">
+  <h1>5. Transactions</h1>
+  <p class="subtitle">Track every dollar in and out of your business.</p>
+
+  <h3>Viewing Transactions</h3>
+  <p>The transactions table shows all financial activity with the following columns:</p>
+  <table>
+    <tr><th>Column</th><th>Description</th></tr>
+    <tr><td>Date</td><td>Transaction date (formatted as "Mar 20, 2026")</td></tr>
+    <tr><td>Description</td><td>What the transaction is for. A ✦ sparkle icon indicates AI auto-categorized it.</td></tr>
+    <tr><td>Category</td><td>Expense or income category (e.g., Software & SaaS, Client Payments)</td></tr>
+    <tr><td>Amount</td><td>Dollar amount — green for income (+), red for expenses (-)</td></tr>
+    <tr><td>Type</td><td>Color-coded badge: <span class="badge badge-green">Income</span> <span class="badge badge-red">Expense</span></td></tr>
+  </table>
+
+  <h3>Filtering & Search</h3>
+  <p>Use the search bar to find transactions by description. Use the type dropdown to filter by Income, Expense, or All. Results paginate at 25 per page with full navigation controls.</p>
+
+  <h3>Adding a Transaction</h3>
+  <ol class="step-list">
+    <li><strong>Step 1 — Basics:</strong> Enter description, amount, and type (expense/income/transfer).</li>
+    <li><strong>Step 2 — Details:</strong> Set the date, add optional notes, and upload a receipt (drag-and-drop or browse). AI will auto-categorize based on the description.</li>
+  </ol>
+
+  <h3>CSV Export</h3>
+  <p>Click the <strong>CSV</strong> button next to "+ Add Transaction" to download all visible transactions as a spreadsheet file. The export includes Date, Description, Category, Amount, and Type columns.</p>
+
+  <div class="tip">The AI categorization engine uses a rules-based system first (configurable in the backend), then falls back to GPT-4o-mini for unknown transactions. Confidence scores are stored for each categorization.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ ACCOUNTS -->
+<div class="page page-break" id="accounts">
+  <h1>6. Chart of Accounts</h1>
+  <p class="subtitle">The foundation of your bookkeeping — every asset, liability, and equity account.</p>
+
+  <h3>Overview</h3>
+  <p>The Chart of Accounts page shows all financial accounts grouped by type. Summary cards at the top display Total Assets, Total Liabilities, and Total Equity.</p>
+
+  <h3>Account Types</h3>
+  <table>
+    <tr><th>Type</th><th>Examples</th><th>Normal Balance</th></tr>
+    <tr><td>Asset</td><td>Business Checking, Savings, Accounts Receivable, Petty Cash</td><td>Debit (positive)</td></tr>
+    <tr><td>Liability</td><td>Credit Cards, Accounts Payable, Loans</td><td>Credit (positive)</td></tr>
+    <tr><td>Equity</td><td>Owner's Equity, Retained Earnings</td><td>Credit (positive)</td></tr>
+    <tr><td>Revenue</td><td>Product Sales, Consulting Revenue</td><td>Credit (positive)</td></tr>
+    <tr><td>Expense</td><td>Rent, Payroll, Marketing</td><td>Debit (positive)</td></tr>
+  </table>
+
+  <h3>Adding an Account</h3>
+  <p>Click <strong>+ Add Account</strong>, enter the account name, select the type, and optionally specify a sub-type (e.g., "bank", "credit_card"). New accounts start with a $0 balance.</p>
+
+  <div class="warning">The fundamental accounting equation must always hold: Assets = Liabilities + Equity. Monitor these totals on the summary cards to ensure your books are balanced.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ RECONCILIATION -->
+<div class="page page-break" id="reconciliation">
+  <h1>7. Bank Reconciliation</h1>
+  <p class="subtitle">Match your books to your bank statement — the gold standard of accurate accounting.</p>
+
+  <h3>How Reconciliation Works</h3>
+  <ol class="step-list">
+    <li><strong>Select an account</strong> — Choose which bank account to reconcile from the dropdown.</li>
+    <li><strong>Enter statement details</strong> — Input your bank statement's ending balance and statement date.</li>
+    <li><strong>Clear transactions</strong> — Check off each transaction that appears on your bank statement. The running total updates as you clear items.</li>
+    <li><strong>Resolve the difference</strong> — The summary bar shows: Book Balance, Cleared Total, Statement Balance, and Difference. Your goal is to get the difference to $0.00.</li>
+    <li><strong>Complete</strong> — When the difference is zero, click "Complete Reconciliation." A confirmation screen appears.</li>
+  </ol>
+
+  <h3>Reading the Summary Bar</h3>
+  <table>
+    <tr><th>Field</th><th>Meaning</th></tr>
+    <tr><td>Book Balance</td><td>The account balance in Ledgr's records</td></tr>
+    <tr><td>Cleared Total</td><td>Sum of all transactions you've checked off</td></tr>
+    <tr><td>Statement Balance</td><td>The ending balance on your bank statement</td></tr>
+    <tr><td>Difference</td><td>Statement Balance minus Cleared Total. <span class="badge badge-green">$0.00 = balanced</span> <span class="badge badge-red">Non-zero = investigate</span></td></tr>
+  </table>
+
+  <div class="tip">If the difference isn't zero, look for: missing transactions (not yet entered in Ledgr), duplicate entries, or transactions with wrong amounts. The two-column layout helps you compare cleared vs. uncleared items side by side.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ INVOICES -->
+<div class="page page-break" id="invoices">
+  <h1>8. Invoices</h1>
+  <p class="subtitle">Bill your clients, track payments, and follow up on overdue accounts.</p>
+
+  <h3>Invoice Summary Bar</h3>
+  <p>Three cards at the top show: <span class="badge badge-red">Overdue</span> total, <span class="badge badge-gray">Outstanding</span> total, and <span class="badge badge-green">Paid</span> total. These update in real-time.</p>
+
+  <h3>Invoice Cards</h3>
+  <p>Each invoice displays as a card with:</p>
+  <ul>
+    <li><strong>Left border color:</strong> Red = overdue, Yellow = sent/pending, Green = paid</li>
+    <li><strong>Status badge:</strong> Draft, Sent, Paid, or Overdue</li>
+    <li><strong>Due date:</strong> Red and bold for overdue invoices, struck-through for paid</li>
+  </ul>
+
+  <h3>Quick Actions (Hover)</h3>
+  <p>Hover over any invoice card to reveal action buttons:</p>
+  <table>
+    <tr><th>Action</th><th>When Available</th><th>What It Does</th></tr>
+    <tr><td>Send Reminder</td><td>Overdue invoices with email</td><td>Opens a pre-filled email with invoice details, amount, and due date</td></tr>
+    <tr><td>Pay Link</td><td>Unpaid invoices</td><td>Generates a payment link (requires Stripe credentials)</td></tr>
+    <tr><td>Mark Paid</td><td>All invoices</td><td>Updates status to "Paid" with today's date</td></tr>
+    <tr><td>PDF</td><td>All invoices</td><td>Downloads invoice as PDF</td></tr>
+  </table>
+
+  <h3>Creating an Invoice</h3>
+  <p>A 3-step wizard guides you through:</p>
+  <ol class="step-list">
+    <li><strong>Client Info:</strong> Name, email, due date.</li>
+    <li><strong>Line Items:</strong> Add items with description, quantity, and rate. Totals calculate automatically.</li>
+    <li><strong>Review:</strong> Set tax rate, review totals, and create.</li>
+  </ol>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ ESTIMATES -->
+<div class="page page-break" id="estimates">
+  <h1>9. Estimates & Quotes</h1>
+  <p class="subtitle">Propose work, get approval, and convert to invoices seamlessly.</p>
+
+  <h3>Estimate Lifecycle</h3>
+  <p>Estimates follow a clear status flow:</p>
+  <p><span class="badge badge-gray">Draft</span> → <span class="badge badge-purple">Sent</span> → <span class="badge badge-green">Accepted</span> → <span class="badge badge-purple">Converted to Invoice</span></p>
+  <p>Or: <span class="badge badge-gray">Draft</span> → <span class="badge badge-purple">Sent</span> → <span class="badge badge-red">Declined</span></p>
+
+  <h3>Converting to Invoice</h3>
+  <p>When a client accepts an estimate, click <strong>Convert to Invoice</strong>. Ledgr automatically creates a new invoice with all the line items, amounts, and client details from the estimate. The estimate status changes to "Converted."</p>
+
+  <h3>Summary Cards</h3>
+  <p>The top of the page shows: Total Estimates, Accepted Value, Pending Value, and Conversion Rate (percentage of estimates that become invoices).</p>
+
+  <div class="tip">Use estimates for project proposals, freelance quotes, and service agreements. They create a paper trail that's visible in the Activity Log for audit purposes.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ RECURRING -->
+<div class="page page-break" id="recurring">
+  <h1>10. Recurring Transactions</h1>
+  <p class="subtitle">Automate predictable income and expenses.</p>
+
+  <h3>How It Works</h3>
+  <p>Recurring transactions are templates that define regularly scheduled financial events — rent payments, subscription fees, retainer income, etc. Each has a frequency (daily, weekly, monthly, yearly) and a next run date.</p>
+
+  <h3>Summary Cards</h3>
+  <table>
+    <tr><th>Card</th><th>What It Shows</th></tr>
+    <tr><td>Monthly Expenses</td><td>Total recurring expenses normalized to monthly</td></tr>
+    <tr><td>Monthly Income</td><td>Total recurring income normalized to monthly</td></tr>
+    <tr><td>Net Monthly</td><td>Income minus expenses (green if positive)</td></tr>
+    <tr><td>Next Due</td><td>The soonest upcoming recurring transaction</td></tr>
+  </table>
+
+  <h3>Managing Recurring Items</h3>
+  <p>Each recurring transaction card shows the description, amount, frequency badge, next run date, and active/paused status. You can pause, resume, or edit any item.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ BUDGETS -->
+<div class="page page-break" id="budgets">
+  <h1>11. Budgets</h1>
+  <p class="subtitle">Set spending limits and track where every dollar goes.</p>
+
+  <h3>Setting Budgets</h3>
+  <p>Click <strong>Set Budget</strong>, choose an expense category, and enter the monthly amount. Ledgr automatically calculates actual spending from your transactions for that category and month.</p>
+
+  <h3>Reading the Budget Dashboard</h3>
+  <table>
+    <tr><th>Element</th><th>What It Means</th></tr>
+    <tr><td>Progress bar — Green</td><td>Under 80% of budget used. On track.</td></tr>
+    <tr><td>Progress bar — Yellow</td><td>80–100% of budget used. Approaching limit.</td></tr>
+    <tr><td>Progress bar — Red</td><td>Over 100% of budget. Overspent.</td></tr>
+    <tr><td>Variance (green)</td><td>You have money left in this category.</td></tr>
+    <tr><td>Variance (red)</td><td>You've exceeded the budget for this category.</td></tr>
+  </table>
+
+  <h3>Month Navigation</h3>
+  <p>Use the left/right arrows to navigate between months. Budgets are set per-month, and actuals are calculated from transactions dated within that month.</p>
+
+  <div class="tip">Categories with the biggest overspend are sorted to the top, so you always see the most urgent variances first.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ REPORTS -->
+<div class="page page-break" id="reports">
+  <h1>12. Reports</h1>
+  <p class="subtitle">Three essential financial statements, charts, and CSV export.</p>
+
+  <h3>Report Types</h3>
+
+  <h4>Profit & Loss (P&L)</h4>
+  <p>Shows total income, total expenses, and net profit for the selected period. Includes a monthly trend bar chart (income vs expenses) and a donut chart breaking down expenses by category with percentages.</p>
+
+  <h4>Balance Sheet</h4>
+  <p>A point-in-time snapshot of your financial position: Total Assets, Total Liabilities, and Total Equity. Accounts are listed within each group with individual balances.</p>
+
+  <h4>Cash Flow</h4>
+  <p>Shows total inflows, outflows, opening balance, and closing balance. A line chart plots inflows, outflows, and net cash movement over time.</p>
+
+  <h3>Controls</h3>
+  <ul>
+    <li><strong>Period selector:</strong> 3M, 6M, 1Y, or All time</li>
+    <li><strong>Export:</strong> Click "Export" to download the active report as CSV</li>
+    <li><strong>Tab switching:</strong> Click between P&L, Balance Sheet, and Cash Flow</li>
+  </ul>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ ACTIVITY -->
+<div class="page page-break" id="activity">
+  <h1>13. Activity Log & Audit Trail</h1>
+  <p class="subtitle">A chronological record of every change in your account.</p>
+
+  <h3>What Gets Logged</h3>
+  <p>The Activity Log automatically tracks:</p>
+  <ul>
+    <li><strong>Transactions:</strong> Every transaction created, with amount and category</li>
+    <li><strong>Invoices:</strong> Invoice creation, status changes (sent, paid, overdue)</li>
+    <li><strong>Accounts:</strong> New accounts added to the chart of accounts</li>
+  </ul>
+
+  <h3>Features</h3>
+  <ul>
+    <li><strong>Filter tabs:</strong> All, Transactions, Invoices, Accounts</li>
+    <li><strong>Search:</strong> Find specific entries by description</li>
+    <li><strong>Date grouping:</strong> Entries grouped by "Today," "Yesterday," or specific dates</li>
+    <li><strong>Color coding:</strong> Violet for transactions, blue for invoices, green for accounts</li>
+  </ul>
+
+  <div class="warning">The audit trail is essential for tax compliance and financial audits. It provides an immutable record of when changes were made. Always review the Activity Log before closing a financial period.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ AI -->
+<div class="page page-break" id="ai">
+  <h1>14. AI Assistant</h1>
+  <p class="subtitle">Ask anything about your finances in plain English.</p>
+
+  <h3>What You Can Ask</h3>
+  <table>
+    <tr><th>Question Type</th><th>Example</th></tr>
+    <tr><td>Spending analysis</td><td>"How much did I spend on marketing last month?"</td></tr>
+    <tr><td>Category breakdown</td><td>"What's my most expensive category?"</td></tr>
+    <tr><td>Trend analysis</td><td>"Show me my profit trend over the last 6 months"</td></tr>
+    <tr><td>Anomaly detection</td><td>"Any unusual spending patterns?"</td></tr>
+    <tr><td>Forecasting</td><td>"At this rate, what will my expenses be next quarter?"</td></tr>
+    <tr><td>Comparisons</td><td>"Am I spending more this month than last month?"</td></tr>
+  </table>
+
+  <h3>How It Works</h3>
+  <p>The AI Assistant has access to all your transaction data, invoice records, and financial reports. When you ask a question, it:</p>
+  <ol>
+    <li>Analyzes your transaction history for relevant data</li>
+    <li>Calculates totals, trends, and comparisons</li>
+    <li>Returns a conversational answer with specific numbers</li>
+  </ol>
+
+  <h3>Data Context</h3>
+  <p>A badge on the splash screen shows what data the AI can access: "I have access to your transactions, invoices, and financial reports." The AI never accesses data outside your Ledgr account.</p>
+
+  <div class="tip">The AI works best with specific questions. Instead of "How am I doing?", try "What's my net profit this month compared to last month?" Specific questions get specific, actionable answers.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ SETTINGS -->
+<div class="page page-break" id="settings">
+  <h1>15. Settings & Configuration</h1>
+  <p class="subtitle">Company info, tax rates, team management, and integrations.</p>
+
+  <h3>Company Information</h3>
+  <p>Set your company name, email, currency (USD/EUR/GBP/CAD), and fiscal year start month. These values appear on invoices and reports.</p>
+
+  <h3>Sales Tax</h3>
+  <p>Toggle sales tax on/off. When enabled, set a tax name (e.g., "Sales Tax") and default rate (e.g., 8.875%). This rate auto-applies to new invoices but can be overridden per invoice.</p>
+
+  <h3>Connected Accounts</h3>
+  <ul>
+    <li><strong>Bank Connection:</strong> <span class="badge badge-gray">Requires Plaid credentials</span></li>
+    <li><strong>CSV Import:</strong> <span class="badge badge-green">Available</span> — Upload bank statements manually</li>
+  </ul>
+
+  <h3>Notifications</h3>
+  <ul>
+    <li><strong>Invoice Reminders:</strong> <span class="badge badge-gray">Requires email service credentials</span></li>
+    <li><strong>Spending Alerts:</strong> <span class="badge badge-gray">Requires email service credentials</span></li>
+  </ul>
+
+  <h3>Data & Export</h3>
+  <p>Download all transactions, invoices, and reports as CSV files.</p>
+
+  <h3>Security</h3>
+  <p>Two-factor authentication and session management are planned features.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ INTEGRATIONS -->
+<div class="page page-break" id="integrations">
+  <h1>16. Integrations & Credentials</h1>
+  <p class="subtitle">Connect Ledgr to external services. Each integration needs one or two environment variables.</p>
+
+  <table>
+    <tr><th>Integration</th><th>Purpose</th><th>Environment Variables</th><th>Install Command</th></tr>
+    <tr><td>Plaid</td><td>Live bank feed sync</td><td>PLAID_CLIENT_ID, PLAID_SECRET</td><td>npm install plaid</td></tr>
+    <tr><td>Stripe</td><td>Online payment acceptance</td><td>STRIPE_SECRET_KEY, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</td><td>npm install stripe</td></tr>
+    <tr><td>Resend</td><td>Automated email reminders</td><td>RESEND_API_KEY</td><td>npm install resend</td></tr>
+    <tr><td>SendGrid</td><td>Email (alternative)</td><td>SENDGRID_API_KEY</td><td>npm install @sendgrid/mail</td></tr>
+    <tr><td>Slack</td><td>Notifications</td><td>SLACK_WEBHOOK_URL</td><td>(no install needed)</td></tr>
+    <tr><td>Zapier</td><td>Workflow automation</td><td>ZAPIER_WEBHOOK_URL</td><td>(no install needed)</td></tr>
+    <tr><td>Gusto</td><td>Payroll processing</td><td>GUSTO_API_KEY</td><td>(uncomment in code)</td></tr>
+    <tr><td>Tax1099</td><td>1099 e-filing</td><td>TAX1099_API_KEY</td><td>(uncomment in code)</td></tr>
+  </table>
+
+  <h3>How to Activate</h3>
+  <ol class="step-list">
+    <li>Run the install command (if applicable)</li>
+    <li>Set the environment variable in your Vercel dashboard (Settings → Environment Variables) or in a local .env file</li>
+    <li>Redeploy the app — the integration auto-activates when the credential is detected</li>
+  </ol>
+
+  <p>Each integration has an <code>isConfigured()</code> check. When credentials are missing, API endpoints return a 503 with setup instructions instead of crashing.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ ROLES -->
+<div class="page page-break" id="roles">
+  <h1>17. Team Roles & Permissions</h1>
+  <p class="subtitle">Control who can see and do what in your account.</p>
+
+  <table>
+    <tr><th>Role</th><th>Access Level</th><th>Can Do</th></tr>
+    <tr><td><span class="badge badge-red">Admin</span></td><td>Full access</td><td>Everything — manage team, change settings, delete data, manage integrations</td></tr>
+    <tr><td><span class="badge badge-purple">Accountant</span></td><td>Financial access</td><td>Manage transactions, invoices, reports, reconciliation. Cannot change settings or manage team.</td></tr>
+    <tr><td><span class="badge badge-gray">Viewer</span></td><td>Read-only</td><td>View dashboards, reports, and transaction history. Cannot create, edit, or delete anything.</td></tr>
+  </table>
+
+  <h3>Inviting Team Members</h3>
+  <p>Go to <strong>Settings → Team & Roles</strong>. Enter the team member's email, select their role, and click <strong>Invite</strong>. They'll appear in the team list immediately.</p>
+
+  <div class="warning">At least one Admin must exist at all times. You cannot remove or downgrade the last Admin.</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ MOBILE -->
+<div class="page page-break" id="mobile">
+  <h1>18. Mobile Access (PWA)</h1>
+  <p class="subtitle">Use Ledgr on your phone without downloading from an app store.</p>
+
+  <h3>Installing on iOS</h3>
+  <ol class="step-list">
+    <li>Open Ledgr's URL in Safari.</li>
+    <li>Tap the Share button (square with arrow).</li>
+    <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+    <li>Name it "Ledgr" and tap Add.</li>
+  </ol>
+
+  <h3>Installing on Android</h3>
+  <ol class="step-list">
+    <li>Open Ledgr's URL in Chrome.</li>
+    <li>Tap the three-dot menu in the top right.</li>
+    <li>Tap <strong>Add to Home Screen</strong> or <strong>Install App</strong>.</li>
+    <li>Confirm the installation.</li>
+  </ol>
+
+  <h3>Mobile Navigation</h3>
+  <p>On mobile, the sidebar collapses into a bottom navigation bar with 5 tabs: Home, Activity, Invoices, Reports, and AI. All other pages are accessible from within these sections.</p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ FAQ -->
+<div class="page page-break" id="faq">
+  <h1>19. Frequently Asked Questions</h1>
+  <p class="subtitle">Quick answers to common questions.</p>
+
+  <h3>Is my financial data secure?</h3>
+  <p>Ledgr uses HTTPS encryption for all data in transit. When deployed on Vercel, data is served from a global edge network with enterprise-grade security. Database connections use SSL. For production use, configure authentication and role-based access in Settings.</p>
+
+  <h3>Can I import data from QuickBooks or other tools?</h3>
+  <p>Yes — export your transactions as CSV from your current tool, then import via Settings → Connected Accounts → CSV Import. The AI will auto-categorize imported transactions.</p>
+
+  <h3>How does AI categorization work?</h3>
+  <p>Ledgr uses a two-pass system: first, it checks your custom rules (configurable patterns like "Starbucks → Meals"). If no rule matches, it sends the transaction description to GPT-4o-mini for intelligent categorization with a confidence score.</p>
+
+  <h3>What if the AI categorizes something wrong?</h3>
+  <p>Edit the transaction to change its category. Over time, you can add rules to handle recurring vendors automatically. The sparkle ✦ icon marks AI-categorized transactions so you can review them.</p>
+
+  <h3>Can multiple people use Ledgr at the same time?</h3>
+  <p>Yes — Ledgr supports multiple team members with role-based access (Admin, Accountant, Viewer). Configure team members in Settings. Note: full authentication requires additional setup.</p>
+
+  <h3>How do I get my bank transactions into Ledgr automatically?</h3>
+  <p>Set up the Plaid integration by adding your PLAID_CLIENT_ID and PLAID_SECRET environment variables. Once configured, you can link bank accounts and sync transactions directly. Without Plaid, use CSV import.</p>
+
+  <h3>Can clients pay invoices online?</h3>
+  <p>Yes — with the Stripe integration active (STRIPE_SECRET_KEY), invoices get a shareable payment link. Clients see a branded payment page at /pay/[invoiceId] where they can pay via credit card. Stripe handles PCI compliance.</p>
+
+  <h3>How do I prepare for tax season?</h3>
+  <ol>
+    <li>Export all transactions as CSV from the Transactions page</li>
+    <li>Export P&L report from Reports → Export</li>
+    <li>Review the 1099 contractor data at /api/tax?year=2025</li>
+    <li>Verify sales tax totals in Settings → Sales Tax</li>
+    <li>Review the Activity Log for any discrepancies</li>
+  </ol>
+
+  <div class="footer">
+    <p>Ledgr User Guide v1.0 — March 2026</p>
+    <p>Built with ♦ by the Ledgr team. For support, visit your AI Assistant.</p>
+  </div>
+</div>
+
+</body>
+</html>

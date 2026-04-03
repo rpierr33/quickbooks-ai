@@ -31,7 +31,7 @@ interface TabsListProps {
 
 function TabsList({ children, className, value, onValueChange }: TabsListProps) {
   return (
-    <div className={cn("inline-flex items-center gap-1 rounded-lg bg-gray-100 p-1", className)}>
+    <div className={cn("inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1", className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, { activeValue: value, onValueChange });
@@ -55,8 +55,8 @@ function TabsTrigger({ value, children, className, activeValue, onValueChange }:
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all",
-        isActive ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700",
+        "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer",
+        isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700",
         className
       )}
       onClick={() => onValueChange?.(value)}
@@ -73,10 +73,8 @@ interface TabsContentProps {
 }
 
 function TabsContent({ value, children, className, ...props }: TabsContentProps & { [key: string]: any }) {
-  const parentValue = props.value;
-  // This needs context - simplified approach
   return (
-    <div className={cn("mt-4", className)} data-tab-value={value}>
+    <div className={cn("mt-5", className)} data-tab-value={value}>
       {children}
     </div>
   );

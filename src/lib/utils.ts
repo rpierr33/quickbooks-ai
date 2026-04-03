@@ -7,6 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(amount: number | string): string {
   if (typeof amount === 'string') amount = parseFloat(amount);
+  if (isNaN(amount) || amount == null) return '$0.00';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -29,6 +30,7 @@ export function formatDateShort(date: string): string {
 }
 
 export function getPercentageChange(current: number, previous: number): number {
+  if (isNaN(current) || isNaN(previous)) return 0;
   if (previous === 0) return current > 0 ? 100 : 0;
   return parseFloat((((current - previous) / previous) * 100).toFixed(1));
 }

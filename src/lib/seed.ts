@@ -233,6 +233,68 @@ export function seedMockStore() {
     },
   ];
 
+  // ── Estimates ────────────────────────────────────────────
+  const estimates = [
+    {
+      id: uuid(601),
+      estimate_number: 'EST-001',
+      client_name: 'TechVentures Inc',
+      client_email: 'projects@techventures.com',
+      items: JSON.stringify([
+        { description: 'Custom CRM Development', quantity: 1, rate: 6500, amount: 6500 },
+        { description: 'Data Migration & Setup', quantity: 1, rate: 2000, amount: 2000 }
+      ]),
+      subtotal: '8500.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '8500.00',
+      status: 'accepted',
+      valid_until: '2026-03-01',
+      notes: 'Includes 30 days of post-launch support',
+      created_at: '2026-01-15T10:00:00Z',
+      updated_at: '2026-02-01T14:00:00Z'
+    },
+    {
+      id: uuid(602),
+      estimate_number: 'EST-002',
+      client_name: 'Sunrise Media',
+      client_email: 'hello@sunrisemedia.co',
+      items: JSON.stringify([
+        { description: 'Social Media Strategy', quantity: 1, rate: 2200, amount: 2200 },
+        { description: 'Content Calendar (3 months)', quantity: 1, rate: 1000, amount: 1000 }
+      ]),
+      subtotal: '3200.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '3200.00',
+      status: 'sent',
+      valid_until: '2026-04-15',
+      notes: null,
+      created_at: '2026-03-10T09:00:00Z',
+      updated_at: '2026-03-10T09:00:00Z'
+    },
+    {
+      id: uuid(603),
+      estimate_number: 'EST-003',
+      client_name: 'CloudFirst Solutions',
+      client_email: 'procurement@cloudfirst.io',
+      items: JSON.stringify([
+        { description: 'Cloud Infrastructure Audit', quantity: 1, rate: 5000, amount: 5000 },
+        { description: 'Migration Planning & Architecture', quantity: 1, rate: 4750, amount: 4750 },
+        { description: 'Security Compliance Review', quantity: 1, rate: 6000, amount: 6000 }
+      ]),
+      subtotal: '15750.00',
+      tax_rate: '0.00',
+      tax_amount: '0.00',
+      total: '15750.00',
+      status: 'draft',
+      valid_until: null,
+      notes: 'Pending internal review before sending',
+      created_at: '2026-03-20T11:00:00Z',
+      updated_at: '2026-03-20T11:00:00Z'
+    },
+  ];
+
   // ── Insights ──────────────────────────────────────────────
   const insights = [
     {
@@ -378,14 +440,113 @@ export function seedMockStore() {
   // ── AI Cache (empty initially) ────────────────────────────
   const ai_cache: Record<string, any>[] = [];
 
+  // ── Budgets ─────────────────────────────────────────────
+  const budgets = [
+    { id: uuid(701), category_id: uuid(101), category_name: 'Rent', monthly_amount: '3500.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+    { id: uuid(702), category_id: uuid(103), category_name: 'Payroll', monthly_amount: '9000.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+    { id: uuid(703), category_id: uuid(104), category_name: 'Marketing', monthly_amount: '2000.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+    { id: uuid(704), category_id: uuid(105), category_name: 'Software & SaaS', monthly_amount: '800.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+    { id: uuid(705), category_id: uuid(107), category_name: 'Travel', monthly_amount: '500.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+    { id: uuid(706), category_id: uuid(108), category_name: 'Meals & Entertainment', monthly_amount: '200.00', period: '2026-03', created_at: '2026-03-01T00:00:00Z' },
+  ];
+
+  // ── Journal Entries (empty initially) ──────────────────
+  const journal_entries: Record<string, any>[] = [];
+
+  // ── Scanned Receipts (sample history) ──────────────────
+  const scanned_receipts = [
+    {
+      id: uuid(801),
+      file_name: 'starbucks-receipt.jpg',
+      file_type: 'image/jpeg',
+      file_size: 245000,
+      extraction: {
+        vendor: 'Starbucks',
+        date: '2026-03-15',
+        amount: 18.45,
+        tax: 1.45,
+        tip: 2.00,
+        subtotal: 15.00,
+        currency: 'USD',
+        category: 'Meals & Entertainment',
+        payment_method: 'credit',
+        line_items: [
+          { description: 'Grande Latte', quantity: 2, unit_price: 5.50, amount: 11.00 },
+          { description: 'Blueberry Muffin', quantity: 1, unit_price: 4.00, amount: 4.00 },
+        ],
+        notes: null,
+      },
+      confidence: 0.94,
+      status: 'saved',
+      transaction_id: uuid(260),
+      created_at: '2026-03-15T10:30:00Z',
+    },
+    {
+      id: uuid(802),
+      file_name: 'aws-invoice-march.png',
+      file_type: 'image/png',
+      file_size: 389000,
+      extraction: {
+        vendor: 'Amazon Web Services',
+        date: '2026-03-05',
+        amount: 512.47,
+        tax: 0,
+        tip: 0,
+        subtotal: 512.47,
+        currency: 'USD',
+        category: 'Software & SaaS',
+        payment_method: 'credit',
+        line_items: [
+          { description: 'EC2 Instances', quantity: 1, unit_price: 287.30, amount: 287.30 },
+          { description: 'S3 Storage', quantity: 1, unit_price: 45.17, amount: 45.17 },
+          { description: 'RDS PostgreSQL', quantity: 1, unit_price: 180.00, amount: 180.00 },
+        ],
+        notes: 'Monthly cloud infrastructure',
+      },
+      confidence: 0.97,
+      status: 'saved',
+      transaction_id: uuid(256),
+      created_at: '2026-03-05T08:00:00Z',
+    },
+    {
+      id: uuid(803),
+      file_name: 'uber-ride.jpg',
+      file_type: 'image/jpeg',
+      file_size: 178000,
+      extraction: {
+        vendor: 'Uber',
+        date: '2026-03-20',
+        amount: 34.50,
+        tax: 2.76,
+        tip: 5.00,
+        subtotal: 26.74,
+        currency: 'USD',
+        category: 'Travel',
+        payment_method: 'credit',
+        line_items: [
+          { description: 'UberX - Downtown to Airport', quantity: 1, unit_price: 26.74, amount: 26.74 },
+        ],
+        notes: 'Client meeting travel',
+      },
+      confidence: 0.91,
+      status: 'confirmed',
+      transaction_id: null,
+      created_at: '2026-03-20T14:00:00Z',
+    },
+  ];
+
   return {
     accounts,
     categories,
     transactions,
     invoices,
+    estimates,
     insights,
     rules,
     recurring_transactions,
     ai_cache,
+    budgets,
+    scanned_receipts,
+    journal_entries,
   };
 }

@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
+    const { unauthorized } = await requireAuth();
+    if (unauthorized) return unauthorized;
     const result = await query('SELECT * FROM accounts WHERE is_active = true ORDER BY type, name');
     const accounts = result.rows.map(a => ({
       ...a,

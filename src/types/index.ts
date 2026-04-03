@@ -149,10 +149,55 @@ export interface CashFlowReport {
   monthly_data: { month: string; inflows: number; outflows: number; net: number }[];
 }
 
+export interface EstimateItem {
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface Estimate {
+  id: string;
+  estimate_number: string;
+  client_name: string;
+  client_email: string | null;
+  items: EstimateItem[];
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
+  status: 'draft' | 'sent' | 'accepted' | 'declined' | 'converted';
+  valid_until: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AIQueryResponse {
   answer: string;
   data?: Record<string, unknown>;
   chart_data?: { label: string; value: number }[];
+}
+
+export interface Budget {
+  id: string;
+  category_id: string;
+  category_name: string;
+  monthly_amount: number;
+  period: string;
+  created_at: string;
+}
+
+export interface CashFlowForecast {
+  current_balance: number;
+  forecast_30d: number;
+  forecast_60d: number;
+  forecast_90d: number;
+  monthly_burn_rate: number;
+  months_of_runway: number;
+  recurring_monthly_cost: number;
+  expected_invoice_income: number;
+  insights: string[];
 }
 
 export interface DashboardStats {
@@ -165,4 +210,140 @@ export interface DashboardStats {
   recent_transactions: Transaction[];
   insights: Insight[];
   monthly_data: ReportData[];
+  invoice_overdue: number;
+  invoice_paid_30d: number;
+}
+
+// ── Clients / Vendors ──
+export interface Client {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  address: string | null;
+  tax_id: string | null;
+  type: 'client' | 'vendor' | 'both';
+  total_invoiced: number;
+  total_paid: number;
+  outstanding_balance: number;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Aged Receivables ──
+export interface AgedReceivablesBucket {
+  label: string;
+  total: number;
+  clients: { name: string; amount: number; invoice_count: number }[];
+}
+
+export interface AgedReceivablesReport {
+  as_of: string;
+  total_outstanding: number;
+  buckets: AgedReceivablesBucket[];
+}
+
+// ── Trial Balance ──
+export interface TrialBalanceRow {
+  account_id: string;
+  account_name: string;
+  account_type: string;
+  debit: number;
+  credit: number;
+}
+
+export interface TrialBalanceReport {
+  as_of: string;
+  rows: TrialBalanceRow[];
+  total_debits: number;
+  total_credits: number;
+}
+
+// ── Tax Summary ──
+export interface TaxSummaryReport {
+  period_start: string;
+  period_end: string;
+  taxable_income: number;
+  total_deductions: number;
+  estimated_tax_liability: number;
+  effective_rate: number;
+  deductions_by_category: { category: string; amount: number; is_deductible: boolean }[];
+  quarterly: { quarter: string; income: number; expenses: number; estimated_tax: number }[];
+}
+
+// ── General Ledger ──
+export interface GeneralLedgerEntry {
+  date: string;
+  description: string;
+  debit: number;
+  credit: number;
+  balance: number;
+}
+
+export interface GeneralLedgerAccount {
+  account_id: string;
+  account_name: string;
+  account_type: string;
+  opening_balance: number;
+  entries: GeneralLedgerEntry[];
+  closing_balance: number;
+}
+
+export interface GeneralLedgerReport {
+  period_start: string;
+  period_end: string;
+  accounts: GeneralLedgerAccount[];
+}
+
+// ── Journal Entry (API-persisted) ──
+export interface JournalLine {
+  accountId: string;
+  accountName: string;
+  debit: number;
+  credit: number;
+}
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  memo: string;
+  lines: JournalLine[];
+  created_at: string;
+}
+
+// ── Receipt / Invoice Scanner ──
+export interface ReceiptLineItem {
+  description: string;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+}
+
+export interface ReceiptExtraction {
+  vendor: string;
+  date: string;
+  amount: number;
+  tax: number;
+  tip: number;
+  subtotal: number;
+  currency: string;
+  category: string;
+  payment_method: string | null;
+  line_items: ReceiptLineItem[];
+  notes: string | null;
+}
+
+export interface ScannedReceipt {
+  id: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  extraction: ReceiptExtraction;
+  confidence: number;
+  status: 'scanned' | 'confirmed' | 'saved';
+  transaction_id: string | null;
+  created_at: string;
 }
