@@ -7,44 +7,61 @@ import {
   ArrowLeftRight,
   FileText,
   BarChart3,
-  Scale,
   Settings,
   Sparkles,
-  Landmark,
-  Repeat,
-  Clock,
-  FileCheck,
-  Target,
-  Upload,
-  BookOpen,
-  Package,
   Users,
-  CreditCard,
   ScanLine,
+  Receipt,
+  DollarSign,
+  PieChart,
+  CreditCard,
 } from "lucide-react";
 
-const navItems = [
-  { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
-  { href: "/scanner", icon: ScanLine, label: "Receipt Scanner" },
-  { href: "/clients", icon: Users, label: "Clients & Vendors" },
-  { href: "/accounts", icon: Landmark, label: "Accounts" },
-  { href: "/journal", icon: BookOpen, label: "Journal" },
-  { href: "/reconciliation", icon: Scale, label: "Reconcile" },
-  { href: "/invoices", icon: FileText, label: "Invoices" },
-  { href: "/estimates", icon: FileCheck, label: "Estimates" },
-  { href: "/recurring", icon: Repeat, label: "Recurring" },
-  { href: "/inventory", icon: Package, label: "Inventory" },
-  { href: "/budgets", icon: Target, label: "Budgets" },
-  { href: "/reports", icon: BarChart3, label: "Reports" },
-  { href: "/activity", icon: Clock, label: "Activity Log" },
-  { href: "/import", icon: Upload, label: "Import" },
-  { href: "/billing", icon: CreditCard, label: "Billing" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+interface NavSection {
+  title: string;
+  items: { href: string; icon: any; label: string }[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: "Overview",
+    items: [
+      { href: "/", icon: LayoutDashboard, label: "Dashboard" },
+    ],
+  },
+  {
+    title: "Money In & Out",
+    items: [
+      { href: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
+      { href: "/scanner", icon: ScanLine, label: "Scan Receipt" },
+      { href: "/invoices", icon: FileText, label: "Invoices" },
+      { href: "/recurring", icon: Receipt, label: "Recurring" },
+    ],
+  },
+  {
+    title: "Business",
+    items: [
+      { href: "/clients", icon: Users, label: "Clients" },
+      { href: "/budgets", icon: DollarSign, label: "Budgets" },
+      { href: "/reports", icon: BarChart3, label: "Reports" },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { href: "/billing", icon: CreditCard, label: "Billing" },
+      { href: "/settings", icon: Settings, label: "Settings" },
+    ],
+  },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
   return (
     <aside
@@ -65,59 +82,66 @@ export function Sidebar() {
         <span style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em' }}>Ledgr</span>
       </div>
 
-      {/* Navigation */}
-      <nav style={{ flex: 1, padding: '20px 12px 12px' }}>
-        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#475569', padding: '0 14px 10px' }}>
-          Menu
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="cursor-pointer"
-                aria-current={isActive ? "page" : undefined}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: isActive ? '10px 14px' : '10px 16px',
-                  borderRadius: 10,
-                  fontSize: 13,
-                  fontWeight: isActive ? 600 : 400,
-                  transition: 'all 0.15s',
-                  background: isActive ? 'rgba(124,58,237,0.15)' : 'transparent',
-                  color: isActive ? '#FFFFFF' : '#94A3B8',
-                  borderLeft: isActive ? '3px solid #A78BFA' : '3px solid transparent',
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-                    e.currentTarget.style.color = '#E2E8F0';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#94A3B8';
-                  }
-                }}
-              >
-                <item.icon
-                  className="shrink-0"
-                  style={{ width: 18, height: 18, color: isActive ? '#A78BFA' : '#64748B' }}
-                />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
+      {/* Navigation — grouped sections */}
+      <nav style={{ flex: 1, padding: '16px 12px 12px', overflowY: 'auto' }}>
+        {navSections.map((section) => (
+          <div key={section.title} style={{ marginBottom: 20 }}>
+            <p style={{
+              fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+              letterSpacing: '0.12em', color: '#475569', padding: '0 14px 8px',
+            }}>
+              {section.title}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="cursor-pointer"
+                    aria-current={active ? "page" : undefined}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: active ? '10px 14px' : '10px 16px',
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: active ? 600 : 400,
+                      transition: 'all 0.15s',
+                      background: active ? 'rgba(124,58,237,0.15)' : 'transparent',
+                      color: active ? '#FFFFFF' : '#94A3B8',
+                      borderLeft: active ? '3px solid #A78BFA' : '3px solid transparent',
+                      textDecoration: 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                        e.currentTarget.style.color = '#E2E8F0';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#94A3B8';
+                      }
+                    }}
+                  >
+                    <item.icon
+                      className="shrink-0"
+                      style={{ width: 18, height: 18, color: active ? '#A78BFA' : '#64748B' }}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      {/* AI Assistant CTA — prominent */}
+      {/* AI Assistant CTA */}
       <div style={{ padding: '0 12px 20px' }}>
         <Link
           href="/ai"
@@ -182,7 +206,7 @@ export function MobileNav() {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', height: 64, maxWidth: 420, margin: '0 auto' }}>
         {mobileItems.map((item) => {
-          const isActive = pathname === item.href;
+          const active = pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -190,14 +214,14 @@ export function MobileNav() {
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                 padding: '6px 12px', textDecoration: 'none', position: 'relative',
-                color: isActive ? '#7C3AED' : '#94A3B8',
+                color: active ? '#7C3AED' : '#94A3B8',
               }}
             >
-              {isActive && (
+              {active && (
                 <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, borderRadius: 99, background: '#7C3AED' }} />
               )}
               <item.icon style={{ width: 22, height: 22 }} />
-              <span style={{ fontSize: 10, fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
+              <span style={{ fontSize: 10, fontWeight: active ? 600 : 400 }}>{item.label}</span>
             </Link>
           );
         })}
