@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import { asRecord, getEnum, getString, getNumber, ValidationError, pickAllowed } from '@/lib/validate';
+
+const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue', 'void'] as const;
+// Fields a client may legally PATCH on an invoice. Anything not in this
+// list is silently dropped to prevent mass-assignment (see CLAUDE.md §Hard rules).
+const INVOICE_WRITE_FIELDS = [
+  'client_name',
+  'client_email',
+  'status',
+  'due_date',
+  'notes',
+  'tax_rate',
+] as const;
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -21,6 +34,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       items: typeof inv.items === 'string' ? JSON.parse(inv.items) : inv.items,
     });
   } catch (error) {
+    console.error('invoices[id].GET failed', error);
     return NextResponse.json({ error: 'Failed to fetch invoice' }, { status: 500 });
   }
 }
@@ -30,15 +44,38 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
     const { id } = await params;
-    const body = await request.json();
+
+    const body = asRecord(await request.json());
+    const allowed = pickAllowed(body, INVOICE_WRITE_FIELDS);
+
+    // Validate each present field (shape only — missing fields left alone).
+    const patch: Record<string, unknown> = {};
+    if ('client_name' in allowed) {
+      patch.client_name = getString(body, 'client_name', { required: true, max: 200 });
+    }
+    if ('client_email' in allowed) {
+      patch.client_email = getString(body, 'client_email', { max: 255 });
+    }
+    if ('status' in allowed) {
+      patch.status = getEnum(body, 'status', INVOICE_STATUSES, { required: true });
+    }
+    if ('due_date' in allowed) {
+      patch.due_date = getString(body, 'due_date', { max: 40 });
+    }
+    if ('notes' in allowed) {
+      patch.notes = getString(body, 'notes', { max: 2000 });
+    }
+    if ('tax_rate' in allowed) {
+      patch.tax_rate = getNumber(body, 'tax_rate', { min: 0, max: 100 });
+    }
 
     const result = await query('SELECT * FROM invoices WHERE id = $1', [id]);
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
 
-    const updates = { ...body, updated_at: new Date().toISOString() };
-    if (body.status === 'paid' && !result.rows[0].paid_date) {
+    const updates: Record<string, unknown> = { ...patch, updated_at: new Date().toISOString() };
+    if (patch.status === 'paid' && !result.rows[0].paid_date) {
       updates.paid_date = new Date().toISOString().split('T')[0];
     }
     const updated = { ...result.rows[0], ...updates };
@@ -46,6 +83,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(updated);
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error('invoices[id].PUT failed', error);
     return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
   }
 }

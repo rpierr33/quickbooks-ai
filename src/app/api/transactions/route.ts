@@ -3,6 +3,9 @@ import { query, addToStore } from '@/lib/db';
 import { categorizeTransaction } from '@/lib/ai';
 import { applyRules } from '@/lib/rules-engine';
 import { requireAuth } from '@/lib/auth-guard';
+import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
+
+const TX_TYPES = ['income', 'expense', 'transfer'] as const;
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,12 +46,14 @@ export async function POST(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const body = await request.json();
-    const { date, description, amount, type, account_id, category_id, notes } = body;
-
-    if (!date || !description || amount === undefined || !type) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
+    const body = asRecord(await request.json());
+    const date = getString(body, 'date', { required: true, max: 40 })!;
+    const description = getString(body, 'description', { required: true, max: 500 })!;
+    const amount = getNumber(body, 'amount', { required: true, min: 0 })!;
+    const type = getEnum(body, 'type', TX_TYPES, { required: true })!;
+    const account_id = getString(body, 'account_id', { max: 64 });
+    const category_id = getString(body, 'category_id', { max: 64 });
+    const notes = getString(body, 'notes', { max: 2000 });
 
     let finalCategoryId = category_id;
     let aiCategorized = false;
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Try rules engine first
     if (!finalCategoryId) {
-      const ruleResult = await applyRules(description, parseFloat(amount), type);
+      const ruleResult = await applyRules(description, amount, type);
       if (ruleResult.matched) {
         const setCategoryAction = ruleResult.actions.find(a => a.action === 'set_category');
         if (setCategoryAction) {
@@ -68,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // If still no category, try AI
     if (!finalCategoryId) {
-      const aiResult = await categorizeTransaction(description, parseFloat(amount));
+      const aiResult = await categorizeTransaction(description, amount);
       // Find matching category by name
       const categories = await query('SELECT * FROM categories');
       const matchedCat = categories.rows.find(
@@ -86,15 +91,15 @@ export async function POST(request: NextRequest) {
       id,
       date,
       description,
-      amount: parseFloat(amount),
+      amount,
       type,
-      account_id: account_id || null,
-      category_id: finalCategoryId || null,
+      account_id: account_id ?? null,
+      category_id: finalCategoryId ?? null,
       is_recurring: false,
       recurring_rule_id: null,
       ai_categorized: aiCategorized,
       ai_confidence: aiConfidence,
-      notes: notes || null,
+      notes: notes ?? null,
       attachments: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -103,6 +108,9 @@ export async function POST(request: NextRequest) {
     addToStore('transactions', newTransaction);
     return NextResponse.json(newTransaction, { status: 201 });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     console.error('Transactions POST error:', error);
     return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 });
   }

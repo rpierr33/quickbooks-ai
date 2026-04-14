@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import {
+  asRecord,
+  getString,
+  getNumber,
+  getArray,
+  ValidationError,
+} from '@/lib/validate';
 
 export async function GET() {
   try {
@@ -17,23 +24,50 @@ export async function GET() {
     }));
     return NextResponse.json(rows);
   } catch (error) {
+    console.error('invoices.GET failed', error);
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
   }
+}
+
+interface InvoiceItem {
+  description?: unknown;
+  quantity?: unknown;
+  rate?: unknown;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const body = await request.json();
-    const { client_name, client_email, items, tax_rate, due_date, notes } = body;
 
-    if (!client_name || !items || items.length === 0) {
-      return NextResponse.json({ error: 'Client name and items are required' }, { status: 400 });
-    }
+    const body = asRecord(await request.json());
+    const client_name = getString(body, 'client_name', { required: true, max: 200 });
+    const client_email = getString(body, 'client_email', { max: 255 });
+    const tax_rate = getNumber(body, 'tax_rate', { min: 0, max: 100 }) ?? 0;
+    const due_date = getString(body, 'due_date', { max: 40 });
+    const notes = getString(body, 'notes', { max: 2000 });
+    const rawItems = getArray(body, 'items', { required: true, min: 1 });
 
-    const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
-    const taxAmount = subtotal * ((tax_rate || 0) / 100);
+    // Validate every line item.
+    const items = (rawItems as InvoiceItem[]).map((it, i) => {
+      if (!it || typeof it !== 'object') {
+        throw new ValidationError(`items[${i}] must be an object`);
+      }
+      const description = typeof it.description === 'string' ? it.description.trim() : '';
+      const quantity = Number(it.quantity);
+      const rate = Number(it.rate);
+      if (!description) throw new ValidationError(`items[${i}].description is required`);
+      if (!Number.isFinite(quantity) || quantity <= 0) {
+        throw new ValidationError(`items[${i}].quantity must be > 0`);
+      }
+      if (!Number.isFinite(rate) || rate < 0) {
+        throw new ValidationError(`items[${i}].rate must be >= 0`);
+      }
+      return { description, quantity, rate };
+    });
+
+    const subtotal = items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+    const taxAmount = subtotal * (tax_rate / 100);
     const total = subtotal + taxAmount;
 
     // Generate invoice number
@@ -44,16 +78,16 @@ export async function POST(request: NextRequest) {
       id: crypto.randomUUID(),
       invoice_number: `INV-${num}`,
       client_name,
-      client_email: client_email || null,
+      client_email: client_email ?? null,
       items,
       subtotal: parseFloat(subtotal.toFixed(2)),
-      tax_rate: parseFloat((tax_rate || 0).toFixed(2)),
+      tax_rate: parseFloat(tax_rate.toFixed(2)),
       tax_amount: parseFloat(taxAmount.toFixed(2)),
       total: parseFloat(total.toFixed(2)),
       status: 'draft',
-      due_date: due_date || null,
+      due_date: due_date ?? null,
       paid_date: null,
-      notes: notes || null,
+      notes: notes ?? null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -61,6 +95,10 @@ export async function POST(request: NextRequest) {
     addToStore('invoices', newInvoice);
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error('invoices.POST failed', error);
     return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });
   }
 }

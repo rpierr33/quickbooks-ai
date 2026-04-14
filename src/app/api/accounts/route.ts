@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import { asRecord, getString, getEnum, ValidationError } from '@/lib/validate';
+
+const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const;
 
 export async function GET() {
   try {
@@ -13,6 +16,7 @@ export async function GET() {
     }));
     return NextResponse.json(rows);
   } catch (error) {
+    console.error('accounts.GET failed', error);
     return NextResponse.json({ error: 'Failed to fetch accounts' }, { status: 500 });
   }
 }
@@ -21,18 +25,17 @@ export async function POST(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const body = await request.json();
-    const { name, type, sub_type } = body;
 
-    if (!name || !type) {
-      return NextResponse.json({ error: 'Name and type are required' }, { status: 400 });
-    }
+    const body = asRecord(await request.json());
+    const name = getString(body, 'name', { required: true, max: 100 })!;
+    const type = getEnum(body, 'type', ACCOUNT_TYPES, { required: true })!;
+    const sub_type = getString(body, 'sub_type', { max: 50 });
 
     const newAccount = {
       id: crypto.randomUUID(),
       name,
       type,
-      sub_type: sub_type || null,
+      sub_type: sub_type ?? null,
       balance: 0,
       currency: 'USD',
       is_active: true,
@@ -43,6 +46,10 @@ export async function POST(request: NextRequest) {
     addToStore('accounts', newAccount);
     return NextResponse.json(newAccount, { status: 201 });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error('accounts.POST failed', error);
     return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
   }
 }

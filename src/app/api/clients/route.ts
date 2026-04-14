@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import { asRecord, getString, getEnum, ValidationError } from '@/lib/validate';
+
+const CLIENT_TYPES = ['client', 'vendor', 'both'] as const;
 
 export async function GET() {
   try {
@@ -103,26 +106,29 @@ export async function POST(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const body = await request.json();
-    const { name, email, phone, company, address, tax_id, type, notes } = body;
-
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
+    const body = asRecord(await request.json());
+    const name = getString(body, 'name', { required: true, max: 200 })!;
+    const email = getString(body, 'email', { max: 255 });
+    const phone = getString(body, 'phone', { max: 40 });
+    const company = getString(body, 'company', { max: 200 });
+    const address = getString(body, 'address', { max: 500 });
+    const tax_id = getString(body, 'tax_id', { max: 40 });
+    const type = getEnum(body, 'type', CLIENT_TYPES) ?? 'client';
+    const notes = getString(body, 'notes', { max: 2000 });
 
     const newClient = {
       id: crypto.randomUUID(),
       name,
-      email: email || null,
-      phone: phone || null,
-      company: company || null,
-      address: address || null,
-      tax_id: tax_id || null,
-      type: type || 'client',
+      email: email ?? null,
+      phone: phone ?? null,
+      company: company ?? null,
+      address: address ?? null,
+      tax_id: tax_id ?? null,
+      type,
       total_invoiced: 0,
       total_paid: 0,
       outstanding_balance: 0,
-      notes: notes || null,
+      notes: notes ?? null,
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -131,6 +137,10 @@ export async function POST(request: NextRequest) {
     addToStore('clients', newClient);
     return NextResponse.json(newClient, { status: 201 });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    console.error('clients.POST failed', error);
     return NextResponse.json({ error: 'Failed to create client' }, { status: 500 });
   }
 }
