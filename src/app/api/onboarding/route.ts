@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const user = await findUserById((session.user?.id as string) ?? "");
+  const user = await findUserById(((session as any)?.user?.id as string) ?? "");
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
   const companyId = user.company_id;
 
@@ -117,7 +117,7 @@ export async function GET() {
   const { session, unauthorized } = await requireAuth();
   if (unauthorized) return unauthorized;
 
-  const user = await findUserById((session.user?.id as string) ?? "");
+  const user = await findUserById(((session as any)?.user?.id as string) ?? "");
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   if (pool) {

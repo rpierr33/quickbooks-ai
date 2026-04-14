@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireWrite, requireDelete } from '@/lib/auth-guard';
 import {
   asRecord,
   getString,
@@ -25,7 +25,7 @@ const TX_TYPES = ['income', 'expense', 'transfer'] as const;
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized } = await requireWrite();
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
@@ -61,7 +61,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized } = await requireDelete();
     if (unauthorized) return unauthorized;
     const { id } = await params;
     await query('DELETE FROM transactions WHERE id = $1', [id]);

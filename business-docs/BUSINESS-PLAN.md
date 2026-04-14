@@ -12,7 +12,7 @@
 
 QuickBooks holds roughly 80% of the U.S. small business accounting market — and has a 1.1/5 star rating on Trustpilot, with 93% of reviewers giving it 1 star. Its pricing has compounded annually for a decade: $38–275/month depending on the tier. AI features, budgeting tools, inventory management, and an activity log all require the top-tier plan at $275/month.
 
-Ledgr is a full-featured, AI-native accounting platform priced at $0–79/month. Every plan includes the AI capabilities QuickBooks reserves for enterprise customers. The product has been fully built: 22 pages, 22 API routes, 7 financial reports, 6 AI endpoints, double-entry accounting, bank reconciliation, invoice management, receipt scanning, and a conversational AI assistant powered by GPT-4o-mini.
+Ledgr is a full-featured, AI-native accounting platform priced at $29.99–$139.99/month, with a 14-day free trial giving every new user full Professional access. Every plan includes the AI capabilities QuickBooks reserves for enterprise customers. The product has been fully built: 22 pages, 22 API routes, 7 financial reports, 6 AI endpoints, double-entry accounting, bank reconciliation, invoice management, receipt scanning, and a conversational AI assistant powered by GPT-4o-mini.
 
 The platform is live, functional, and ready for user acquisition.
 
@@ -38,11 +38,11 @@ The platform is live, functional, and ready for user acquisition.
 | U.S. SMB accounting software | $8.3B | IBISWorld, 2025 |
 | U.S. small businesses (under 500 employees) | 33.2M | SBA Office of Advocacy, 2024 |
 | U.S. businesses using accounting software | ~18M | Industry estimates, Statista 2025 |
-| Addressable: businesses paying $19–79/mo for accounting | ~7M | Derived from segment size |
+| Addressable: businesses paying $29–140/mo for accounting | ~7M | Derived from segment size |
 
 **TAM:** $8.3B (U.S. SMB accounting software)
 **SAM:** ~$2.1B (freelancers, solopreneurs, and businesses under 50 employees actively paying for accounting software)
-**SOM (Year 1–3):** ~$5.7M (targeting 5,000 paying customers at blended $95 ARPU/month)
+**SOM (Year 1–3):** ~$5.7M (targeting 5,000 paying customers at blended $55 ARPU/month)
 
 ### 2.2 The Problem — Three Personas
 
@@ -64,7 +64,7 @@ Generative AI is transforming financial workflows. Transaction categorization, a
 Trustpilot data as of April 2026: QuickBooks Online has a 1.1/5 rating with 93% of reviewers giving 1 star. Top complaints: price increases without notice, poor support, complexity. Reddit communities (r/QuickBooks, r/smallbusiness) see daily posts from businesses looking to switch. This organic discontent is a durable acquisition channel.
 
 **Pricing Pressure on the Incumbent**
-QuickBooks raised prices in 2020, 2022, 2023, and 2024. The $38/month entry tier (Simple Start) has more than doubled from $15/month in 2018. Each announcement triggers a spike in competitor search traffic. Ledgr's free tier and transparent pricing are a direct contrast.
+QuickBooks raised prices in 2020, 2022, 2023, and 2024. The $38/month entry tier (Simple Start) has more than doubled from $15/month in 2018. Each announcement triggers a spike in competitor search traffic. Ledgr's 14-day full-access trial and transparent pricing are a direct contrast.
 
 ---
 
@@ -101,9 +101,9 @@ QuickBooks raised prices in 2020, 2022, 2023, and 2024. The $38/month entry tier
 - Tax summary by category
 
 **Team and scale**
-- Multi-user with role-based access (Pro tier and above)
+- Multi-user with role-based access (Professional tier and above)
 - Inventory management (Business tier and above)
-- API access for custom integrations (Enterprise tier)
+- API access (Enterprise tier)
 
 ### 3.2 Technology Stack
 
@@ -142,31 +142,34 @@ All AI responses are cached for 24 hours to minimize API costs.
 
 | Tier | Price | Key Inclusions |
 |------|-------|---------------|
-| **Free** | $0/mo | 1 user, all core features, 20 invoices/month, AI categorization, AI chat |
-| **Pro** | $19/mo | Unlimited invoices, bank feeds (Plaid), full AI suite, 3 users |
-| **Business** | $39/mo | Unlimited users, multi-currency, inventory management, payroll (Q3 2026) |
-| **Enterprise** | $79/mo | Custom roles, API access, dedicated support SLA, custom reports |
+| **Free Trial** | 14 days, full Professional access | Lead capture, no credit card required |
+| **Starter** | $29.99/mo ($23.99/mo annual) | 1 user, 20 invoices/mo, bank feeds, AI features, receipt scanning, mileage tracking, budgeting, basic reports |
+| **Professional** | $59.99/mo ($47.99/mo annual) | 3 users, unlimited invoices, multi-currency, time tracking, bill management, accountant access (1 seat), all reports |
+| **Business** | $99.99/mo ($79.99/mo annual) | 10 users, inventory, purchase orders, project tracking, 1099 contractors, accountant access (3 seats), client portal |
+| **Enterprise** | $139.99/mo ($111.99/mo annual) | Unlimited users, custom roles, API access, white-label invoices, dedicated support, white-glove migration |
+| **Payroll Add-on** | $20/mo + $5/employee | Full payroll processing — available on Business and Enterprise |
 
-**Annual billing discount:** 2 months free (16.7% savings) — increases ARPU and reduces churn.
+**Annual billing discount:** ~20% savings — increases ARPU and reduces churn.
 
 **Positioning logic:**
-- Free tier converts QuickBooks refugees with zero friction
-- Pro at $19 is 50% below FreshBooks' entry plan and delivers more features
-- Business at $39 replaces QuickBooks Plus ($115/mo) directly
-- Enterprise at $79 replaces QuickBooks Advanced ($275/mo) for growing teams
+- 14-day full trial converts QuickBooks refugees with zero friction — every new user experiences the full Professional tier before committing
+- Starter at $29.99 is comparable to FreshBooks' entry plan but delivers AI features FreshBooks does not offer at any tier
+- Professional at $59.99 replaces QuickBooks Plus ($115/mo) directly, at roughly half the cost
+- Business at $99.99 replaces QuickBooks Advanced ($275/mo) for growing teams that don't need enterprise headcount
+- Enterprise at $139.99 targets accounting firms, multi-entity businesses, and API integrators
 
 ### 4.2 Unit Economics (Projections)
 
 | Metric | Target |
 |--------|--------|
-| Blended ARPU (paying users) | $29/month |
+| Blended ARPU (paying users, Month 12 mix) | $55/month |
 | Gross margin (SaaS) | 82% |
 | Monthly churn target | 2.5% (annual: ~27%) |
 | Average customer lifetime | 40 months |
-| LTV (blended) | $29 × 40 × 0.82 = **$951** |
-| Target CAC (Year 1) | $180 |
-| LTV:CAC ratio | **5.3x** |
-| CAC payback period | 7.5 months |
+| LTV (blended) | $55 × 40 × 0.82 = **$1,804** |
+| Target CAC (Year 1) | $200 |
+| LTV:CAC ratio | **9.0x** |
+| CAC payback period | 4.5 months |
 
 **Churn rationale:** Industry average for SMB SaaS is 3–7% monthly. Targeting 2.5% because accounting software is sticky — switching costs are high once a business has 6+ months of historical data. FreshBooks publicly reports annual churn under 20%.
 
@@ -176,6 +179,7 @@ All AI responses are cached for 24 hours to minimize API costs.
 |--------|----------|-------|
 | Payment processing | Q3 2026 | 0.5% fee on invoices paid through Ledgr (Stripe Connect) |
 | Accountant partner tier | Q4 2026 | $99/mo per firm, unlimited client orgs |
+| Payroll Add-on | Q4 2026 | $20/mo base + $5/employee/mo |
 | API access (Enterprise+) | Q4 2026 | Metered API calls, $0.01/call above 10K/mo |
 | White-label licensing | Year 2 | Revenue share with financial institutions |
 | Premium AI features | Year 2 | Advanced forecasting, tax prep AI, audit assistant |
@@ -188,50 +192,60 @@ Payment processing alone has significant upside: if Ledgr processes 20% of invoi
 
 ### 5.1 Key Assumptions
 
-- Free-to-paid conversion rate: 8% (industry range: 3–15%; Notion converts ~5%, Linear ~10%)
+- Free trial-to-paid conversion rate: 30% (full-feature trial drives higher intent than freemium)
 - Monthly churn (paying users): 2.5%
-- Blended ARPU (paying): $29/month
-- CAC (Year 1): $180, declining to $120 by Month 18 as content SEO matures
+- Month 1 mix: 60% Starter, 25% Professional, 10% Business, 5% Enterprise
+- Month 12 mix: 50% Starter, 30% Professional, 15% Business, 5% Enterprise
+- Blended ARPU (Month 1 mix): $50/month
+- Blended ARPU (Month 12 mix): $55/month
+- CAC (Year 1): $200, declining to $140 by Month 18 as content SEO matures
 - Gross margin: 82%
 - OpenAI API cost: ~$0.003/user/month (cached, efficient prompts)
 - Infrastructure cost per user: ~$0.80/month
 
-### 5.2 Year 1 — Quarterly Breakdown
+### 5.2 Monthly MRR Milestones
+
+| Milestone | Users | MRR | ARPU Basis |
+|-----------|-------|-----|------------|
+| Month 1 | 100 paying | $5,000 | $29.99×60 + $59.99×25 + $99.99×10 + $139.99×5 |
+| Month 6 | 1,500 paying | $75,000 | Same 60/25/10/5 distribution |
+| Month 12 | 5,000 paying | $275,000 | 50/30/15/5 distribution |
+
+### 5.3 Year 1 — Quarterly Breakdown
 
 | Metric | Q1 | Q2 | Q3 | Q4 |
 |--------|----|----|----|-----|
-| Total users (Free + Paying) | 350 | 900 | 1,850 | 3,400 |
-| Paying users | 28 | 92 | 228 | 448 |
-| MRR | $812 | $2,668 | $6,612 | $12,992 |
-| ARR (run rate) | $9,744 | $32,016 | $79,344 | $155,904 |
+| Paying users | 100 | 400 | 1,000 | 2,000 |
+| MRR | $5,000 | $20,000 | $50,000 | $110,000 |
+| ARR (run rate) | $60,000 | $240,000 | $600,000 | $1,320,000 |
 | Monthly burn | $22,000 | $24,000 | $28,000 | $32,000 |
-| Cumulative revenue | $2,436 | $10,440 | $30,276 | $71,232 |
+| Cumulative revenue | $15,000 | $75,000 | $225,000 | $585,000 |
 
-**Year 1 ARR (end of year):** $156K
-**Year 1 total revenue:** $71K
+**Year 1 ARR (end of year):** $1.32M
+**Year 1 total revenue:** $585K
 
-### 5.3 Year 2–3 Summary
+### 5.4 Year 2–3 Summary
 
-| Year | Total Users | Paying Users | ARR | Revenue |
-|------|-------------|--------------|-----|---------|
-| Year 2 | 9,500 | 1,425 | $496K | $418K |
-| Year 3 | 22,000 | 3,960 | $1.38M | $1.16M |
+| Year | Paying Users | ARR | Revenue |
+|------|-------------|-----|---------|
+| Year 2 | 6,500 | $4.3M | $3.6M |
+| Year 3 | 14,000 | $9.2M | $7.8M |
 
-### 5.4 5-Year Revenue Target
+### 5.5 5-Year Revenue Target
 
 | Year | Paying Users | ARR |
 |------|-------------|-----|
-| 2026 | 448 | $156K |
-| 2027 | 1,425 | $496K |
-| 2028 | 3,960 | $1.38M |
-| 2029 | 7,200 | $2.51M |
-| 2030 | 14,000 | $4.87M |
+| 2026 | 2,000 | $1.32M |
+| 2027 | 6,500 | $4.3M |
+| 2028 | 14,000 | $9.2M |
+| 2029 | 24,000 | $15.8M |
+| 2030 | 38,000 | $25M |
 
-**Year 5 exit case:** With strong net dollar retention from the payment processing add-on and API tier, total revenue (including non-subscription) reaches $6–8M by Year 5.
+**Year 5 exit case:** With strong net dollar retention from the payroll add-on, payment processing, and API tier, total revenue (including non-subscription) reaches $28–32M by Year 5.
 
-**Path to profitability:** Gross margin of 82% means the business becomes contribution-margin positive at approximately 400 paying users ($11,600 MRR). At the Year 2 trajectory, this occurs in Q2 Year 2. Full operating profitability requires headcount scaling — estimated at Year 3 with a 5-person team.
+**Path to profitability:** Gross margin of 82% means the business becomes contribution-margin positive at approximately 150 paying users ($8,250 MRR at blended $55 ARPU). At the Year 1 Q1 trajectory, this occurs within the first quarter. Full operating profitability requires headcount scaling — estimated at Year 3 with a 5-person team.
 
-### 5.5 Burn and Runway
+### 5.6 Burn and Runway
 
 **Seed ask: $750,000**
 
@@ -245,7 +259,7 @@ Payment processing alone has significant upside: if Ledgr processes 20% of invoi
 | Q2 2027 | $44K | $564K |
 | Q3 2027 | $50K | $714K |
 
-**Runway at $750K seed:** ~21 months. Revenue from paying users reduces net burn from Month 8 onward. Series A target: Q3 2027, at $400K ARR.
+**Runway at $750K seed:** ~21 months. Revenue from paying users reduces net burn from Month 4 onward (higher ARPU accelerates break-even vs. freemium model). Series A target: Q3 2027, at $2M+ ARR.
 
 ---
 
@@ -280,19 +294,19 @@ A pre-money valuation of $2–3M represents a 3–6x premium over pure replaceme
 
 ### Method 3: Revenue Forward
 
-Using Year 2 projected ARR of $496K and a 10x ARR multiple (standard for early-stage SaaS with strong growth):
+Using Year 2 projected ARR of $4.3M and a 10x ARR multiple (standard for early-stage SaaS with strong growth):
 
-**Forward valuation:** $4.96M discounted 60% for pre-revenue risk = **$2M today**
+**Forward valuation:** $4.3M discounted 60% for pre-revenue risk = **$17.2M** → applying a 70% early-stage discount = **$5.2M today**
 
-A 3–5x ARR multiple applied to Year 3 ($1.38M ARR) discounted back 3 years at 40% per year:
+A 3–5x ARR multiple applied to Year 3 ($9.2M ARR) discounted back 3 years at 40% per year:
 
-$1.38M × 4x = $5.52M / (1.4)^3 = **$2.01M today**
+$9.2M × 4x = $36.8M / (1.4)^3 = **$13.4M** → applying a 70% pre-revenue discount = **$4.0M today**
 
-Both approaches converge at approximately $2M.
+Both approaches support a $3–5M pre-money range, with the $2.5M ask remaining conservative.
 
 ### Method 4: Market Gap Opportunity
 
-QuickBooks' U.S. revenue from SMB subscriptions is estimated at $4.3B annually (Intuit 10-K, FY2025). Capturing just 0.25% of that market at Ledgr's pricing ($29 blended ARPU) represents:
+QuickBooks' U.S. revenue from SMB subscriptions is estimated at $4.3B annually (Intuit 10-K, FY2025). Capturing just 0.25% of that market at Ledgr's pricing ($55 blended ARPU) represents:
 
 $4.3B × 0.25% = $10.75M annual revenue → at 8x ARR = **$86M valuation**
 
@@ -304,7 +318,7 @@ Pre-seed investors at $2–3M pre-money are buying into the journey toward that 
 |--------|------------------|
 | Market comps (comparables) | $2M–$5M |
 | Asset-based (replacement cost) | $1.5M–$3M |
-| Revenue forward (discounted) | $2M |
+| Revenue forward (discounted) | $4M–$5M |
 | Market gap (0.25% capture) | $86M (long-term) |
 | **Proposed pre-money** | **$2.5M** |
 
@@ -320,7 +334,7 @@ Ralph Pierre is a full-stack software engineer who designed, built, and shipped 
 
 **Builder mindset:** Built and shipped multiple SaaS products independently across fintech, workforce management, and AI tooling. Approaches product problems from first principles — identifies what the user actually needs versus what incumbents have built by inertia.
 
-**Domain insight:** Identified the QuickBooks problem space by studying the Trustpilot data, Reddit communities, and competitor pricing histories — not by assumption. The product architecture reflects real user pain: AI features at every tier, pricing under $80/month, an interface designed for operators rather than CPAs.
+**Domain insight:** Identified the QuickBooks problem space by studying the Trustpilot data, Reddit communities, and competitor pricing histories — not by assumption. The product architecture reflects real user pain: AI features at every tier, pricing starting at $29.99/month, an interface designed for operators rather than CPAs.
 
 **Advisors / future hires:** The business requires a Head of Marketing/Growth and a Customer Success lead in Year 1. A CFO-level advisor is being recruited for the seed round close.
 
@@ -336,9 +350,9 @@ The single highest-leverage acquisition opportunity is the moment QuickBooks ann
 
 Historical QuickBooks price increase dates: February 2020, August 2022, January 2023, October 2023, March 2024. One more is expected in 2026. Each announcement generates tens of thousands of organic searches.
 
-### 8.2 Phase 1 (Months 1–6): Free Tier + SEO Virality
+### 8.2 Phase 1 (Months 1–6): 14-Day Trial + SEO Virality
 
-**Goal:** 500 free users, 40 paying users, $1,200 MRR
+**Goal:** 500 trial signups, 150 paying users, $7,500 MRR
 
 **Channels:**
 - SEO: Target "QuickBooks alternatives," "free accounting software for freelancers," "Wave alternative," "FreshBooks vs [competitor]" — these are high-intent keywords with significant search volume
@@ -356,7 +370,7 @@ Historical QuickBooks price increase dates: February 2020, August 2022, January 
 
 ### 8.3 Phase 2 (Months 6–12): Accountant Partnerships
 
-**Goal:** 200 paying users, $5,800 MRR
+**Goal:** 600 paying users, $33,000 MRR
 
 Accountants recommend software to their clients. A single accountant with 40 small business clients who recommends Ledgr generates 40 leads — many of whom convert. FreshBooks built significant early traction through accountant referral networks.
 
@@ -368,19 +382,19 @@ Accountants recommend software to their clients. A single accountant with 40 sma
 
 ### 8.4 Phase 3 (Months 12–24): Self-Serve Growth + Paid Acquisition
 
-**Goal:** 1,500 paying users, $43,500 MRR
+**Goal:** 3,000 paying users, $165,000 MRR
 
-Once CAC is understood and the content funnel is producing leads at sub-$100 cost, add paid acquisition to accelerate:
+Once CAC is understood and the content funnel is producing leads at sub-$150 cost, add paid acquisition to accelerate:
 
 - Google Ads targeting "QuickBooks alternatives," "accounting software for small business," competitor comparison terms
 - Facebook/Instagram targeting small business owners (interest + job title targeting)
 - YouTube pre-roll on accounting/tax/bookkeeping tutorial content
 
-**CAC target in Phase 3:** $120–150. At $29 blended ARPU and 82% gross margin, this produces a 7-month payback period.
+**CAC target in Phase 3:** $150–180. At $55 blended ARPU and 82% gross margin, this produces a 4-month payback period.
 
 ### 8.5 Phase 4 (Year 2+): Enterprise and API
 
-**Goal:** Land 10 Enterprise accounts ($79/mo) and 5 accountant firm accounts ($99/mo) by Q2 Year 2
+**Goal:** Land 20 Enterprise accounts ($139.99/mo) and 10 accountant firm accounts ($99/mo) by Q2 Year 2
 
 - Direct outreach to accountant firms
 - API partnerships with payroll providers, e-commerce platforms, financial services
@@ -414,6 +428,7 @@ These channels consume budget before the product is proven:
 
 | Stream | Timeline | Revenue Model | Year 2 Estimate |
 |--------|----------|---------------|-----------------|
+| Payroll Add-on | Q1 2027 | $20/mo + $5/employee | $180K/year |
 | Payment processing | Q1 2027 | 0.5% on processed invoices | $28K/year |
 | Accountant firm tier | Q2 2027 | $99/mo per firm | $47K/year |
 | Metered API access | Q3 2027 | $0.01/call above 10K | $18K/year |
@@ -424,10 +439,9 @@ These channels consume budget before the product is proven:
 |--------|----------|---------------|-----------------|
 | White-label licensing | Q1 2028 | $2,000/mo per licensee | $96K/year |
 | Tax prep AI add-on | Q2 2028 | $49 one-time per tax year | $145K/year |
-| Payroll module | Q3 2028 | $6/employee/month | $180K/year |
 | Embedded finance (SMB loans) | Q4 2028 | Referral fee from lenders | $60K/year |
 
-The payroll module alone — targeting Business and Enterprise tier users — represents a potential $1.8M in additional ARR at 2,500 paying companies averaging 10 employees.
+The payroll module alone — targeting Business and Enterprise tier users — represents a potential $3.6M in additional ARR at 2,500 paying companies averaging 12 employees at $5/employee/month.
 
 ---
 
@@ -483,10 +497,10 @@ The engineering leverage from the fully-built platform means Year 1 hiring is we
 
 ### 11.1 Feature Comparison Matrix
 
-| Feature | Ledgr Free | Ledgr Pro ($19) | QuickBooks Simple ($38) | QuickBooks Plus ($115) | QuickBooks Advanced ($275) | FreshBooks ($23) | Wave (Free) | Xero ($25) |
+| Feature | Ledgr Starter ($29.99) | Ledgr Professional ($59.99) | QuickBooks Simple ($38) | QuickBooks Plus ($115) | QuickBooks Advanced ($275) | FreshBooks ($23) | Wave (Free) | Xero ($25) |
 |---------|-----------|----------------|------------------------|----------------------|---------------------------|-----------------|------------|-----------|
-| Invoicing | Unlimited* | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited |
-| Bank feeds | — | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Invoicing | 20/mo | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited | Unlimited |
+| Bank feeds | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Expenses | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Inventory | — | — | — | Yes | Yes | — | — | Yes |
 | Budgeting | Yes | Yes | — | Yes | Yes | — | — | Yes |
@@ -497,23 +511,21 @@ The engineering leverage from the fully-built platform means Year 1 hiring is we
 | Receipt scanning | Yes | Yes | Yes (add-on) | Yes (add-on) | Yes | Yes | Yes | Yes |
 | Financial reports (7+) | Yes | Yes | 3 reports | 40+ | 40+ | Yes | Yes | Yes |
 | Journal entries | Yes | Yes | — | Yes | Yes | — | Yes | Yes |
-| Multi-currency | — | — | — | — | Yes | Yes ($55) | — | Yes |
+| Multi-currency | — | Yes | — | — | Yes | Yes ($55) | — | Yes |
 | Users included | 1 | 3 | 1 | 5 | 25 | 1 | 1 | 1 |
-| Price (month) | $0 | $19 | $38 | $115 | $275 | $23–70 | $0–16 | $25–90 |
+| Price (month) | $29.99 | $59.99 | $38 | $115 | $275 | $23–70 | $0–16 | $25–90 |
 | Trustpilot rating | N/A | N/A | 1.1/5 | 1.1/5 | 1.1/5 | 2.8/5 | 4.0/5 | 3.2/5 |
 
-*20 invoices/month on Free tier; unlimited on paid tiers
-
 **The core competitive argument:**
-Ledgr's free tier includes more AI features than QuickBooks' $275/month plan. The Pro tier at $19 replaces QuickBooks Plus at $115 for the majority of small business workflows.
+Ledgr's Starter tier at $29.99 includes AI features QuickBooks reserves for its $275/month Advanced plan. The Professional tier at $59.99 replaces QuickBooks Plus at $115 for the majority of small business workflows — at roughly half the cost — while adding multi-currency and time tracking.
 
 ### 11.2 Competitive Positioning
 
-**vs. QuickBooks:** 75%+ cheaper, AI included at every tier, modern UI designed for non-accountants, honest transparent pricing.
+**vs. QuickBooks:** 50–78% cheaper, AI included at every tier, modern UI designed for non-accountants, honest transparent pricing.
 
-**vs. FreshBooks:** More complete accounting (double-entry, CoA, journal entries), AI features FreshBooks does not have, lower entry price.
+**vs. FreshBooks:** More complete accounting (double-entry, CoA, journal entries), AI features FreshBooks does not have, lower total cost of ownership.
 
-**vs. Wave:** Comparable free tier, but Ledgr includes AI categorization, AI chat, forecasting, and full double-entry accounting. Wave's AI features are in development; Ledgr ships them on day one.
+**vs. Wave:** Comparable free entry point (14-day trial), but Ledgr includes AI categorization, AI chat, forecasting, and full double-entry accounting. Wave's AI features are in development; Ledgr ships them on day one.
 
 **vs. Xero:** Xero targets accountants. Ledgr targets business owners. Xero at $25/month requires a learning curve and accounting knowledge. Ledgr is designed to be intuitive without a bookkeeping background.
 
@@ -525,7 +537,7 @@ Ledgr's free tier includes more AI features than QuickBooks' $275/month plan. Th
 |------|-----------|--------|------------|
 | QuickBooks responds with price cuts or free tier | Medium | High | Ledgr's AI depth, UX quality, and trust are not copyable in 6 months; also, Intuit's revenue incentive prevents deep discounting |
 | OpenAI API cost increase | Low | Medium | 24-hour response caching; can switch to open-source models (Llama 3.3, Mistral) |
-| Slow user acquisition vs. projections | High | Medium | Free tier lowers conversion barrier; SEO is compounding, not linear; conservative projections already account for this |
+| Slow user acquisition vs. projections | High | Medium | 14-day full trial lowers conversion barrier; SEO is compounding, not linear; conservative projections already account for this |
 | Churn higher than 2.5%/month | Medium | High | Sticky data (6+ months of transactions, reports, invoices) makes switching painful; activate users early |
 | Regulatory / compliance gap (tax, data residency) | Low | High | Do not process tax returns or hold financial accounts; data residency via Vercel/Neon region selection |
 | Founder single point of failure | Medium | High | Document all systems; hire engineer by Month 10; advisors cover knowledge gaps |
@@ -539,19 +551,19 @@ Ledgr's free tier includes more AI features than QuickBooks' $275/month plan. Th
 | Milestone | Target Date | Description |
 |-----------|------------|-------------|
 | Seed close | June 2026 | $750K at $2.5M pre-money |
-| Public beta launch | July 2026 | Free tier open to first 1,000 users |
+| Public beta launch | July 2026 | 14-day free trial open to first 1,000 users |
 | Product Hunt launch | August 2026 | Target Top 3 in Finance category |
-| First 100 paying users | September 2026 | $2,900 MRR |
-| $10,000 MRR | November 2026 | ~345 paying users |
+| First 100 paying users | August 2026 | $5,000 MRR |
+| $10,000 MRR | September 2026 | ~182 paying users at blended $55 ARPU |
 | Accountant partner program launch | December 2026 | 10 founding accountant partners |
-| $100K ARR | Q2 2027 | ~287 paying users at blended $29 ARPU |
+| $100K ARR | Q1 2027 | ~152 paying users at $55 blended ARPU (hitting MRR milestone faster due to higher ARPU) |
 | Series A preparation | Q3 2027 | Deck, data room, investor outreach |
 | Payment processing live | Q3 2027 | Stripe Connect, 0.5% take rate |
-| $500K ARR | Q4 2027 | ~1,437 paying users |
-| Series A close | Q1 2028 | $3–5M at $15–20M pre-money |
-| $1M ARR | Q2 2028 | ~2,873 paying users |
-| Payroll module launch | Q3 2028 | Additional revenue stream |
-| Break-even (operating) | Q4 2028 | With 5-person team |
+| $2M ARR | Q4 2027 | ~3,030 paying users |
+| Series A close | Q1 2028 | $5–8M at $20–30M pre-money |
+| $5M ARR | Q2 2028 | ~7,576 paying users |
+| Payroll module launch | Q3 2026 | Additional revenue stream |
+| Break-even (operating) | Q3 2027 | With 4-person team, MRR exceeds burn |
 
 ---
 

@@ -4,7 +4,7 @@
 
 ## The One-Liner
 
-**Ledgr is AI-powered accounting that costs 75% less than QuickBooks — with features they charge $275/month for, included free.**
+**Ledgr is AI-powered accounting that costs 50–78% less than QuickBooks — with features they charge $275/month for, starting at $29.99/month.**
 
 ---
 
@@ -31,13 +31,13 @@ They have raised prices every year since 2018. The entry plan that cost $15/mont
 Ledgr is an AI-native accounting platform that gives every small business — from a solo freelancer to a 50-person company — enterprise-grade financial tools at a fraction of what they currently pay.
 
 **For the freelancer (Sara, 32, graphic designer):**
-Create invoices, track expenses, run a P&L, and ask an AI assistant "how much have I made this year?" — all for $0/month. No credit card.
+Create invoices, track expenses, run a P&L, and ask an AI assistant "how much have I made this year?" — all starting at $29.99/month. A 14-day free trial gives her full Professional access before she pays a dollar.
 
 **For the small business owner (Marcus, landscaping company):**
-Inventory tracking, budgeting, bank reconciliation, AI transaction categorization, and 7 financial reports — $39/month. That's $76 less per month than QuickBooks Plus.
+Inventory tracking, budgeting, bank reconciliation, AI transaction categorization, and 7 financial reports — $59.99/month. That's $55 less per month than QuickBooks Plus.
 
 **For the growing company (Priya, 12-person e-commerce brand):**
-Custom roles, API access, audit trail, AI insights, cash flow forecasting, and dedicated support — $79/month. QuickBooks charges $275/month for the same.
+Custom roles, API access, audit trail, AI insights, cash flow forecasting, and dedicated support — $139.99/month. QuickBooks charges $275/month for the same.
 
 One product. Every tier. AI included. Pricing that doesn't punish growth.
 
@@ -83,8 +83,8 @@ The platform is complete. No prototype. No wireframes. A fully functional, produ
 
 **The full user journey in 6 steps:**
 
-1. **Sign up** — Free account, no credit card, set up your company in 2 minutes
-2. **Connect your bank** — Plaid integration pulls transactions automatically (Pro and above)
+1. **Sign up** — 14-day free trial, full Professional access, no credit card required
+2. **Connect your bank** — Plaid integration pulls transactions automatically
 3. **AI categorizes everything** — GPT-4o-mini classifies transactions against your chart of accounts; review and confirm with one click
 4. **Review your dashboard** — Real-time P&L, cash position, revenue vs. expenses, and accounts receivable
 5. **Generate reports** — One click to produce P&L, Balance Sheet, Cash Flow, or Tax Summary — formatted, accurate, ready for your accountant
@@ -98,23 +98,23 @@ The entire workflow requires zero accounting knowledge. If you can read a bank s
 
 ### Side-by-Side Comparison
 
-| | Ledgr Pro ($19/mo) | QuickBooks Plus ($115/mo) | FreshBooks Plus ($55/mo) |
+| | Ledgr Professional ($59.99/mo) | QuickBooks Plus ($115/mo) | FreshBooks Plus ($55/mo) |
 |--|-------------------|--------------------------|-------------------------|
 | AI chat assistant | Yes | No | No |
 | AI cash flow forecast | Yes | No | No |
 | AI transaction categorization | Yes | Basic | No |
 | Receipt scanning | Yes | Add-on cost | Yes |
-| Inventory management | Business tier ($39) | Yes | No |
+| Inventory management | Business tier ($99.99) | Yes | No |
 | Budgeting | Yes | Yes | No |
 | Activity log / audit trail | Yes | No | No |
 | Financial reports | 7 included | 40+ | 5 |
 | Journal entries (double-entry) | Yes | No (Simple Start) | No |
 | Users included | 3 | 5 | 1 |
-| Monthly price | **$19** | **$115** | **$55** |
-| Annual savings vs. alternative | — | **$1,152/year** | **$432/year** |
+| Monthly price | **$59.99** | **$115** | **$55** |
+| Annual savings vs. alternative | — | **$660/year** | **Comparable price, more features** |
 | Trustpilot rating | — | 1.1/5 | 2.8/5 |
 
-**The headline number: Ledgr Pro is 83% cheaper than QuickBooks Plus and includes AI features QuickBooks does not offer at any price below $275/month.**
+**The headline number: Ledgr Professional is 48% cheaper than QuickBooks Plus and includes AI features QuickBooks does not offer at any price below $275/month.**
 
 ---
 
@@ -126,13 +126,15 @@ The entire workflow requires zero accounting knowledge. If you can read a bank s
 
 | Tier | Price | Target Customer |
 |------|-------|----------------|
-| Free | $0 | Freelancers, early-stage solopreneurs |
-| Pro | $19/mo | Growing freelancers, small businesses |
-| Business | $39/mo | 5–50 employee companies |
-| Enterprise | $79/mo | Multi-location, API users, accounting firms |
+| Free Trial | 14 days, full Professional access | All new signups — high-intent lead capture |
+| Starter | $29.99/mo ($23.99 annual) | Solo entrepreneurs, freelancers |
+| Professional | $59.99/mo ($47.99 annual) | Small teams, growing businesses |
+| Business | $99.99/mo ($79.99 annual) | Growing companies (10 users, inventory, POs) |
+| Enterprise | $139.99/mo ($111.99 annual) | Accounting firms, multi-entity businesses |
+| Payroll Add-on | $20/mo + $5/employee | Business + Enterprise subscribers |
 
 **2. Payment processing (Q3 2026)**
-0.5% fee on invoices paid through Ledgr. At 2,000 paying users invoicing an average of $8,000/month, this generates $80,000/month in GMV and $400/month at launch, scaling to $32,000/month by Year 2 with 20% GMV participation.
+0.5% fee on invoices paid through Ledgr. At 2,000 paying users invoicing an average of $8,000/month, this generates $80,000/month in GMV and scales to $32,000/month by Year 2 with 20% GMV participation.
 
 **3. Accountant partner tier (Q4 2026)**
 $99/month per CPA firm. Unlimited client organizations. Accountants recommend Ledgr to clients — each firm is a distribution channel, not just a customer.
@@ -142,13 +144,13 @@ Metered at $0.01/call above 10,000 calls/month. Targets financial services integ
 
 ### Unit Economics
 
-- **Blended ARPU (paying):** $29/month
+- **Blended ARPU (paying, Month 12 mix):** $55/month
 - **Gross margin:** 82%
 - **Target monthly churn:** 2.5%
-- **LTV:** $951
-- **Target CAC:** $180
-- **LTV:CAC ratio:** 5.3x
-- **CAC payback:** 7.5 months
+- **LTV:** $1,804
+- **Target CAC:** $200
+- **LTV:CAC ratio:** 9.0x
+- **CAC payback:** 4.5 months
 
 ---
 
@@ -173,20 +175,20 @@ Metered at $0.01/call above 10,000 calls/month. Targets financial services integ
 
 | Year | Paying Users | ARR | Revenue |
 |------|-------------|-----|---------|
-| 2026 (launch year) | 448 | $156K | $71K |
-| 2027 | 1,425 | $496K | $418K |
-| 2028 | 3,960 | $1.38M | $1.16M |
-| 2029 | 7,200 | $2.51M | $2.2M |
+| 2026 (launch year) | 2,000 | $1.32M | $585K |
+| 2027 | 6,500 | $4.3M | $3.6M |
+| 2028 | 14,000 | $9.2M | $7.8M |
+| 2029 | 24,000 | $15.8M | $13.4M |
 
 **Key assumptions:**
-- Free-to-paid conversion: 8%
+- Trial-to-paid conversion: 30% (full-feature trial drives higher intent than freemium)
 - Monthly churn: 2.5%
-- Blended ARPU (paying): $29/month
-- CAC: $180 (declining to $120 by Month 18)
+- Blended ARPU (paying): $55/month (Month 12 mix)
+- CAC: $200 (declining to $140 by Month 18)
 
-**Path to profitability:** Contribution-margin positive at 400 paying users (approximately Month 12). Operating profitability at Year 3 with a 5-person team.
+**Path to profitability:** Contribution-margin positive at ~150 paying users (within Q1). Operating profitability at Year 2 end with a 4-person team, given significantly higher ARPU than freemium model.
 
-**Series A target:** Q3 2027 at $400K ARR, 2x+ YoY growth rate.
+**Series A target:** Q3 2027 at $2M+ ARR, 2x+ YoY growth rate.
 
 ---
 
@@ -249,18 +251,18 @@ The platform is the proof of concept. The seed round is the fuel.
 
 **What this buys:**
 - 21 months of runway
-- $400K ARR before the Series A conversation
+- $2M ARR before the Series A conversation (higher ARPU accelerates this milestone vs. freemium)
 - A proven CAC and LTV data set to de-risk the Series A ask
 - The accountant partner program launched with 10+ founding partners
 - Payment processing live and generating ancillary revenue
 
 **The milestones investors will use to measure success:**
 
-1. 100 paying users by September 2026
-2. $10,000 MRR by November 2026
+1. 100 paying users by August 2026
+2. $10,000 MRR by September 2026
 3. 10 accountant partners by December 2026
-4. $100K ARR by Q2 2027
-5. Series A close at $400K ARR, Q3 2027
+4. $1M ARR by Q1 2027
+5. Series A close at $2M ARR, Q3 2027
 
 ---
 
@@ -268,7 +270,7 @@ The platform is the proof of concept. The seed round is the fuel.
 
 Small business owners spend $38–275 a month on software they describe as too expensive, too complicated, and impossible to get support for. They have been saying this for years. Nothing has changed because QuickBooks has no reason to change — they own 80% of the market and raise prices every year.
 
-Ledgr is built. It is priced right. The audience is actively looking for an alternative.
+Ledgr is built. It is priced competitively. The audience is actively looking for an alternative.
 
 The window to become the default accounting platform for the next generation of small business owners is open. We intend to take it.
 

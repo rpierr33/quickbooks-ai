@@ -308,7 +308,7 @@ Invoices are how you bill clients for work completed. Ledgr's invoices generate 
 | Status | Meaning |
 |--------|---------|
 | **Draft** | Created but not yet sent to client |
-| **Sent** | Marked as sent (you handle delivery — Ledgr does not email the client on the Free plan) |
+| **Sent** | Marked as sent (you handle delivery — Ledgr does not email the client on the Starter plan) |
 | **Paid** | Payment received and recorded |
 | **Overdue** | Past the due date and not paid |
 | **Cancelled** | Voided, no payment expected |
@@ -729,9 +729,9 @@ When the difference reaches $0.00:
 2. Ledgr marks all matched transactions as reconciled.
 3. A reconciliation record is saved with the statement date, ending balance, and reconciled transactions.
 
-### 11.4 Connecting Bank Feeds (Pro Plan and Above)
+### 11.4 Connecting Bank Feeds (Starter Plan and Above)
 
-With a Pro plan, you can connect your bank account through Plaid so transactions import automatically instead of being entered manually.
+With a Starter plan ($29.99/mo) or above, you can connect your bank account through Plaid so transactions import automatically instead of being entered manually.
 
 1. Go to **Settings > Connected Accounts**.
 2. Click **Connect Bank Account**.
@@ -924,10 +924,10 @@ No. Ledgr generates the reports and data you need to file taxes, but it does not
 The cash flow forecast updates once per day and immediately after you add new transactions. If you just entered a large batch of transactions, click the **Refresh** icon on the forecast widget to get an updated projection immediately.
 
 **Q: Can my accountant access Ledgr?**
-Yes. Invite them as a **Viewer** or **Editor** from **Settings > Team** (Pro plan required). Viewer access lets them see all your data and run reports without being able to change anything.
+Yes. Invite them as a **Viewer** or **Editor** from **Settings > Team** (Professional plan required — $59.99/mo). Viewer access lets them see all your data and run reports without being able to change anything.
 
-**Q: What is the difference between the Free and Pro plans?**
-The Free plan includes all core features with a limit of 20 invoices per month and 1 user. The Pro plan removes the invoice limit, adds bank feed connections via Plaid, includes all AI features fully, and allows up to 3 users. Both plans include the AI chat assistant, receipt scanner, and all 7 financial reports.
+**Q: What is the difference between the Starter and Professional plans?**
+The Starter plan ($29.99/mo) includes all core features, all AI features, bank feed connections, up to 20 invoices per month, and 1 user. The Professional plan ($59.99/mo) removes the invoice limit, adds multi-currency support, time tracking, accountant access, and allows up to 3 users. Both plans include the AI chat assistant, receipt scanner, and all 7 financial reports. All new users receive a 14-day free trial with full Professional access — no credit card required.
 
 ---
 

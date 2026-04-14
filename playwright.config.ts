@@ -12,7 +12,7 @@ export default defineConfig({
   timeout: 60000,
   expect: { timeout: 15000 },
   use: {
-    baseURL: 'http://localhost:3003',
+    baseURL: process.env.BASE_URL || 'http://localhost:3001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     navigationTimeout: 30000,
@@ -22,9 +22,9 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['iPhone 14'] } },
   ],
   webServer: {
-    command: 'npx next dev --port 3003',
-    url: 'http://localhost:3003',
-    reuseExistingServer: !process.env.CI,
+    command: 'npx next dev --port 3001',
+    url: 'http://localhost:3001',
+    reuseExistingServer: true,
     timeout: 60000,
   },
 });

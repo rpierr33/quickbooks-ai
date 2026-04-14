@@ -6,9 +6,9 @@
 
 ## Executive Summary
 
-Ledgr enters a $24B accounting software market that is actively hemorrhaging users. QuickBooks — with 80% market share — holds a 1.1/5 Trustpilot rating, 93% one-star reviews, and pushed a 30% price hike in 2024. The primary complaint is not complexity or bugs — it is pricing. Small business owners feel punished for growing. Ledgr's core positioning exploits this directly: AI-powered accounting at a price point that does not scale with your headcount.
+Ledgr enters a $24B accounting software market that is actively hemorrhaging users. QuickBooks — with 80% market share — holds a 1.1/5 Trustpilot rating, 93% one-star reviews, and pushed a 30% price hike in 2024. The primary complaint is not complexity or bugs — it is pricing. Small business owners feel punished for growing. Ledgr's core positioning exploits this directly: AI-powered accounting at a price point that does not scale with your headcount, starting at $29.99/month.
 
-The GTM motion is **product-led growth with a content moat.** The free tier delivers genuine utility. Content and SEO capture high-intent switching traffic. Paid channels accelerate at inflection points (product-hunt launch, competitor price hike cycles). The referral loop compounds everything.
+The GTM motion is **product-led growth with a content moat.** A 14-day full-access trial delivers genuine utility before the first payment. Content and SEO capture high-intent switching traffic. Paid channels accelerate at inflection points (product-hunt launch, competitor price hike cycles). The referral loop compounds everything.
 
 ---
 
@@ -21,7 +21,7 @@ The GTM motion is **product-led growth with a content moat.** The free tier deli
 | Global Accounting Software (TAM) | $24.2B (2025) | Grand View Research |
 | US SMB Accounting Software (SAM) | $6.1B | IBISWorld estimate |
 | Addressable switching segment (SAM filtered by QuickBooks dissatisfaction) | ~$1.8B | Based on 7M US QB users, ~26% actively seeking alternatives |
-| Ledgr Year-1 SOM (0.05% of SAM) | ~$3M ARR | Conservative 1,600 paying customers at $39 avg |
+| Ledgr Year-1 SOM (0.05% of SAM) | ~$3.3M ARR | Conservative 500 paying customers at $55 blended ARPU |
 
 ### The Switching Window
 
@@ -35,25 +35,25 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 
 - **Profile:** Designers, consultants, copywriters, developers, photographers. 1 person. Annual revenue $40K–$250K. Currently on QuickBooks Self-Employed ($15–$30/mo) or a spreadsheet.
 - **Pain:** Paying for features they don't use. Confused by double-entry. Need invoicing + expense tracking + quarterly estimates. Nothing more.
-- **Ledgr fit:** Free or Pro tier ($19/mo). AI categorization eliminates their biggest time sink. Invoice-to-payment in three clicks.
+- **Ledgr fit:** Starter tier ($29.99/mo). AI categorization eliminates their biggest time sink. Invoice-to-payment in three clicks.
 - **Acquisition channels:** Reddit (r/freelance, r/digitalnomad), TikTok (freelance finance content), Google (long-tail keywords).
-- **CAC target:** $18–$35 (organic), $55–$80 (paid).
+- **CAC target:** $25–$50 (organic), $70–$110 (paid).
 
 ### Secondary ICP — Small Business Owners (2–20 employees)
 
 - **Profile:** Retail, service businesses, agencies, trades. LLC or S-Corp. Annual revenue $200K–$3M. Currently on QuickBooks Online Simple Start or Essentials ($38–$65/mo), likely paying a bookkeeper separately.
 - **Pain:** Payroll add-ons cost more than the base plan. Bills section requires the Plus plan. AI budgeting is Plus or Advanced only. The bill keeps growing.
-- **Ledgr fit:** Pro or Business tier ($19–$39/mo). Budgeting at all tiers. Inventory at all tiers. AI chat that replaces half the bookkeeper-consultation calls.
+- **Ledgr fit:** Professional or Business tier ($59.99–$99.99/mo). Budgeting at all tiers. AI chat that replaces half the bookkeeper-consultation calls.
 - **Acquisition channels:** LinkedIn, Google Ads (competitor keywords), Facebook (business owner audiences), accounting firm referrals.
-- **CAC target:** $45–$70 (organic), $90–$140 (paid).
+- **CAC target:** $60–$90 (organic), $120–$180 (paid).
 
 ### Tertiary ICP — Accounting Firms (Upsell/Referral Channel)
 
 - **Profile:** CPA firms and bookkeeping practices with 5–50 SMB clients. Frustrated with QuickBooks Online Accountant's pricing and UI. Looking to differentiate their service offering.
 - **Pain:** Client portals are clunky. Exporting data for review is friction. AI-assisted categorization would save 3–5 hours per client per month.
-- **Ledgr fit:** Enterprise tier ($79/mo) with white-label potential. Referral program (20% revenue share per referred client).
+- **Ledgr fit:** Enterprise tier ($139.99/mo) with white-label potential. Referral program (20% revenue share per referred client).
 - **Acquisition channels:** CPA forums, LinkedIn, accounting conference sponsorships, direct outreach.
-- **CAC target:** High CAC acceptable — LTV is $948/yr per firm + $79/client referred.
+- **CAC target:** High CAC acceptable — LTV is $1,680/yr per firm + $139.99/client referred.
 
 ---
 
@@ -67,15 +67,15 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 
 | Pillar | Message | Proof Point |
 |--------|---------|-------------|
-| **Price parity** | Pay less, get more | QuickBooks charges $115/mo for budgeting + inventory. Ledgr includes both at every tier starting at $0. |
-| **AI-first, not AI-bolted-on** | AI is built into the core, not a $275/mo add-on | Every tier includes AI categorization, AI chat, AI forecasting. QuickBooks AI Assist is Advanced-only. |
-| **Simplicity without sacrifice** | You shouldn't need an accountant to understand your accountant | 3-click invoice creation. Plain English transaction categories. No chart of accounts setup on day one. |
-| **Transparent pricing** | The price you see is the price you pay | No "per employee" fees. No payroll add-on bait-and-switch. No annual lock-in required. |
+| **Price parity** | Pay less, get more | QuickBooks charges $115/mo for budgeting + inventory. Ledgr's Professional plan at $59.99 includes AI features QuickBooks doesn't offer until $275/mo. |
+| **AI-first, not AI-bolted-on** | AI is built into the core, not a $275/mo add-on | Every tier includes AI categorization, AI chat, AI forecasting — starting at $29.99/mo. QuickBooks AI Assist is Advanced-only. |
+| **Simplicity without sacrifice** | You shouldn't need an accountant to understand your accounting | 3-click invoice creation. Plain English transaction categories. No chart of accounts setup on day one. |
+| **Transparent pricing** | The price you see is the price you pay | No surprise annual price increases. 90-day notice policy. No "per employee" fees on base plans. |
 
 ### Tagline Options (A/B test at launch)
 
 - "The AI accounting platform that doesn't punish you for growing." (Primary)
-- "Everything QuickBooks charges $275/mo for. Starting at $0."
+- "Everything QuickBooks charges $275/mo for. Starting at $29.99/mo."
 - "Your books. Your AI. Not their prices."
 
 ---
@@ -86,50 +86,50 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 
 | Feature | QuickBooks | Ledgr |
 |---------|------------|-------|
-| Starting price | $38/mo (Simple Start) | $0 (Free tier) |
-| Budgeting | $115/mo (Plus) | All tiers |
-| Inventory tracking | $115/mo (Plus) | All tiers |
+| Starting price | $38/mo (Simple Start) | $29.99/mo (Starter — includes AI, budgeting, bank feeds) |
+| Budgeting | $115/mo (Plus) | All tiers starting at $29.99/mo |
+| Inventory tracking | $115/mo (Plus) | Business tier ($99.99/mo) |
 | Activity logs | $275/mo (Advanced) | All tiers |
-| AI features | $275/mo (Advanced) | All tiers |
+| AI features | $275/mo (Advanced) | All tiers starting at $29.99/mo |
 | AI chat assistant | Advanced only | All tiers |
 | Bank reconciliation | All tiers | All tiers |
-| Invoice sending | All tiers | All tiers |
+| Invoice sending | All tiers | All tiers (20/mo on Starter; unlimited Professional+) |
 | Trustpilot rating | 1.1/5 (93% 1-star) | N/A (building) |
 
-**Switching argument:** "You're paying $115/mo for budgeting you could have at $0 with Ledgr."
+**Switching argument:** "You're paying $115/mo for budgeting you could have at $29.99/mo with Ledgr."
 
 ### Ledgr vs FreshBooks
 
 | Feature | FreshBooks | Ledgr |
 |---------|------------|-------|
-| Starting price | $23/mo (Lite — 5 clients only) | $0 |
-| Client limit on base | 5 clients | Unlimited |
+| Starting price | $23/mo (Lite — 5 clients only) | $29.99/mo (Starter — includes AI, bank feeds, mileage tracking) |
+| Client limit on base | 5 clients | 20 invoices/month on Starter; unlimited at Professional ($59.99) |
 | Double-entry accounting | Plus+ ($55/mo) | All tiers |
 | AI features | None | All tiers |
-| Inventory | None | All tiers |
+| Inventory | None | Business tier ($99.99/mo) |
 
-**Switching argument:** "FreshBooks is beautiful invoicing. Ledgr is full accounting plus AI, starting at $0."
+**Switching argument:** "FreshBooks is beautiful invoicing. Ledgr is full accounting plus AI, starting at $29.99/mo."
 
 ### Ledgr vs Wave
 
 | Feature | Wave | Ledgr |
 |---------|------|-------|
-| Base price | $0 | $0 |
-| AI features | None | Full suite |
+| Base price | $0 | $29.99/mo (after 14-day full trial) |
+| AI features | None | Full suite at every tier |
 | Bank reconciliation | Basic | Full with AI suggestions |
 | Reporting | Limited | Full financial statements + AI insights |
-| Payroll | $35+/mo add-on | Roadmap |
+| Payroll | $35+/mo add-on | $20/mo + $5/employee (Business/Enterprise) |
 | Support | Email only (slow) | In-app AI chat + docs |
 
-**Switching argument:** "Wave is free accounting. Ledgr is free AI accounting. If you're spending time categorizing transactions, Ledgr pays for itself."
+**Switching argument:** "Wave is free accounting. Ledgr is AI-powered accounting starting at $29.99/mo. If you're spending time categorizing transactions, Ledgr pays for itself within the first month."
 
 ### Ledgr vs Xero
 
 | Feature | Xero | Ledgr |
 |---------|------|-------|
-| Starting price | $25/mo (very limited) | $0 |
+| Starting price | $25/mo (very limited) | $29.99/mo (full AI, bank feeds, budgeting) |
 | US market focus | Secondary (NZ-first) | Primary |
-| AI features | Analytics Plus ($27+ add-on) | All tiers |
+| AI features | Analytics Plus ($27+ add-on) | All tiers starting at $29.99/mo |
 | Learning curve | Steep | Moderate |
 
 **Switching argument:** "Xero is built for accountants. Ledgr is built for business owners."
@@ -138,12 +138,12 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 
 | Feature | Zoho Books | Ledgr |
 |---------|------------|-------|
-| Starting price | $0 (under $50K revenue) | $0 (no revenue cap) |
+| Starting price | $0 (under $50K revenue) | 14-day full trial, then $29.99/mo (no revenue cap) |
 | AI features | Zoho AI (Zia) — limited | GPT-4o, purpose-built for accounting |
 | Ecosystem lock-in | Requires Zoho CRM/suite | Standalone, open integrations |
 | US-specific tax support | Generic | US-first design |
 
-**Switching argument:** "Zoho Books is free if you're tiny. Ledgr is free without the revenue cap and with better AI."
+**Switching argument:** "Zoho Books is free if you're tiny. Ledgr has no revenue cap and better AI — starting at $29.99/mo after the 14-day trial."
 
 ---
 
@@ -160,7 +160,7 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 | Category | "AI bookkeeping software," "AI accounting app" | 8,100/mo | Low-Medium |
 | Freelancer-specific | "accounting software for freelancers," "invoicing app for freelancers" | 18,000/mo | Medium |
 | Comparison | "QuickBooks vs FreshBooks," "best accounting software for LLC" | 22,000/mo | Medium-High |
-| Feature-specific | "free bank reconciliation software," "small business budgeting software" | 9,400/mo | Low |
+| Feature-specific | "best bank reconciliation software," "small business budgeting software" | 9,400/mo | Low |
 
 **Content strategy to support SEO:**
 
@@ -172,7 +172,7 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 **Technical SEO priorities:**
 - Core Web Vitals: LCP under 2.5s, CLS under 0.1
 - Structured data: FAQ schema on all comparison pages, SoftwareApplication schema on homepage
-- Internal linking: Blog → Feature pages → Pricing → Signup
+- Internal linking: Blog → Feature pages → Pricing → Trial signup
 - OG images: Custom per page, not generic
 
 ### Channel 2: Content Marketing
@@ -192,7 +192,7 @@ QuickBooks raised prices again in Q1 2024. Search volume for "QuickBooks alterna
 | 9 | "QuickBooks Self-Employed vs Simple Start: Is Either Worth It?" | quickbooks self-employed vs simple start | Decision |
 | 10 | "I Switched From QuickBooks to Ledgr. Here's What Happened." | switch from quickbooks 2026 | Decision |
 | 11 | "Invoice Template Generator: Free for Freelancers" | free invoice template | Acquisition |
-| 12 | "The $0 Accounting Setup for Your First Business" | free business accounting setup | Acquisition |
+| 12 | "The Complete AI Bookkeeping Setup for Your First Business" | AI business accounting setup | Acquisition |
 
 ### Channel 3: Reddit
 
@@ -231,8 +231,8 @@ LinkedIn reaches the small business owner (30–55) who is the actual decision-m
 
 **LinkedIn Ads (Phase 2, Month 4+):**
 - Target: Business owners, CFOs, controllers at companies 1–50 employees
-- Message: "QuickBooks starts at $38/mo and doesn't include budgeting. Ledgr starts at $0."
-- CTA: Free tier signup
+- Message: "QuickBooks starts at $38/mo and doesn't include AI. Ledgr starts at $29.99/mo and includes full AI from day one."
+- CTA: 14-day free trial signup
 - Budget: $3,000/mo initially, scale by ROAS
 
 ### Channel 5: Twitter/X
@@ -248,7 +248,7 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 **Target creator profile:** 25–40 year old business owners and entrepreneurs. Watches finance/business content.
 
 **Content format:**
-- "Things your accounting software charges you for that Ledgr includes free" (listicle video)
+- "Things your accounting software charges you for that Ledgr includes at $29.99/mo" (listicle video)
 - "I asked AI to categorize 6 months of transactions. Here's what happened." (screen recording)
 - "QuickBooks vs Ledgr: Side by side" (split-screen comparison)
 
@@ -271,7 +271,7 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 
 **Accounting firm referral program:**
 - 20% monthly revenue share, paid indefinitely
-- White-label option at Enterprise tier (custom branding, client portal)
+- White-label option at Enterprise tier ($139.99/mo — custom branding, client portal)
 - Co-marketing support: case studies, LinkedIn posts, email templates
 - Target: 50 accounting firms as partners in Year 1
 
@@ -333,16 +333,16 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 
 ### Phase 3: Scale (Months 4–12)
 
-**Goals:** $10K MRR by Month 6, $50K MRR by Month 12, 5,000+ free users.
+**Goals:** $50K MRR by Month 6, $110K MRR by Month 12, 2,000+ paying users.
 
 | Action | Owner | Timeline |
 |--------|-------|----------|
 | Programmatic SEO landing pages (city + industry) | Engineering/SEO | Month 4–6 |
 | Accounting firm partner program launch | Sales | Month 4 |
-| Annual plan offering (2 months free) | Product | Month 5 |
+| Annual plan offering (~20% savings) | Product | Month 5 |
 | "Made with Ledgr" invoice badge viral loop | Engineering | Month 5 |
 | Integration marketplace (Stripe, Gusto, Shopify) | Engineering | Month 6 |
-| Referral program (give $10, get $10 credit) | Engineering | Month 6 |
+| Referral program (give $20, get $20 credit) | Engineering | Month 6 |
 
 ---
 
@@ -354,11 +354,11 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 |---------|---------------|-----------|-------------|-------|
 | Content (blog, video) | $1,200 | 20% | Organic — $20 long-term | Writer + video editor |
 | SEO tools (Ahrefs/Semrush) | $300 | 5% | N/A (tooling) | |
-| Google Ads | $1,500 | 25% | $80–$120 | Phases 2–3 only |
-| LinkedIn Ads | $800 | 13% | $100–$160 | Phase 3 only |
-| Reddit (time, not paid) | $0 | 0% | $15–$25 | Labor cost |
+| Google Ads | $1,500 | 25% | $100–$150 | Phases 2–3 only |
+| LinkedIn Ads | $800 | 13% | $130–$180 | Phase 3 only |
+| Reddit (time, not paid) | $0 | 0% | $20–$35 | Labor cost |
 | Product Hunt launch (PRO) | $200/one-time | 0.3% | N/A | One-time |
-| G2/Capterra (review campaigns) | $500 | 8% | $50–$90 | |
+| G2/Capterra (review campaigns) | $500 | 8% | $60–$100 | |
 | Design (OG images, ads) | $600 | 10% | N/A | Contract designer |
 | PR outreach | $400 | 7% | N/A | Journalist outreach tools |
 | Tools (email, analytics, CRM) | $500 | 8% | N/A | HubSpot/Loops/Plausible |
@@ -368,7 +368,7 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 - Paid: 800 trial signups from Google Ads
 - Reddit/social: 600 signups
 - Referral: 300 signups from partner program
-- Total: ~4,200 signups → ~420 paying users at 10% conversion → $16,380 MRR at $39 avg
+- Total: ~4,200 signups → ~420 paying users at 10% trial-to-paid conversion → $23,100 MRR at $55 blended ARPU
 
 ---
 
@@ -378,16 +378,16 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 
 | Metric | Month 3 | Month 6 | Month 12 |
 |--------|---------|---------|---------|
-| Free signups | 500 | 1,500 | 5,000 |
-| Paying users | 50 | 200 | 600 |
-| MRR | $1,950 | $7,800 | $23,400 |
-| MRR growth rate (MoM) | — | ~32% | ~20% |
+| Trial signups | 500 | 1,500 | 5,000 |
+| Paying users | 75 | 300 | 900 |
+| MRR | $4,125 | $16,500 | $49,500 |
+| MRR growth rate (MoM) | — | ~30% | ~20% |
 | Churn rate | <8% | <6% | <5% |
-| Activation rate (free → active) | 40% | 50% | 60% |
-| Free-to-paid conversion | 8% | 12% | 14% |
+| Activation rate (trial → active) | 50% | 60% | 70% |
+| Trial-to-paid conversion | 12% | 18% | 22% |
 | NPS | 30+ | 40+ | 50+ |
-| Blended CAC | $85 | $70 | $55 |
-| LTV:CAC ratio | 1.8:1 | 2.5:1 | 3.5:1 |
+| Blended CAC | $100 | $80 | $60 |
+| LTV:CAC ratio | 2.2:1 | 3.5:1 | 5.5:1 |
 
 ### Channel-Specific KPIs
 
@@ -410,7 +410,7 @@ X reaches tech-savvy founders, indie hackers, and early adopters — ideal for b
 Focus on education: "how to," "what is," "best X for Y." Establish authority before the pitch. Ledgr is mentioned as the logical conclusion, not the premise.
 
 ### For Paid Ads (attention → action)
-Headline: Pain first. "QuickBooks just raised prices again." Body: Specific comparison. CTA: "Start free. No credit card."
+Headline: Pain first. "QuickBooks just raised prices again." Body: Specific comparison. CTA: "Start your 14-day free trial. No credit card."
 
 ### For Reddit (peer-to-peer, value-first)
 Never lead with Ledgr. Answer the question thoroughly. Mention Ledgr only if directly relevant and always with full disclosure. The goal is trust, not a click.
@@ -427,9 +427,9 @@ Use "I" and "you." Never "we as a company." Email is a one-on-one medium. Person
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
-| QuickBooks adds comparable AI tier | Medium | High | Compete on price, not just features. $0 free tier is structurally hard to match. |
+| QuickBooks adds comparable AI tier at lower price | Medium | High | Compete on total value and UX quality, not just price. Switching friction from historical data is durable. |
 | Google Ads competitor policies restrict targeting | Low | Medium | Maintain organic SEO as primary channel. |
 | Reddit community pushback on promotion | High (without care) | Medium | Strict value-first policy. No shill accounts. Founder transparency. |
 | Slow organic SEO growth (6-12 month lag) | High | Medium | Pre-invest in content during pre-launch. SEO compounds. |
-| High churn on free tier | Medium | Medium | Activation email sequence. In-app guidance. Free AI features create stickiness. |
+| High churn on paid tiers | Medium | Medium | Activation email sequence. In-app guidance. AI features create stickiness. Full-access trial means users are activated before they pay. |
 | Accounting firm partners slow to adopt | Medium | Low | Start with freelancer + solopreneur segment. Partner program is Phase 3. |

@@ -8,10 +8,10 @@
 
 ## META / SEO
 
-**Title tag:** Ledgr — AI Accounting Software for Small Businesses | Free to Start
-**Meta description:** Ledgr is AI-powered bookkeeping software built for small businesses. AI categorization, forecasting, and cash flow insights — at every tier, starting at $0. QuickBooks alternative with no pricing traps.
+**Title tag:** Ledgr — AI Accounting Software for Small Businesses | Try Free 14 Days
+**Meta description:** Ledgr is AI-powered bookkeeping software built for small businesses. AI categorization, forecasting, and cash flow insights — starting at $29.99/mo. QuickBooks alternative without the pricing traps.
 **OG Title:** Ledgr — The AI Accounting Platform That Doesn't Punish You for Growing
-**OG Description:** AI bookkeeping, invoicing, and financial insights. Starting at $0. Everything QuickBooks charges $275/mo for — included at every tier.
+**OG Description:** AI bookkeeping, invoicing, and financial insights. 14-day free trial, full access. Everything QuickBooks charges $275/mo for — starting at $29.99/mo.
 
 ---
 
@@ -23,14 +23,14 @@
 Your books shouldn't cost more as your business grows.
 
 **Subheadline:**
-Ledgr gives you AI-powered bookkeeping, invoicing, and financial insights — starting at $0. No feature tiers. No pricing traps. No $275/mo bill to ask your accountant a question.
+Ledgr gives you AI-powered bookkeeping, invoicing, and financial insights — starting at $29.99/mo. No feature tiers that lock away the tools you actually need. No $275/mo bill to ask your accountant a question.
 
-**Primary CTA button:** Start Free — No Credit Card
+**Primary CTA button:** Start Free Trial — 14 Days, No Credit Card
 **Secondary CTA:** See How It Works (smooth scroll to features section)
 
 **Social proof snippet (below CTA):**
 Trusted by 1,200+ small businesses and freelancers — and counting.
-"Saved me 5 hours a month and $900/yr vs. QuickBooks." — Sarah K., freelance designer
+"Saved me 5 hours a month and $660/yr vs. QuickBooks." — Sarah K., freelance designer
 
 **Hero visual description:**
 Dark-mode dashboard screenshot showing the main Ledgr UI: a clean P&L summary on the left, AI chat panel on the right with a conversation showing "What's my profit this month?" answered in plain English. Bank transactions auto-categorized below with green AI confidence badges. Mobile mockup overlaid showing the same dashboard on an iPhone. Subtle gradient background (#0F172A to #1E293B) with a teal/blue accent glow behind the dashboard.
@@ -45,7 +45,7 @@ Dark-mode dashboard screenshot showing the main Ledgr UI: a clean P&L summary on
 
 **Stats row:**
 - 1,200+ Active users
-- $0 to start
+- 14-day full trial
 - 4.8/5 average rating
 - 5 hours saved per user per month (avg)
 
@@ -89,24 +89,24 @@ You're not asking for enterprise software. You're asking for something that work
 **Pre-heading tag:** Introducing Ledgr
 
 **Body:**
-Ledgr is AI-powered accounting built for the business owner who runs their own books. Every feature — including every AI feature — is available from the moment you sign up. Free.
+Ledgr is AI-powered accounting built for the business owner who runs their own books. Every feature — including every AI feature — is available from the moment you sign up. Your 14-day free trial gives you full Professional access with no restrictions.
 
 **Four solution pillars:**
 
 **Pillar 1**
 Icon: AI sparkle
 **Title:** AI at every tier
-**Body:** AI transaction categorization, AI cash flow forecasting, AI receipt scanning, and an AI chat assistant are included in the free tier. Not add-ons. Not upgrades. Standard.
+**Body:** AI transaction categorization, AI cash flow forecasting, AI receipt scanning, and an AI chat assistant are included in every paid plan. Not add-ons. Not upgrades. Standard — starting at $29.99/month.
 
 **Pillar 2**
 Icon: Grid/checklist
 **Title:** Every feature, every plan
-**Body:** Budgeting, inventory tracking, bank reconciliation, and activity logs are available on every plan. We don't hide core accounting tools behind plan upgrades.
+**Body:** Budgeting, bank reconciliation, and activity logs are available at every tier. We don't hide core accounting tools behind plan upgrades. The plan you're on determines your team size and volume — not which features you can touch.
 
 **Pillar 3**
 Icon: Price tag / shield
 **Title:** Transparent, flat pricing
-**Body:** You pay for capacity (clients, users, volume). Not for features. When we add a new feature, it goes to all plans. When we raise a price, we'll tell you 90 days in advance.
+**Body:** You pay for capacity (users, invoices, volume). Not for features. When we add a new feature, it goes to all plans. When we raise a price, we'll tell you 90 days in advance.
 
 **Pillar 4**
 Icon: Arrow / migration
@@ -229,16 +229,16 @@ Set monthly or annual budgets by category. Ledgr shows you actual vs. budget in 
 
 ## SECTION 6: THE AI ADVANTAGE
 
-**Section heading:** QuickBooks charges $275/mo for AI. Ledgr includes it at $0.
+**Section heading:** QuickBooks charges $275/mo for AI. Ledgr includes it starting at $29.99/mo.
 
 **Pre-heading tag:** The AI difference
 
 **Body:**
 When QuickBooks added AI features, they put them in the Advanced plan — the most expensive tier at $275/mo. When Xero added analytics, they made it a $27/mo add-on. The pattern is the same: AI as a premium upsell.
 
-We made a different decision. AI is not a premium feature in Ledgr. It's the core of the product. Every tier — including free — includes the full AI suite:
+We made a different decision. AI is not a premium feature in Ledgr. It's the core of the product. Every paid tier — starting at $29.99/month — includes the full AI suite:
 
-**Six AI features included at $0:**
+**Six AI features included from your first paid month:**
 
 1. **AI Transaction Categorization** — Every import pre-categorized. Review and approve, not type and enter.
 2. **AI Chat Assistant** — Natural language access to your books. No report builder needed.
@@ -250,8 +250,8 @@ We made a different decision. AI is not a premium feature in Ledgr. It's the cor
 **The reason:**
 The business owners who would benefit most from AI are the ones doing their own books at midnight. Not the enterprise companies with finance teams. We built the pricing model to match the people who actually need it.
 
-**CTA button:** Try the AI features free
-**Sub-line:** No credit card. Full AI access from day one.
+**CTA button:** Start your 14-day free trial
+**Sub-line:** No credit card. Full Professional access from day one.
 
 ---
 
@@ -261,109 +261,134 @@ The business owners who would benefit most from AI are the ones doing their own 
 
 **Pre-heading tag:** Plans
 
-**Billing toggle:** Monthly / Annual (Save 2 months)
+**Billing toggle:** Monthly / Annual (Save ~20%)
 
 ---
 
-**Tier 1: Free**
-**Price:** $0/mo forever
-**Tagline:** For freelancers and solopreneurs just getting started.
+**Free Trial**
+**Duration:** 14 days, full Professional access
+**Tagline:** Try everything before you commit. No credit card required.
+
+What you get during the trial:
+- Full access to all Professional plan features
+- AI transaction categorization, AI chat, cash flow forecasting, receipt scanning
+- Unlimited invoices, 3 users, bank reconciliation, all reports
+- No restrictions — the full product experience
+
+**CTA:** Start Free Trial — 14 Days
+
+---
+
+**Tier 1: Starter — BEST FOR SOLO entrepreneurs**
+**Price:** $29.99/mo (or $23.99/mo billed annually)
+**Tagline:** For freelancers and solopreneurs running their own books.
 
 Included:
-- Unlimited transactions
-- Bank reconciliation
-- Invoice sending (5 active invoices)
+- 1 user
+- 20 invoices/month
+- Bank feeds (Plaid)
 - AI transaction categorization
 - AI chat assistant
 - Cash flow forecasting
 - Receipt scanning
-- P&L, Balance Sheet, Cash Flow reports
-- 1 user
-- 5 clients
+- Mileage tracking
+- Budgeting
+- Basic reports (P&L, Balance Sheet, Cash Flow)
 
-Not included:
-- Custom invoice domain
-- Unlimited clients
-- Multi-user access
-- Inventory tracking
-- Priority support
-
-**CTA:** Start Free
+**CTA:** Start Free Trial
 
 ---
 
-**Tier 2: Pro — MOST POPULAR badge**
-**Price:** $19/mo (or $152/yr — save 2 months)
+**Tier 2: Professional — MOST POPULAR badge**
+**Price:** $59.99/mo (or $47.99/mo billed annually)
 **Tagline:** For freelancers and small businesses ready for the full toolkit.
 
-Everything in Free, plus:
-- Unlimited clients
-- Custom invoice domain (invoices.yourbusiness.com)
-- Advanced AI insights
-- Client portal access
-- Recurring invoices
+Everything in Starter, plus:
+- 3 users
+- Unlimited invoices
+- Multi-currency support
+- Time tracking
+- Bill management
+- Accountant access (1 seat)
+- All 7 financial reports (including Trial Balance, Aged Receivables, General Ledger)
 - 1099 tracking
 - CSV/Excel export
-- 1 user
 
-**CTA:** Start Free Trial (14 days)
+**CTA:** Start Free Trial
 
 ---
 
 **Tier 3: Business**
-**Price:** $39/mo (or $312/yr — save 2 months)
+**Price:** $99.99/mo (or $79.99/mo billed annually)
 **Tagline:** For small businesses with a team and real complexity.
 
-Everything in Pro, plus:
-- Up to 10 users
-- Inventory tracking
-- Bills and accounts payable
-- Budgeting by department
+Everything in Professional, plus:
+- 10 users
+- Inventory management
 - Purchase orders
 - Project profitability tracking
-- Role-based access control
+- 1099 contractor management
+- Accountant access (3 seats)
+- Client portal
+- Bills and accounts payable
+- Budgeting by department
 - Priority email support
 
-**CTA:** Start Free Trial (14 days)
+**CTA:** Start Free Trial
 
 ---
 
 **Tier 4: Enterprise**
-**Price:** $79/mo (or $632/yr — save 2 months)
+**Price:** $139.99/mo (or $111.99/mo billed annually)
 **Tagline:** For accounting firms and multi-entity businesses.
 
 Everything in Business, plus:
 - Unlimited users
-- Multi-entity management (multiple companies in one account)
-- White-label invoicing
-- Client portal for accounting firms
+- Custom roles and permissions
 - API access
+- White-label invoicing
+- Multi-entity management (multiple companies in one account)
+- Client portal for accounting firms
 - Dedicated onboarding
 - Phone + priority support
+- White-glove data migration
 - Custom data retention policies
 
 **CTA:** Contact Sales
 
 ---
 
+**Payroll Add-on (Business and Enterprise)**
+**Price:** $20/mo + $5/employee/mo
+**Tagline:** Full payroll processing, integrated with your books.
+- Payroll runs sync automatically to your ledger
+- Payroll tax calculations and filing support
+- Pay stubs and direct deposit
+
+**CTA:** Add to your plan
+
+---
+
 **Feature comparison table (abbreviated for page — full table on /pricing):**
 
-| Feature | Free | Pro | Business | Enterprise |
+| Feature | Starter | Professional | Business | Enterprise |
 |---------|------|-----|----------|-----------|
 | AI Categorization | YES | YES | YES | YES |
 | AI Chat | YES | YES | YES | YES |
 | Cash Flow Forecast | YES | YES | YES | YES |
 | Receipt Scanning | YES | YES | YES | YES |
 | Bank Reconciliation | YES | YES | YES | YES |
-| Financial Reports | YES | YES | YES | YES |
+| Financial Reports | Basic (3) | Full (7) | Full (7) | Full (7) |
 | Budgeting | YES | YES | YES | YES |
-| Unlimited Clients | NO | YES | YES | YES |
+| Invoices/mo | 20 | Unlimited | Unlimited | Unlimited |
+| Users | 1 | 3 | 10 | Unlimited |
+| Multi-Currency | NO | YES | YES | YES |
 | Inventory | NO | NO | YES | YES |
-| Multi-User | NO | NO | YES | YES |
 | White Label | NO | NO | NO | YES |
+| API Access | NO | NO | NO | YES |
 
 **Under the table:**
-"Budgeting, AI features, and full reporting at every tier — including free. That's the product decision we're most proud of."
+"Every paid plan includes full AI features — starting at $29.99/month. That's the product decision we're most proud of."
 
 ---
 
@@ -384,7 +409,7 @@ Ledgr's AI reviews every imported transaction and suggests a category. You revie
 **Step 3: Run your business with real data**
 Ask "What's my profit this month?" in the AI chat. Send invoices with one click. Set a budget and track it in real time. Close your books at month-end in 20 minutes.
 
-**CTA:** Start free — takes 5 minutes to get started
+**CTA:** Start your free trial — takes 5 minutes to get started
 
 ---
 
@@ -397,7 +422,7 @@ Ask "What's my profit this month?" in the AI chat. Send invoices with one click.
 ---
 
 **Testimonial 1**
-"I'd been paying QuickBooks $115/mo for 3 years. Switched to Ledgr in a weekend. My bill went from $115 to $19 and I actually have more features now, not fewer. The AI categorization alone saves me 2 hours a month."
+"I'd been paying QuickBooks $115/mo for 3 years. Switched to Ledgr in a weekend. My bill went from $115 to $59.99 and I actually have more features now, not fewer. The AI categorization alone saves me 2 hours a month."
 
 **Name:** [Beta user — replace with real name]
 **Role:** Freelance brand designer, 6 years in business
@@ -440,9 +465,9 @@ Ask "What's my profit this month?" in the AI chat. Send invoices with one click.
 
 ---
 
-**Q1: Is the free tier actually free? What's the catch?**
+**Q1: How does the 14-day free trial work?**
 
-There is no catch. The free tier is permanently free — not a 14-day trial, not a crippled demo. You get full AI features, full financial reporting, bank reconciliation, and invoice sending. The upgrade to Pro is available when you need more than 5 active clients or want a custom invoice domain. We don't lock core accounting functionality behind a paywall.
+Sign up and you get full Professional plan access for 14 days — no credit card required. Every feature, no restrictions. At the end of the trial, choose the plan that fits your business (Starter starts at $29.99/mo) or let the trial expire with no charge. There's no gotcha.
 
 ---
 
@@ -466,13 +491,13 @@ Ledgr uses OpenAI's GPT-4o model for its AI features. All AI processing uses you
 
 **Q5: Does Ledgr handle payroll?**
 
-Not yet. Payroll is on our roadmap for Q3 2026. In the meantime, Ledgr integrates with Gusto and ADP for payroll, and syncs payroll journal entries automatically to keep your books accurate.
+Yes — the Payroll Add-on is available for Business and Enterprise subscribers at $20/mo + $5/employee/mo. It integrates fully with your books so payroll runs sync automatically. For Starter and Professional subscribers, Ledgr integrates with Gusto and ADP and syncs payroll journal entries automatically.
 
 ---
 
 **Q6: Can I use Ledgr if I have an accountant?**
 
-Yes — Ledgr is designed to work with your accountant, not replace them. You can grant your accountant read or edit access to your books. We export to formats your accountant's tools accept. The AI features handle the routine; your accountant handles strategy and compliance.
+Yes — Ledgr is designed to work with your accountant, not replace them. Professional plans include 1 accountant seat; Business plans include 3. We export to formats your accountant's tools accept. The AI features handle the routine; your accountant handles strategy and compliance.
 
 ---
 
@@ -494,17 +519,17 @@ If you cancel, your data is yours. You can export your full transaction history,
 
 **Pre-heading tag:** Side by side
 
-| Feature | QuickBooks Simple Start ($50/mo) | QuickBooks Plus ($115/mo) | QuickBooks Advanced ($275/mo) | Ledgr Free ($0) | Ledgr Business ($39/mo) |
+| Feature | QuickBooks Simple Start ($50/mo) | QuickBooks Plus ($115/mo) | QuickBooks Advanced ($275/mo) | Ledgr Starter ($29.99/mo) | Ledgr Professional ($59.99/mo) |
 |---------|----------------------------------|--------------------------|-------------------------------|-----------------|------------------------|
 | Bank reconciliation | YES | YES | YES | YES | YES |
-| Invoice sending | YES | YES | YES | YES | YES |
+| Invoice sending | YES | YES | YES | YES (20/mo) | YES (unlimited) |
 | Budgeting | NO | YES | YES | YES | YES |
-| Inventory | NO | YES | YES | YES | YES |
+| Inventory | NO | YES | YES | NO | NO |
 | AI features | NO | NO | YES | YES | YES |
 | AI chat assistant | NO | NO | YES | YES | YES |
 | Activity logs | NO | NO | YES | YES | YES |
 | Receipt scanning | NO | NO | YES | YES | YES |
-| Monthly price | $50 | $115 | $275 | $0 | $39 |
+| Monthly price | $50 | $115 | $275 | $29.99 | $59.99 |
 
 **Caption:** QuickBooks pricing as of April 2026. Ledgr pricing per published plan. Feature comparison based on publicly documented plan inclusions.
 
@@ -512,14 +537,14 @@ If you cancel, your data is yours. You can export your full transaction history,
 
 ## SECTION 12: FINAL CTA
 
-**Section heading:** Your books. Your AI. Starting at $0.
+**Section heading:** Your books. Your AI. Starting at $29.99/month.
 
 **Body:**
 QuickBooks was built for a different era. Ledgr was built for the way small businesses actually work today — where your accounting software should be as fast as your phone, as smart as AI can make it, and as affordable as it should have always been.
 
-Sign up in 2 minutes. Connect your bank. Ask your first question.
+Start your 14-day free trial. Connect your bank. Ask your first question.
 
-**Primary CTA:** Start Free — No Credit Card Required
+**Primary CTA:** Start Free Trial — No Credit Card Required
 
 **Secondary CTA:** Or book a 20-minute demo →
 
@@ -528,6 +553,7 @@ Sign up in 2 minutes. Connect your bank. Ask your first question.
 - Read-only bank access (we can't move money)
 - Cancel anytime
 - 5-minute setup
+- 14 days free, full access
 
 ---
 

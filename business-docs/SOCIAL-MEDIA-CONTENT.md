@@ -1,6 +1,6 @@
 # Ledgr — Social Media Content Pack
 
-**Version:** 1.0 | **Date:** April 2026 | **Audience:** Marketing team
+**Version:** 2.0 | **Date:** April 2026 | **Audience:** Marketing team
 
 ---
 
@@ -32,16 +32,16 @@ Each step makes sense individually. As a stack, it's a $275/mo bill for software
 
 We built Ledgr because we were reading those reviews.
 
-Budgeting: included at every tier.
-Inventory: included at every tier.
+Budgeting: included at every tier, starting at $29.99/mo.
+Inventory: included at Business tier and above.
 AI categorization: included at every tier.
 AI chat assistant: included at every tier.
 
-Starting price: $0.
+Starting price: $29.99/mo. 14-day free trial, no credit card.
 
 Your bookkeeping should not cost more as you grow. That's not how tools should work.
 
-If you're currently on QuickBooks and wondering when your bill got so high — I'd genuinely love to show you what Ledgr does for free.
+If you're currently on QuickBooks and wondering when your bill got so high — I'd genuinely love to show you what Ledgr does.
 
 Link in comments.
 
@@ -57,14 +57,14 @@ Link in comments.
 
 ---
 
-QuickBooks charges $275/mo for AI features. Here's what that actually gets you vs. what Ledgr includes at $0.
+QuickBooks charges $275/mo for AI features. Here's what that actually gets you vs. what Ledgr includes starting at $29.99/mo.
 
 QuickBooks AI Assist (Advanced plan only, $275/mo):
 — Automated transaction categorization
 — Cash flow insights
 — Basic anomaly detection
 
-Ledgr AI (every tier, including free):
+Ledgr AI (every tier, starting at $29.99/mo):
 — Automated transaction categorization (same)
 — AI chat: Ask "what's my profit this month?" in plain English
 — AI forecasting: 90-day cash flow projection
@@ -74,9 +74,9 @@ Ledgr AI (every tier, including free):
 
 The technical difference: We built AI into the core data model, not bolted onto an existing platform that's 30 years old.
 
-The pricing difference: QuickBooks' AI is a feature for their most expensive tier. Ours is the product.
+The pricing difference: QuickBooks' AI is a feature for their most expensive tier. Ours is the product — available from your first paid month.
 
-If you're running a business and manually categorizing transactions every Sunday evening — that's time you're losing. AI should be solving that at $0, not $275/mo.
+If you're running a business and manually categorizing transactions every Sunday evening — that's time you're losing. AI should be solving that at $29.99/mo, not $275/mo.
 
 We built Ledgr to make that the baseline, not the premium.
 
@@ -111,7 +111,7 @@ The gap that nobody was filling: AI features at a reasonable price, for business
 
 That spreadsheet became Ledgr.
 
-AI bookkeeping, budgeting, forecasting, and invoicing — starting at $0.
+AI bookkeeping, budgeting, forecasting, and invoicing — starting at $29.99/mo with a 14-day free trial.
 
 If you're the person who does the books on Sunday evenings and wishes it took half as long: that's who I built this for.
 
@@ -132,22 +132,22 @@ I'd love feedback from small business owners. What's the one thing your accounti
 Before you renew QuickBooks this year, run this quick comparison.
 
 QuickBooks Plus: $115/mo
-What you get: Budgeting, inventory, time tracking, up to 5 users.
+What you get: Budgeting, inventory, time tracking, up to 5 users. No AI.
 
-Ledgr Business: $39/mo
-What you get: Budgeting, inventory, time tracking, up to 10 users, PLUS AI categorization, AI chat, AI forecasting, AI receipt scanning.
+Ledgr Professional: $59.99/mo
+What you get: Budgeting, unlimited invoices, time tracking, up to 3 users, PLUS AI categorization, AI chat, AI forecasting, AI receipt scanning. Multi-currency.
 
-The delta: $76/mo = $912/yr.
+The delta: $55/mo = $660/yr.
 
-That's one month of payroll for a part-time employee. That's a new laptop. That's three months of ads.
+That's one month of payroll for a part-time employee. That's a new laptop.
 
-The Ledgr Business plan isn't missing features the QuickBooks Plus plan has. It has features QuickBooks charges $275/mo (Advanced) to access — and it's $39/mo.
+The Ledgr Professional plan isn't missing features the QuickBooks Plus plan has. It has features QuickBooks charges $275/mo (Advanced) to access — and it's $59.99/mo.
 
-For freelancers, the math is even clearer: QuickBooks Self-Employed is $15/mo and doesn't include double-entry accounting, real P&L, or balance sheet reporting. Ledgr Pro is $19/mo and includes all three, plus AI.
+For freelancers, the math is even clearer: QuickBooks Self-Employed is $15/mo and doesn't include double-entry accounting, real P&L, or balance sheet reporting. Ledgr Starter is $29.99/mo and includes all three, plus the full AI suite.
 
 I'm not saying QuickBooks is bad. I'm saying the pricing model was built for a different era.
 
-If you're renewing soon, at minimum do a 30-minute Ledgr trial before you click "renew." It's free. No credit card required.
+If you're renewing soon, at minimum do a 14-day Ledgr trial before you click "renew." No credit card required.
 
 Link in first comment.
 
@@ -180,7 +180,7 @@ Estimated: 6.5 hrs → 1.3 hrs.
 
 That's 5 hours a month returned to the business owner. At $75/hr consulting value, that's $375/mo of recovered time.
 
-The $0 Ledgr free tier pays for itself on day 30.
+Ledgr starts at $29.99/month. The math is not subtle.
 
 This is what we built. Not more software — less time spent on software.
 
@@ -198,29 +198,29 @@ If you've been doing your own books and want 5 hours of your month back, I'd lov
 
 ---
 
-"I didn't think free meant actually free."
+"I didn't expect to like it this much."
 
 That's a direct quote from one of our beta users — a freelance designer who'd been on QuickBooks Self-Employed for 4 years.
 
-She signed up expecting a crippled demo. Paid tier locked behind a popup. "Free" meaning 14 days.
+She signed up for the 14-day trial expecting a polished demo. Something that looked impressive but forced an upgrade to do anything useful.
 
-What she found: Full P&L. Balance sheet. Bank reconciliation. AI receipt scanning. Invoice sending with payment links. Everything working.
+What she found: Full P&L. Balance sheet. Bank reconciliation. AI receipt scanning. Invoice sending with payment links. Everything working, no restrictions.
 
-No credit card. No time limit. No "upgrade to see your reports."
+No credit card. Just the product.
 
-Her second reaction: "Why does this exist? What's the catch?"
+Her second reaction: "So what happens after 14 days?"
 
-The answer is boring: we designed the free tier to be genuinely useful because useful products grow by word of mouth. If the free tier doesn't solve your problem, the paid tier won't either. That's the bet.
+After 14 days, she picks a plan. Starter at $29.99/mo. That's the pitch.
 
-She's now on Pro ($19/mo) because she hit the client limit on free and wanted the custom domain invoices. Not because we locked her out — because she wanted more.
+She upgraded to Professional ($59.99/mo) because she wanted multi-currency for a client and time tracking. Not because we locked her out — because she wanted more.
 
-That's the model: give real value, earn the upgrade.
+That's the model: give a real product experience, earn the subscription.
 
-If you've been burned by "free trials" that aren't — I understand the skepticism. Sign up with no credit card and see for yourself.
+If you've been burned by "free trials" that aren't really free — I understand the skepticism. 14 days. No credit card. The full Professional plan.
 
 Link in first comment.
 
-**CTA:** Free signup link in comment
+**CTA:** Free trial link in comment
 
 ---
 
@@ -249,7 +249,7 @@ So here's what we did at Ledgr: we built a one-click QuickBooks import. Your ful
 
 We're not betting on switching inertia working in our favor. We're betting that if switching is genuinely easy, and the product is genuinely better, people will move.
 
-If you've been on QuickBooks for years and haven't looked at alternatives because migration seemed too hard: the hard part is gone. The switch takes 20 minutes.
+If you've been on QuickBooks for years and haven't looked at alternatives because migration seemed too hard: the hard part is gone. The switch takes 20 minutes. 14-day trial, no credit card.
 
 Happy to walk you through it personally. Drop a comment or DM.
 
@@ -279,7 +279,7 @@ Notice what's NOT on this list: the core accounting functionality. Double-entry 
 
 This means the switching argument isn't "QuickBooks is bad at accounting." It's "QuickBooks has decided your money is more valuable than your loyalty."
 
-We built Ledgr to compete on the dimensions that matter to this specific customer: transparent pricing, features at every tier, responsive support (AI chat is available 24/7 in-app), and no surprises at renewal.
+We built Ledgr to compete on the dimensions that matter to this specific customer: transparent pricing, AI features at every tier starting at $29.99/mo, responsive support (AI chat is available 24/7 in-app), and no surprises at renewal.
 
 If you work with small business clients who are frustrated with their accounting software but don't know where to start: I'd appreciate the introduction.
 
@@ -312,9 +312,9 @@ Photo a receipt with your phone. AI reads the vendor, amount, date, and category
 5. Forecast your cash flow 90 days out.
 Based on historical patterns and scheduled invoices, AI should tell you "you'll have $X in the bank in 3 months." Not a static spreadsheet. A live projection.
 
-All five of these are live in Ledgr at the free tier.
+All five of these are live in Ledgr — starting at $29.99/mo. 14-day free trial, no credit card.
 
-If your current software requires a paid upgrade for any of these: the market has moved. Your software hasn't.
+If your current software requires an expensive plan upgrade for any of these: the market has moved. Your software hasn't.
 
 **CTA:** "Which of these would save you the most time? Comment below."
 
@@ -336,14 +336,14 @@ The longer version: We spent a year building accounting software for the busines
 
 We made four decisions that most accounting platforms haven't:
 
-1. AI is included at every tier, including free. Not a premium add-on.
-2. Budgeting and inventory are included at every tier. Not locked behind Plus.
-3. The free tier works. Not a 14-day trial. Not a crippled demo.
-4. The pricing doesn't increase as you grow. You pay for features, not headcount.
+1. AI is included at every tier from the first paid month. Not a premium add-on.
+2. Budgeting is included at every tier. Not locked behind Plus.
+3. The trial is real. 14 days of full Professional access. No credit card. No crippled demo.
+4. The pricing is transparent. When we raise prices, we give you 90 days notice. No surprises.
 
-Free: Full accounting, invoicing, AI categorization, bank reconciliation.
-Pro ($19/mo): Unlimited clients, custom invoices, advanced AI.
-Business ($39/mo): Multi-user, inventory, payroll-ready, full AI suite.
+Starter ($29.99/mo): Full AI suite, bank feeds, budgeting, 20 invoices/mo.
+Professional ($59.99/mo): Unlimited invoices, 3 users, multi-currency, time tracking.
+Business ($99.99/mo): 10 users, inventory, purchase orders, project tracking.
 
 If you're a small business owner, freelancer, or run an accounting practice — I'd love for you to try it today.
 
@@ -377,12 +377,14 @@ AI features: Advanced only.
 Budgeting: Plus only.
 
 Ledgr pricing:
-- Free: $0
-- Pro: $19/mo
-- Business: $39/mo
+- Starter: $29.99/mo
+- Professional: $59.99/mo
+- Business: $99.99/mo
 
 AI features: every tier.
 Budgeting: every tier.
+
+14-day free trial. No credit card.
 
 Feel free to share this.
 
@@ -421,7 +423,7 @@ The AI you're paying QuickBooks $275/mo for:
 - Cash flow insights
 - Basic alerts
 
-The AI you get with Ledgr at $0:
+The AI you get with Ledgr at $29.99/mo:
 - Transaction categorization
 - Cash flow insights
 - AI chat ("what's my profit this month?")
@@ -469,7 +471,7 @@ What AI bookkeeping actually looks like in 2026:
 
 Total time: 45 minutes vs. 4 hours.
 
-This is what we built. This is what QuickBooks charges $275/mo for. Ledgr is $0.
+This is what we built. This is what QuickBooks charges $275/mo for. Ledgr starts at $29.99/mo.
 
 ---
 
@@ -494,12 +496,12 @@ No wrong answers. I'm building a competitor and I read every reply.
 ---
 
 QuickBooks Plus: $115/mo
-Includes: budgeting, inventory, 5 users
+Includes: budgeting, inventory, 5 users. No AI.
 
-Ledgr Business: $39/mo
-Includes: budgeting, inventory, 10 users + AI everything
+Ledgr Professional: $59.99/mo
+Includes: budgeting, unlimited invoices, 3 users + full AI suite.
 
-Annual difference: $912
+Annual difference: $660.
 
 That's either a new MacBook or a year of QuickBooks.
 
@@ -535,32 +537,33 @@ This is the thing we said no to when we designed Ledgr.
 
 We're live on Product Hunt today.
 
-Ledgr: AI-powered bookkeeping starting at $0.
+Ledgr: AI-powered bookkeeping starting at $29.99/mo.
 
-If you've ever paid QuickBooks $115/mo for features that should cost nothing — this is for you.
+If you've ever paid QuickBooks $115/mo for features that should cost half as much — this is for you.
 
 Would love your support and honest feedback. Link in thread.
 
 ---
 
-### X Post 10 — The Free Tier Promise
+### X Post 10 — The Trial Promise
 
 **Best time:** Sunday 8 AM (catches weekend business owners)
-**Hashtags:** #SmallBusiness #Bookkeeping #Free
+**Hashtags:** #SmallBusiness #Bookkeeping #FreeTrial
 
 ---
 
-The Ledgr free tier, clarified:
+The Ledgr 14-day trial, clarified:
 
 - No credit card required
-- No 14-day expiration
+- Full Professional access for 14 days
 - No "upgrade to see your reports"
 - Full P&L and balance sheet
 - Bank reconciliation
 - AI transaction categorization
 - Invoice sending with payment links
+- After 14 days: Starter starts at $29.99/mo
 
-Free means free.
+14 days to decide. No gotcha.
 
 ledgr.com
 
@@ -616,13 +619,10 @@ Methodology: I priced out exactly what each platform costs to have these 5 featu
 - All 5 features: Available at $40/mo (Professional)
 - No AI unless you add Zoho Analytics
 
-**FreshBooks (agency-focused):**
-As above — not a great fit for businesses that need balance sheet reporting.
-
 **Ledgr** (full disclosure: I'm the founder — but the numbers are the numbers):
-- All 5 features: $39/mo (Business tier)
-- AI included at all tiers
-- Free tier includes invoicing, reconciliation, and AI
+- All 5 features: $99.99/mo (Business tier)
+- AI included at all tiers starting at $29.99/mo
+- 14-day full trial, no credit card
 
 Happy to answer questions about any of the platforms. I've used most of them at various points.
 
@@ -649,9 +649,9 @@ Honest breakdown from my experience:
 
 **FreshBooks Lite:** $23/mo. Beautiful UI. Great for client invoicing with payment links. The 5-client limit on Lite is painful if you have more clients. No inventory, no double-entry until Plus ($55/mo).
 
-Right now I'm using Ledgr (full disclosure: I'm affiliated — but I'll give you the honest picture). It's the only one that has AI-assisted categorization at no cost. I scan receipts with my phone. It auto-categorizes bank imports. The month-end process that used to take me 2 hours now takes about 30 minutes.
+Right now I'm using Ledgr (full disclosure: I'm affiliated — but I'll give you the honest picture). It's the only one that has AI-assisted categorization built into the base plan at $29.99/mo. I scan receipts with my phone. It auto-categorizes bank imports. The month-end process that used to take me 2 hours now takes about 30 minutes.
 
-The thing nobody talks about: the "free" tiers of most platforms are not actually usable for a real business. Wave is the exception. Ledgr is the other exception.
+The thing nobody talks about: the "free" tiers of most platforms are not actually usable for a real business. Wave is the exception for truly simple setups. Ledgr has a 14-day trial that gives you full access to evaluate before committing.
 
 What's everyone else using and why? Specifically interested in whether people are doing manual entry or using automation.
 
@@ -707,11 +707,11 @@ This is backwards. The business owner who would benefit most from AI categorizat
 
 **What the fix looks like:**
 
-Flatten the pricing. Put AI at every tier. Charge for seats and volume, not features.
+Put AI at every tier. Charge for seats and volume, not features. Keep pricing transparent.
 
-That's the bet we made with Ledgr. Whether it's the right bet commercially — I don't know yet. But the product logic is clear.
+That's the bet we made with Ledgr — $29.99/mo for Starter, $59.99/mo for Professional, $99.99/mo for Business. Whether it's the right bet commercially — I don't know yet. But the product logic is clear.
 
-If you're a small business owner and you've had this frustration: happy to share our free tier link. No sales pitch. If it helps, great. If it doesn't, I want to know why.
+If you're a small business owner and you've had this frustration: happy to share our 14-day free trial link. No sales pitch. If it helps, great. If it doesn't, I want to know why.
 
 ---
 
@@ -758,15 +758,15 @@ $275/mo: Advanced. Finally get AI features.
 
 I built Ledgr so you don't have to play this game.
 
-$0/mo: AI categorization, invoicing, bank reconciliation.
-$19/mo: Unlimited clients, custom invoices, advanced AI.
-$39/mo: Full AI suite, inventory, multi-user.
+$29.99/mo: Full AI suite, bank feeds, budgeting, receipt scanning.
+$59.99/mo: Unlimited invoices, 3 users, multi-currency, time tracking.
+$99.99/mo: 10 users, inventory, purchase orders, full AI.
 
-Link in bio.
+14-day free trial. No credit card. Link in bio.
 
 **Hashtags:** #QuickBooks #SmallBusiness #AccountingSoftware #AI #Bookkeeping #FinanceTips #SmallBusinessOwner #Ledgr
 
-**CTA:** "Link in bio" → Ledgr.com free signup
+**CTA:** "Link in bio" → Ledgr.com trial signup
 
 ---
 
@@ -783,7 +783,7 @@ Photo it. AI reads the vendor, amount, category, and date. One-tap approve.
 
 This is what accounting software should have been doing for the last 10 years.
 
-It's free in Ledgr. Link in bio.
+Included in every Ledgr plan starting at $29.99/mo. Link in bio.
 
 **Hashtags:** #AIAccounting #Bookkeeping #Productivity #SmallBusiness #ReceiptScanner #BusinessTips #Ledgr
 
@@ -802,13 +802,13 @@ Let me show you the comparison nobody's doing honestly.
 
 Same features. Very different price.
 
-Budgeting: QuickBooks wants $115/mo. Ledgr: free.
-AI insights: QuickBooks wants $275/mo. Ledgr: free.
-Activity logs: QuickBooks wants $275/mo. Ledgr: free.
+Budgeting: QuickBooks wants $115/mo. Ledgr: $29.99/mo.
+AI insights: QuickBooks wants $275/mo. Ledgr: $29.99/mo.
+Activity logs: QuickBooks wants $275/mo. Ledgr: $29.99/mo.
 
 I'm not saying switch today. I'm saying: do the math for your business.
 
-Free trial at ledgr.com. No credit card.
+14-day free trial at ledgr.com. No credit card.
 
 **Hashtags:** #QuickBooksAlternative #SmallBusiness #AccountingSoftware #Business #Bookkeeping #AITools #Ledgr
 
@@ -832,9 +832,7 @@ Month-end: AI flags the 3 things I need to look at. I fix them in 20 minutes.
 
 Total now: under an hour, monthly.
 
-The tool is Ledgr. Free tier includes all of this.
-
-Link in bio if you want to try it.
+The tool is Ledgr. Starter plan is $29.99/mo. 14-day free trial, link in bio.
 
 **Hashtags:** #FreelanceTips #Productivity #AIAccounting #Bookkeeping #Freelance #SmallBusiness #WorkSmarter #Ledgr
 
@@ -849,17 +847,17 @@ Link in bio if you want to try it.
 **Length:** 30 seconds
 
 **Caption:**
-If you're paying more than $39/mo for accounting software, watch this.
+If you're paying more than $59.99/mo for accounting software, watch this.
 
 QuickBooks Plus: $115/mo
-Includes: budgeting + inventory
+Includes: budgeting + inventory. No AI.
 
-Ledgr Business: $39/mo
-Includes: budgeting + inventory + AI chat + AI forecasting + AI receipt scanning
+Ledgr Professional: $59.99/mo
+Includes: budgeting + unlimited invoices + AI chat + AI forecasting + AI receipt scanning + multi-currency.
 
-That's $912/yr you could stop spending.
+That's $660/yr you could stop spending.
 
-30-day migration. Free import. No credit card to start.
+30-day migration. Free import. 14-day trial, no credit card.
 
 ledgr.com — link in bio.
 

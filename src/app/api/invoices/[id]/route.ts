@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { asRecord, getEnum, getString, getNumber, ValidationError, pickAllowed } from '@/lib/validate';
 
 const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue', 'void'] as const;
@@ -43,7 +43,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized } = await requireWrite();
     if (unauthorized) return unauthorized;
     const { id } = await params;
 

@@ -7,9 +7,9 @@
 ---
 
 ## SEQUENCE 1: Welcome Sequence
-### New Free-Tier Signups — 5 emails over 14 days
+### New Trial Signups — 5 emails over 14 days
 
-**Trigger:** User completes signup (email confirmed)
+**Trigger:** User completes signup (email confirmed), starts 14-day free trial
 **Goal:** Drive activation (first bank connection or first invoice sent)
 
 ---
@@ -23,7 +23,7 @@
 
 Hey {{first_name}},
 
-You just signed up for Ledgr. Here's the single most useful thing you can do in the next 5 minutes:
+You just started your 14-day Ledgr trial. Here's the single most useful thing you can do in the next 5 minutes:
 
 Connect your business bank account.
 
@@ -42,7 +42,7 @@ If you have any questions, reply to this email. I read every reply.
 — Ralph
 Ledgr Founder
 
-P.S. The free tier doesn't expire. You didn't start a trial. This is just your account.
+P.S. You have full Professional access for 14 days — every feature, no restrictions. At the end of the trial, Starter starts at $29.99/mo. No obligation to upgrade during the trial.
 
 ---
 
@@ -104,7 +104,7 @@ In Reports → Client P&L, you can see exactly which clients are profitable and 
 **5. Auto-send invoice reminders.**
 Open any invoice → Automation. Toggle on "Send reminder on day 3 and day 7 after due date." You never have to chase a payment manually again.
 
-None of these require an upgrade. They're all in the free tier.
+None of these require a specific plan tier. They're all part of your Professional access during the trial.
 
 **[Log in and try one →]**
 
@@ -141,7 +141,7 @@ One of our beta users runs a 3-person design agency. Here's what her monthly boo
 
 Total monthly time: ~45 minutes vs. 4 hours.
 
-She switched from QuickBooks Plus ($115/mo). She's on our Pro plan ($19/mo). Annual savings: $1,152.
+She switched from QuickBooks Plus ($115/mo). She's on our Professional plan ($59.99/mo). Annual savings: $660.
 
 This is not an unusual story. If you haven't gotten to this point with Ledgr yet, here's the fastest way to get there:
 
@@ -157,67 +157,73 @@ Ralph
 
 ---
 
-### Email 5 — Day 14 (soft upgrade prompt)
+### Email 5 — Day 12 (trial ending soon — plan selection)
 
-**Subject:** Week 2 check-in — how's it going?
-**Preview text:** Honest question. Real offer if you want it.
+**Subject:** Your trial ends in 2 days — choose your plan
+**Preview text:** Honest breakdown of which plan fits you.
 **Trigger condition:** Send to all
 
 ---
 
 Hey {{first_name}},
 
-It's been two weeks. How's Ledgr working for you?
+Your 14-day trial ends in 2 days. Here's the honest breakdown so you can choose the right plan:
 
-If everything's working well and you're on the free tier, you're in good shape. No action needed — the free tier doesn't expire.
+**Starter — $29.99/mo**
+For freelancers and solo business owners. 1 user, 20 invoices/month, bank feeds, all AI features. If you send fewer than 20 invoices a month and work alone — this is the one.
 
-If you've hit any of these, Pro might be worth it:
+**Professional — $59.99/mo** (most popular)
+For small teams or solo users who need unlimited invoices. 3 users, unlimited invoices, multi-currency, time tracking, accountant access. If you're billing more than 20 clients a month or want to share access — this is the one.
 
-— You have more than 5 active clients
-— You want invoices to send from your own domain (invoices.yourdomain.com)
-— You want to track time by project and bill it to clients
+**Business — $99.99/mo**
+For businesses with inventory, purchase orders, and teams up to 10 people. If you have physical products or need department-level budgeting — this is the one.
 
-Pro is $19/mo. No contract. Cancel anytime.
+**Enterprise — $139.99/mo**
+For accounting firms and multi-entity businesses. Unlimited users, API access, white-label invoices, dedicated support.
 
-**[See what Pro includes →]**
+Annual plans save roughly 20% on each tier.
 
-If something isn't working or you have a question that I can help with personally — reply to this email. I read every one.
+**[Choose my plan →]**
+
+If you're not sure which plan is right, reply to this email with a quick description of your business and I'll tell you exactly which tier fits.
 
 Ralph
+
+P.S. If you want to keep exploring before committing — reply and I can extend your trial by 7 days. No sales pitch attached.
 
 ---
 
 ## SEQUENCE 2: Upgrade Sequence
-### Free Users Hitting Limits — 3 emails
+### Starter Users Hitting Limits — 3 emails
 
-**Trigger:** User attempts to add a 6th client (hits free tier limit)
-**Goal:** Convert to Pro ($19/mo)
+**Trigger:** User attempts to create a 21st invoice in a month (hits Starter tier limit)
+**Goal:** Convert to Professional ($59.99/mo)
 
 ---
 
 ### Upgrade Email 1 — Immediate (triggered at limit hit)
 
-**Subject:** You've hit the 5-client limit.
+**Subject:** You've hit the 20-invoice limit.
 **Preview text:** Here's what happens next.
 
 ---
 
 Hey {{first_name}},
 
-You tried to add a client but you've reached the 5-client limit on the free tier.
+You tried to create an invoice but you've reached the 20-invoice limit on the Starter plan.
 
 Here's the situation:
 
-**Free tier:** 5 clients, everything else unlimited.
-**Pro tier ($19/mo):** Unlimited clients + custom invoice domain + recurring invoices + 1099 tracking.
+**Starter ($29.99/mo):** 20 invoices/month, 1 user.
+**Professional ($59.99/mo):** Unlimited invoices + multi-currency + time tracking + accountant access (1 seat).
 
-That's the only difference between where you are and unlimited clients.
+That's the main difference between where you are and unlimited invoices.
 
-At $19/mo, Pro pays for itself if you're saving any time on bookkeeping versus your previous setup. And if you came from QuickBooks, you're already saving at least $19/mo.
+At $59.99/mo, Professional pays for itself if you're regularly billing more than 20 clients a month. And if you came from QuickBooks Plus, you're saving $55/mo even on the Professional plan.
 
-**[Upgrade to Pro — $19/mo →]**
+**[Upgrade to Professional — $59.99/mo →]**
 
-If you want to stay on free, you can archive a client to free up a slot. Instructions here: [link]
+If you want to stay on Starter, your current invoices still work fine — you just can't create new ones this month until the counter resets.
 
 Either way, this is your account and your call.
 
@@ -227,7 +233,7 @@ Ralph
 
 ### Upgrade Email 2 — Day 3 after limit hit (if still not upgraded)
 
-**Subject:** Quick note on the 5-client situation
+**Subject:** Quick note on the invoice limit
 **Preview text:** One-click if you're ready.
 **Trigger condition:** User still has not upgraded
 
@@ -237,11 +243,11 @@ Hey {{first_name}},
 
 Just a quick follow-up.
 
-If the 5-client limit is blocking real work, Pro is $19/mo and takes about 30 seconds to activate.
+If the invoice limit is blocking real work, Professional is $59.99/mo and takes about 30 seconds to activate.
 
-If it's not blocking anything right now — no worries, the free tier is yours. Come back to this when it matters.
+If it's not blocking anything right now — no worries, your Starter plan is solid. Come back to this when it matters.
 
-**[Upgrade to Pro when you're ready →]**
+**[Upgrade to Professional when you're ready →]**
 
 That's it. Short email.
 
@@ -251,7 +257,7 @@ Ralph
 
 ### Upgrade Email 3 — Day 7 after limit hit (final)
 
-**Subject:** Last note on the Pro upgrade
+**Subject:** Last note on the upgrade
 **Preview text:** No more emails about this after today.
 **Trigger condition:** User still has not upgraded
 
@@ -261,9 +267,9 @@ Hey {{first_name}},
 
 Last email about this — I promise.
 
-If you're ready to move past the 5-client limit, here's the link: **[Upgrade to Pro →]**
+If you're ready to remove the invoice limit, here's the link: **[Upgrade to Professional →]**
 
-If not, no problem. You'll have unlimited AI features, reporting, and bank reconciliation on free forever.
+If not, no problem. You'll have all AI features, full reporting, and bank reconciliation on Starter indefinitely.
 
 One other thing: if the price is the issue, email me at ralph@ledgr.com. I have some flexibility for early users who are genuinely tight on budget and want to give Ledgr a real shot.
 
@@ -325,7 +331,7 @@ Straight question: what got in the way?
 
 A one-line reply would genuinely help me understand where Ledgr falls short.
 
-And if it's just timing — the account stays active. You can come back whenever you're ready. The free tier doesn't expire.
+And if it's just timing — the account stays active. You can come back whenever you're ready. Your plan doesn't expire between logins.
 
 Ralph
 Founder, Ledgr
@@ -344,7 +350,7 @@ Hey {{first_name}},
 
 Last email. I don't believe in pestering people.
 
-If you want to try Ledgr at any point, your account is there. No expiration. No credit card required.
+If you want to try Ledgr at any point, your account is there. No expiration. No credit card required to browse.
 
 One offer before I close this loop: if you'd like a personal 20-minute onboarding call — I'll walk you through your specific business setup and make sure you're set up correctly. No sales pitch. Just a setup call.
 
@@ -439,7 +445,7 @@ Hey {{first_name}},
 
 Let me give you the specific numbers for your situation.
 
-If you're currently on QuickBooks Plus ($115/mo), here's what switching to Ledgr Business looks like:
+If you're currently on QuickBooks Plus ($115/mo), here's what switching to Ledgr Professional looks like:
 
 **What you had at $115/mo:**
 - Budgeting
@@ -448,17 +454,22 @@ If you're currently on QuickBooks Plus ($115/mo), here's what switching to Ledgr
 - NO AI features
 - NO activity logs
 
-**What you get at $39/mo with Ledgr Business:**
+**What you get at $59.99/mo with Ledgr Professional:**
 - Budgeting
-- Inventory
-- 10 users
+- Unlimited invoices
+- 3 users
 - FULL AI suite (chat, categorization, forecasting, receipt scanning)
 - Activity logs
-- Annual savings: $912
+- Multi-currency
+- Annual savings: $660
 
 If you're on QuickBooks Simple Start ($50/mo):
 - You're on a plan with no budgeting, no inventory, no AI
-- Ledgr Free is $0 and includes all three
+- Ledgr Starter at $29.99/mo includes AI features QuickBooks charges $275/mo for
+
+If you're on QuickBooks Advanced ($275/mo):
+- Ledgr Enterprise at $139.99/mo includes equivalent features: unlimited users, API access, activity logs, full AI suite, dedicated support
+- Annual savings: $1,620
 
 The math is just the math. It's not a pitch.
 

@@ -30,20 +30,20 @@
 
 | Plan | QuickBooks | Ledgr Equivalent |
 |------|------------|-----------------|
-| Entry | $50/mo (Simple Start — 1 user, no budgeting) | $0 (Free — includes budgeting, AI) |
-| Mid | $115/mo (Plus — budgeting, inventory, 5 users) | $39/mo (Business — same + 10 users + full AI) |
-| Top | $275/mo (Advanced — AI, activity logs, 25 users) | $79/mo (Enterprise — all features, unlimited users) |
+| Entry | $50/mo (Simple Start — 1 user, no budgeting) | $29.99/mo (Starter — includes budgeting, AI, bank feeds) |
+| Mid | $115/mo (Plus — budgeting, inventory, 5 users) | $59.99/mo (Professional — same features + AI suite, 3 users) |
+| Top | $275/mo (Advanced — AI, activity logs, 25 users) | $139.99/mo (Enterprise — all features, unlimited users) |
 
-**Annual savings at mid-tier:** $115 - $39 = $76/mo = $912/yr
+**Annual savings at mid-tier:** $115 - $59.99 = $55.01/mo = $660/yr
 
 ---
 
 ### Feature-by-Feature Comparison
 
-| Feature | QB Simple Start | QB Essentials | QB Plus | QB Advanced | Ledgr Free | Ledgr Pro | Ledgr Business |
-|---------|----------------|--------------|---------|-------------|------------|-----------|----------------|
+| Feature | QB Simple Start | QB Essentials | QB Plus | QB Advanced | Ledgr Starter | Ledgr Professional | Ledgr Business |
+|---------|----------------|--------------|---------|-------------|--------------|-------------------|----------------|
 | Bank reconciliation | YES | YES | YES | YES | YES | YES | YES |
-| Invoice sending | YES | YES | YES | YES | YES | YES | YES |
+| Invoice sending | YES | YES | YES | YES | YES (20/mo) | YES (unlimited) | YES |
 | Time tracking | NO | YES | YES | YES | NO | YES | YES |
 | Budgeting | NO | NO | YES | YES | YES | YES | YES |
 | Inventory | NO | NO | YES | YES | NO | NO | YES |
@@ -52,7 +52,7 @@
 | AI chat assistant | NO | NO | NO | YES | YES | YES | YES |
 | Cash flow forecast | NO | NO | NO | YES | YES | YES | YES |
 | Receipt scanning | NO | NO | NO | YES | YES | YES | YES |
-| Monthly price | $50 | $85 | $115 | $275 | $0 | $19 | $39 |
+| Monthly price | $50 | $85 | $115 | $275 | $29.99 | $59.99 | $99.99 |
 
 ---
 
@@ -117,12 +117,12 @@ Total active time: ~1 hour. Timeline: 30 days to be confident.
 
 | Area | FreshBooks | Ledgr |
 |------|------------|-------|
-| Double-entry accounting | Plus+ ($55/mo) only | All tiers including free |
+| Double-entry accounting | Plus+ ($55/mo) only | All tiers including Starter ($29.99/mo) |
 | AI features | None | All tiers |
 | Balance sheet reporting | Plus+ only | All tiers |
-| Client limit (base plan) | 5 clients (Lite, $23/mo) | 5 clients free; unlimited at Pro ($19/mo) |
-| Inventory | Not available | Business tier ($39/mo) |
-| Starting price for full accounting | $55/mo | $0 |
+| Client limit (base plan) | 5 clients (Lite, $23/mo) | 20 invoices/mo on Starter ($29.99/mo); unlimited at Professional |
+| Inventory | Not available | Business tier ($99.99/mo) |
+| Starting price for full accounting | $55/mo | $29.99/mo |
 | Bank reconciliation | Basic | Full + AI-assisted |
 
 ---
@@ -159,7 +159,7 @@ FreshBooks supports CSV export of transactions and client data. Switching takes 
 
 ### The One-Line Positioning
 
-"Wave is free accounting. Ledgr is free AI accounting. If you're spending time categorizing transactions or building reports manually, Ledgr pays for itself on day 30."
+"Wave is free accounting. Ledgr is AI-powered accounting starting at $29.99/mo. If you're spending time categorizing transactions or building reports manually, Ledgr pays for itself on day 30."
 
 ---
 
@@ -174,7 +174,7 @@ FreshBooks supports CSV export of transactions and client data. Switching takes 
 
 ### Where Ledgr Wins
 
-| Area | Wave | Ledgr Free |
+| Area | Wave | Ledgr Starter ($29.99/mo) |
 |------|------|-----------|
 | AI transaction categorization | None | Yes |
 | AI chat assistant | None | Yes |
@@ -186,15 +186,15 @@ FreshBooks supports CSV export of transactions and client data. Switching takes 
 
 ---
 
-### The Free vs Free Question
+### The Cost vs. Time Question
 
-Both Wave and Ledgr are free. The meaningful comparison is time cost vs. money cost.
+Wave is free. Ledgr starts at $29.99/month. The meaningful comparison is time cost vs. money cost.
 
 Wave's free tier requires manual categorization of every transaction. For a business with 100 transactions/month at 30 seconds each, that's 50 minutes of manual work per month. Per year: 10 hours.
 
-Ledgr's free tier uses AI to pre-categorize. Same 100 transactions → 5 minutes of review per month. Per year: 1 hour.
+Ledgr's Starter tier uses AI to pre-categorize. Same 100 transactions → 5 minutes of review per month. Per year: 1 hour.
 
-The "free" product that uses your time is more expensive than the "free" product that uses AI.
+At a modest $50/hour value of your time, Ledgr's $29.99/month pays for itself 3x over on time savings alone.
 
 ---
 
@@ -210,13 +210,13 @@ The "free" product that uses your time is more expensive than the "free" product
 ### Objection Handling
 
 **"Wave is free and I'm comfortable with it."**
-Comfort is worth something. If Wave does everything you need and you don't mind manual categorization, stay with Wave. The switch to Ledgr is most compelling for businesses at the point where bookkeeping is becoming a meaningful time cost — usually 50+ transactions per month.
+Comfort is worth something. If Wave does everything you need and you don't mind manual categorization, stay with Wave. The switch to Ledgr is most compelling for businesses at the point where bookkeeping is becoming a meaningful time cost — usually 50+ transactions per month. At that volume, Ledgr's $29.99/month saves you more time than it costs.
 
 **"Wave is backed by H&R Block."**
 H&R Block acquired Wave in 2019. This provides financial stability. It has also meant Wave's product development has slowed — no major AI features have shipped in 4 years. Ledgr is built AI-first for the current moment.
 
 **"Wave handles my payroll."**
-Ledgr integrates with Gusto and ADP for payroll. If you're using Wave's native payroll (available in US and Canada), that is a genuine switching cost to evaluate. We'll have native payroll in Q3 2026.
+Ledgr's Payroll Add-on is available for Business and Enterprise subscribers at $20/mo + $5/employee. For Starter and Professional subscribers, Ledgr integrates with Gusto and ADP. We'll have native payroll at all tiers in Q3 2026.
 
 ---
 
@@ -243,13 +243,13 @@ Ledgr integrates with Gusto and ADP for payroll. If you're using Wave's native p
 | Area | Xero | Ledgr |
 |------|------|-------|
 | US market focus | Secondary | Primary |
-| Starting price for real accounting | $47/mo (Growing plan) | $0 |
-| AI features | Analytics Plus ($27+/mo add-on) | All tiers |
+| Starting price for real accounting | $47/mo (Growing plan) | $29.99/mo (Starter) |
+| AI features | Analytics Plus ($27+/mo add-on) | All tiers starting at $29.99/mo |
 | AI chat | No | Yes |
 | Learning curve | Steep | Moderate |
-| US tax forms (1099) | Limited | Yes (Pro+) |
+| US tax forms (1099) | Limited | Yes (Professional+) |
 | Cash flow forecast | Add-on | All tiers |
-| Pricing transparency | Complex tiering + add-ons | Simple 4-tier |
+| Pricing transparency | Complex tiering + add-ons | Simple 5-tier |
 
 ---
 
@@ -271,7 +271,7 @@ If your accountant is on Xero and their workflow is Xero-dependent, the switchin
 For the median US small business (5 employees or fewer), the integrations that matter are bank connections, payroll, payments, and e-commerce. Ledgr covers all of these. If you use a tool not yet on Ledgr's integration list, let us know — we prioritize based on user demand.
 
 **"Xero is established and I don't want to switch to something new."**
-Xero launched in 2006. QuickBooks launched in 1992. The fact that a tool is established doesn't mean it's the best current option. The AI features that Ledgr includes at $0 weren't available in any established product until 2024.
+Xero launched in 2006. QuickBooks launched in 1992. The fact that a tool is established doesn't mean it's the best current option. The AI features that Ledgr includes starting at $29.99/mo weren't available in any established product until 2024.
 
 ---
 
@@ -297,13 +297,13 @@ Xero launched in 2006. QuickBooks launched in 1992. The fact that a tool is esta
 
 | Area | Zoho Books | Ledgr |
 |------|------------|-------|
-| Free tier revenue cap | $50K/yr (Standard at $20+ after) | None — free tier is permanent |
+| Free tier revenue cap | $50K/yr (Standard at $20+ after) | No free tier — 14-day full trial, then $29.99/mo |
 | AI quality | Zoho AI (Zia) — general-purpose | GPT-4o — purpose-built for accounting |
 | AI chat (accounting-specific) | No | Yes |
 | Ecosystem requirement | Works best with Zoho suite | Standalone; open integrations |
 | US market focus | Global first | US-primary |
 | Time-to-value | Complex (many modules) | Fast — connect bank, AI does rest |
-| Starting price (no revenue limit) | $20/mo (Standard) | $0 (Free) |
+| Starting price (sustainable) | $20/mo (Standard — after free cap hit) | $29.99/mo (Starter — no cap) |
 
 ---
 
@@ -331,8 +331,8 @@ For a business that lives in the Zoho ecosystem, Zoho Books is sensible. For a b
 
 ### Objection Handling
 
-**"Zoho Books has a free tier too."**
-Zoho Books free is limited to businesses with under $50K annual revenue. That's $4,166/month in revenue. Most Ledgr users have already exceeded that. Ledgr's free tier has no revenue cap — it's free based on features (clients and users), not revenue size.
+**"Zoho Books has a free tier."**
+Zoho Books free is limited to businesses with under $50K annual revenue — that's $4,166/month. Most growing businesses have already exceeded that. Ledgr's 14-day full-access trial lets you evaluate the full product before committing. After the trial, Starter at $29.99/month has no revenue cap.
 
 **"I use other Zoho products."**
 If you're heavily invested in Zoho CRM and Zoho Projects, the Zoho Books integration is a genuine advantage. The question is whether that integration justifies using a less capable accounting tool. Many businesses use Ledgr for accounting and connect to their Zoho CRM via Zapier or API.
@@ -358,11 +358,11 @@ Most Ledgr users are productive within 20 minutes of their first bank connection
 
 We offer free onboarding calls for all new users. If you want a guided walkthrough, book one.
 
-### "The free tier seems too good. What's the real catch?"
+### "The pricing seems too good. What's the real catch?"
 
-There isn't one. The free tier is permanently free — it's how we grow. Useful free products generate word-of-mouth. Word-of-mouth is our most important acquisition channel. Making the free tier genuinely good is good business.
+There isn't one. We charge for real capacity: users, invoice volume, and advanced features like inventory and API access. We don't create artificial limits to force upgrades — we charge for features that actually cost more to deliver. The 14-day full-access trial exists because we're confident the product earns the subscription.
 
-The upgrade path is clear: when you need more clients, more users, or more advanced features, paid plans start at $19/mo. We don't create artificial limits to force upgrades — we charge for real capacity.
+Paid plans start at $29.99/mo for solo users. It's honest pricing for a product that delivers real value.
 
 ### "Can you integrate with [specific tool]?"
 

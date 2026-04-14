@@ -141,10 +141,10 @@ By signing below, I confirm that I have read and understand the acknowledgments 
 **Onboarding call scheduled:** [ ] Yes — Date: _______________ [ ] No
 
 **Account type assigned:**
-- [ ] Free
-- [ ] Pro (comped during beta)
+- [ ] Starter (comped during beta)
+- [ ] Professional (comped during beta)
 - [ ] Business (comped during beta)
-- [ ] Enterprise pilot
+- [ ] Enterprise (comped during beta)
 
 **Notes:** _______________________________________________
 

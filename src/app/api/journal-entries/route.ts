@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requirePermission } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
@@ -16,7 +16,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    // Accountants can write journal entries; viewers cannot
+    const { unauthorized } = await requirePermission('write_journal_entries');
     if (unauthorized) return unauthorized;
     const body = await request.json();
     const { date, memo, lines } = body;

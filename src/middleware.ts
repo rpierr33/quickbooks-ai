@@ -14,7 +14,11 @@ export default auth((req) => {
     "/billing",
     "/api/auth",
     "/api/public",
+    "/api/portal",
+    "/api/team/accept",
     "/pay",
+    "/portal",
+    "/offline",
   ];
 
   const isPublic = publicPaths.some((p) => pathname.startsWith(p));

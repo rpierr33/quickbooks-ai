@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import type { UserRole } from "./roles";
 
 /**
  * Edge-compatible auth config — used by middleware only.
@@ -19,8 +20,9 @@ export const authConfig: NextAuthConfig = {
         token.id = (user as { id?: string }).id;
         token.name = user.name;
         token.email = user.email;
-        const u = user as { companyId?: string };
+        const u = user as { companyId?: string; role?: UserRole };
         if (u.companyId) (token as { companyId?: string }).companyId = u.companyId;
+        if (u.role) (token as { role?: UserRole }).role = u.role;
       }
       return token;
     },
@@ -31,9 +33,15 @@ export const authConfig: NextAuthConfig = {
         session.user.email = token.email as string;
         (session.user as { companyId?: string }).companyId =
           (token as { companyId?: string }).companyId;
+        (session.user as { role?: UserRole }).role =
+          ((token as { role?: UserRole }).role ?? "owner") as UserRole;
       }
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'dev-only-secret-not-for-production'),
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    (process.env.NODE_ENV === "production"
+      ? undefined
+      : "dev-only-secret-not-for-production"),
 };

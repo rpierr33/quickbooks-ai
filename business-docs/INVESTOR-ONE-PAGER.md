@@ -1,7 +1,7 @@
 # Ledgr — Investor One-Pager
 
 **Ledgr, Inc.**
-**Tagline:** AI-powered accounting for small businesses — starting at $0.
+**Tagline:** AI-powered accounting for small businesses — starting at $29.99/month.
 **Founded:** 2025 | **Stage:** Pre-Seed / Seed
 **Website:** ledgr.com
 **Contact:** founders@ledgr.com
@@ -14,7 +14,7 @@ The US accounting software market is dominated by QuickBooks, which holds 80% ma
 
 ## The Solution
 
-Ledgr is AI-powered bookkeeping built for the 32 million US small businesses that do not have a finance team. Every AI feature — categorization, forecasting, receipt scanning, and natural language chat — is included at every tier, starting at $0. Budgeting and inventory, which QuickBooks gates behind $115/month, are included at no charge. The free tier is genuinely functional: no 14-day trial, no crippled demo. Upgrades are earned by delivering value, not manufactured by locking users out.
+Ledgr is AI-powered bookkeeping built for the 32 million US small businesses that do not have a finance team. Every AI feature — categorization, forecasting, receipt scanning, and natural language chat — is included at every tier, starting at $29.99/month. Budgeting and bank feeds are included in the Starter plan. A 14-day free trial gives every new user full Professional access — no credit card required. Upgrades are earned by delivering value, not manufactured by locking users out.
 
 ---
 
@@ -26,32 +26,35 @@ Ledgr is AI-powered bookkeeping built for the 32 million US small businesses tha
 | US SMB Accounting Software (SAM) | $6.1B |
 | Reachable switcher segment — QB users actively seeking alternatives | ~$1.8B |
 
-The QuickBooks dissatisfaction cohort is not theoretical. Search volume for "QuickBooks alternative" increased 34% YoY following the 2024 price increase. There are an estimated 7 million QuickBooks Online users in the US. A 1% capture at Ledgr's $39/month Business tier = $3.3M ARR.
+The QuickBooks dissatisfaction cohort is not theoretical. Search volume for "QuickBooks alternative" increased 34% YoY following the 2024 price increase. There are an estimated 7 million QuickBooks Online users in the US. A 1% capture at Ledgr's $99.99/month Business tier = $8.4M ARR.
 
 ---
 
 ## Business Model
 
-**Freemium SaaS with a four-tier subscription structure.**
+**Full-access 14-day trial + five-tier SaaS subscription.**
 
 | Plan | Price | Target |
 |------|-------|--------|
-| Free | $0/mo | Freelancers, solopreneurs getting started |
-| Pro | $19/mo | Freelancers + small businesses (unlimited clients) |
-| Business | $39/mo | Small businesses with teams (multi-user, inventory) |
-| Enterprise | $79/mo | Accounting firms, multi-entity businesses |
+| Free Trial | 14 days, full Professional access | All new signups — high-intent lead capture |
+| Starter | $29.99/mo ($23.99 annual) | Solo entrepreneurs, freelancers |
+| Professional | $59.99/mo ($47.99 annual) | Small teams (3 users, unlimited invoices, multi-currency) |
+| Business | $99.99/mo ($79.99 annual) | Growing companies (10 users, inventory, purchase orders) |
+| Enterprise | $139.99/mo ($111.99 annual) | Accounting firms, multi-entity businesses, API users |
+| Payroll Add-on | $20/mo + $5/employee | Business + Enterprise — full payroll processing |
 
 **Unit economics (target):**
-- Blended ARPU (Year 2): $31/month
+- Blended ARPU (Month 12, 50/30/15/5 mix): $55/month
 - Gross margin: ~82% (SaaS infrastructure + OpenAI API costs)
-- Target CAC (blended, Year 2): $55
-- Target LTV (36-month):$1,116
-- Target LTV:CAC: 20:1
+- Target CAC (blended, Year 2): $80
+- Target LTV (40-month): $1,804
+- Target LTV:CAC: 22.5:1
 
 **Additional revenue streams (Year 2+):**
 - Accounting firm referral program (20% revenue share)
 - API access (Enterprise + Developer tier)
 - Premium onboarding services for high-ACV accounts
+- Payment processing (0.5% take rate via Stripe Connect)
 
 ---
 
@@ -60,7 +63,7 @@ The QuickBooks dissatisfaction cohort is not theoretical. Search volume for "Qui
 - **Beta users:** 200+ active beta users (as of April 2026)
 - **Net Promoter Score:** 47 (measured at 60 days post-beta launch)
 - **Activation rate:** 61% of signups connect a bank account within 7 days
-- **Free-to-paid conversion (beta):** 11% (target: 14% at scale)
+- **Trial-to-paid conversion (beta):** 11% (target: 30% at scale with full-access trial)
 - **Average monthly time savings vs. previous tool (user-reported):** 4.2 hours
 - **Waitlist:** 800+ pre-beta signups before public launch
 - **G2 reviews:** 28 reviews, 4.8/5 average (beta period)
@@ -69,9 +72,9 @@ The QuickBooks dissatisfaction cohort is not theoretical. Search volume for "Qui
 
 ## Competitive Advantages
 
-1. **AI at every tier.** All five AI features — categorization, chat, forecasting, receipt scanning, anomaly detection — are available on the free plan. QuickBooks charges $275/month for comparable AI. This is not a feature gap that can be easily closed; it is a pricing philosophy decision that requires restructuring QuickBooks' entire tiered model.
+1. **AI at every tier.** All five AI features — categorization, chat, forecasting, receipt scanning, anomaly detection — are available starting at $29.99/month. QuickBooks charges $275/month for comparable AI. This is not a feature gap that can be easily closed; it is a pricing philosophy decision that requires restructuring QuickBooks' entire tiered model.
 
-2. **Structural cost advantage.** Ledgr is built on modern infrastructure (Next.js, PostgreSQL, OpenAI API) with no legacy codebase debt. QuickBooks was first built in 1992. The cost to deliver AI features at every tier is structurally lower for a greenfield product than for a 30-year-old codebase with bolted-on AI.
+2. **Structural cost advantage.** Ledgr is built on modern infrastructure (Next.js, PostgreSQL, OpenAI API) with no legacy codebase debt. QuickBooks was first built in 1992. The cost to deliver AI features at competitive price points is structurally lower for a greenfield product than for a 30-year-old codebase with bolted-on AI.
 
 3. **Switching-friction removal.** One-click QuickBooks import (20-minute migration) eliminates the primary reason users stay on platforms they dislike. Reducing friction to switching accelerates market capture from the dissatisfied-but-stuck segment.
 
@@ -104,9 +107,9 @@ Full-stack engineer and product lead. Built Ledgr from $0 to beta in 12 months. 
 | Team (hire #3–4) | 10% ($75,000) | First sales / customer success hire |
 
 **18-month targets post-raise:**
-- $50,000 MRR (Month 12)
-- 5,000 free tier active users
-- 600+ paying customers
+- $110,000 MRR (Month 12) — driven by higher ARPU vs. freemium models
+- 5,000 paying users
+- 600+ paying customers on Business/Enterprise tiers
 - SOC 2 Type II certification
 - Payroll feature live (Q3 2026)
 - 50 accounting firm partners
@@ -121,7 +124,7 @@ Three forces are converging in 2026:
 
 2. **AI capability has crossed the usefulness threshold.** GPT-4o delivers accounting-specific AI features that are genuinely useful to non-accountants. The technology to build what Ledgr offers did not exist at scale before 2023.
 
-3. **The freemium model is proven in adjacent SaaS categories.** Notion, Linear, and Figma captured market share from entrenched incumbents by offering a genuinely useful free tier. The accounting category has not had this product motion. Ledgr is that product.
+3. **The premium trial model outperforms freemium in SaaS.** Products like Figma, Linear, and Notion proved that a full-access trial converts more paying users than a crippled free tier. Ledgr's 14-day Professional trial gives users a complete picture of the product's value before their first payment.
 
 ---
 
