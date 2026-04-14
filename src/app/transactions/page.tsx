@@ -7,10 +7,13 @@ import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { Plus, ArrowLeftRight, Sparkles, Search, ChevronLeft, ChevronRight, Download, Paperclip, X, Image, Pencil, Trash2 } from "lucide-react";
 import { exportTransactions } from "@/lib/export";
 import { useToast } from "@/components/ui/toast";
 import type { Transaction } from "@/types";
+
+const BASE_CURRENCY = "USD";
 
 const PAGE_SIZE = 25;
 
@@ -40,6 +43,7 @@ export default function TransactionsPage() {
     amount: "",
     type: "expense" as string,
     notes: "",
+    currency: "USD",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -123,10 +127,19 @@ export default function TransactionsPage() {
         }
       }
       const notes = [data.notes, receiptNote].filter(Boolean).join("\n") || null;
+      const exchangeRate = getExchangeRate(data.currency, BASE_CURRENCY);
+      const baseAmount = data.currency !== BASE_CURRENCY
+        ? convertAmount(parseFloat(data.amount) || 0, data.currency, BASE_CURRENCY)
+        : parseFloat(data.amount) || 0;
       return fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, notes }),
+        body: JSON.stringify({
+          ...data,
+          notes,
+          exchange_rate: exchangeRate,
+          base_amount: baseAmount,
+        }),
       }).then(r => r.json());
     },
     onSuccess: () => {
@@ -135,7 +148,7 @@ export default function TransactionsPage() {
       setShowAddDialog(false);
       setStep(1);
       setReceipt(null);
-      setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "" });
+      setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "", currency: "USD" });
       toast("Transaction created successfully");
     },
     onError: () => {
@@ -178,6 +191,7 @@ export default function TransactionsPage() {
       amount: String(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount),
       type: tx.type,
       notes: tx.notes ?? "",
+      currency: tx.currency ?? "USD",
     });
     setEditingId(tx.id);
     setStep(1);
@@ -189,7 +203,7 @@ export default function TransactionsPage() {
     setEditingId(null);
     setStep(1);
     setReceipt(null);
-    setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "" });
+    setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "", currency: "USD" });
   }
 
   const handleSubmit = () => {
@@ -473,6 +487,21 @@ export default function TransactionsPage() {
                   </Select>
                 </div>
               </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
+                <Select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}>
+                  {SUPPORTED_CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                  ))}
+                </Select>
+              </div>
+              {form.currency !== BASE_CURRENCY && form.amount && parseFloat(form.amount) > 0 && (
+                <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                  <p style={{ fontSize: 12, color: '#2563EB' }}>
+                    {formatCurrencyAmount(parseFloat(form.amount), form.currency)} = {formatCurrencyAmount(convertAmount(parseFloat(form.amount), form.currency, BASE_CURRENCY), BASE_CURRENCY)} {BASE_CURRENCY} at current rate (1 {form.currency} = {getExchangeRate(form.currency, BASE_CURRENCY).toFixed(4)} {BASE_CURRENCY})
+                  </p>
+                </div>
+              )}
               {editingId && (
                 <>
                   <div>

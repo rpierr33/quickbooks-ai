@@ -3,14 +3,18 @@ import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { Plus, FileText, Trash2, Mail, CheckCircle2, Download, CreditCard, Send, Loader2, Pencil } from "lucide-react";
 import { exportInvoices } from "@/lib/export";
 import { downloadInvoicePDF } from "@/lib/invoice-pdf";
 import { useToast } from "@/components/ui/toast";
 import type { Invoice, InvoiceItem } from "@/types";
+
+const BASE_CURRENCY = "USD";
 
 const statusConfig: Record<string, { bg: string; color: string; border: string; borderLeft: string }> = {
   draft: { bg: '#F8FAFC', color: '#475569', border: '#E2E8F0', borderLeft: '#94A3B8' },
@@ -32,11 +36,12 @@ type FormState = {
   due_date: string;
   tax_rate: string;
   notes: string;
+  currency: string;
   items: InvoiceItem[];
 };
 
 const BLANK_FORM: FormState = {
-  client_name: "", client_email: "", due_date: "", tax_rate: "0", notes: "",
+  client_name: "", client_email: "", due_date: "", tax_rate: "0", notes: "", currency: "USD",
   items: [{ description: "", quantity: 1, rate: 0, amount: 0 }],
 };
 
@@ -58,8 +63,14 @@ export default function InvoicesPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof form) =>
-      fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, tax_rate: parseFloat(data.tax_rate) }) }).then(r => r.json()),
+    mutationFn: (data: typeof form) => {
+      const exchangeRate = getExchangeRate(data.currency, BASE_CURRENCY);
+      return fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, tax_rate: parseFloat(data.tax_rate), exchange_rate: exchangeRate }),
+      }).then(r => r.json());
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["invoices"] }); closeDialog(); toast("Invoice created successfully"); },
     onError: () => { toast("Failed to create invoice", "error"); },
   });
@@ -98,6 +109,7 @@ export default function InvoicesPage() {
       due_date: inv.due_date || "",
       tax_rate: String(inv.tax_rate ?? 0),
       notes: inv.notes || "",
+      currency: inv.currency ?? "USD",
       items: Array.isArray(inv.items) && inv.items.length > 0
         ? inv.items.map(it => ({ ...it }))
         : [{ description: "", quantity: 1, rate: 0, amount: 0 }],
@@ -401,6 +413,14 @@ export default function InvoicesPage() {
               <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Client Name</label><Input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} placeholder="Acme Corp" /></div>
               <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label><Input type="email" value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })} placeholder="billing@acme.com" /></div>
               <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Due Date</label><Input type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} /></div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
+                <Select value={form.currency} onChange={e => setForm({ ...form, currency: e.target.value })}>
+                  {SUPPORTED_CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                  ))}
+                </Select>
+              </div>
             </div>
           )}
           {step === 2 && (
@@ -410,7 +430,7 @@ export default function InvoicesPage() {
                   <Input value={item.description} onChange={e => updateItem(i, 'description', e.target.value)} placeholder="Item description" />
                   <div className="flex gap-3 items-end">
                     <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Qty</label><Input type="number" value={item.quantity} onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 0)} /></div>
-                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Rate</label><Input type="number" step="0.01" value={item.rate} onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)} /></div>
+                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Rate ({form.currency})</label><Input type="number" step="0.01" value={item.rate} onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)} /></div>
                     <button onClick={() => removeItem(i)} className="cursor-pointer" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: '#94A3B8', background: 'transparent', border: 'none' }} aria-label="Remove"><Trash2 style={{ width: 16, height: 16 }} /></button>
                   </div>
                   {item.amount > 0 && <p style={{ textAlign: 'right', fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(item.amount)}</p>}
@@ -423,13 +443,22 @@ export default function InvoicesPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                 <div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Client</span><span style={{ fontWeight: 600, color: '#0F172A' }}>{form.client_name}</span></div>
+                <div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Currency</span><span style={{ fontWeight: 600, color: '#0F172A' }}>{form.currency}</span></div>
                 {form.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm" style={{ color: '#475569' }}><span className="truncate mr-3">{item.description} &times;{item.quantity}</span><span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(item.amount)}</span></div>
+                  <div key={i} className="flex justify-between text-sm" style={{ color: '#475569' }}><span className="truncate mr-3">{item.description} &times;{item.quantity}</span><span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrencyAmount(item.amount, form.currency)}</span></div>
                 ))}
-                <div style={{ paddingTop: 12, marginTop: 12, borderTop: '1px solid #E2E8F0' }}><div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(subtotal)}</span></div></div>
+                <div style={{ paddingTop: 12, marginTop: 12, borderTop: '1px solid #E2E8F0' }}><div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrencyAmount(subtotal, form.currency)}</span></div></div>
               </div>
               <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax Rate (%)</label><Input type="number" step="0.01" value={form.tax_rate} onChange={e => setForm({ ...form, tax_rate: e.target.value })} /></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 20, paddingTop: 8, color: '#0F172A' }}><span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(total)}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 20, paddingTop: 8, color: '#0F172A' }}>
+                <span>Total</span>
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrencyAmount(total, form.currency)}</span>
+              </div>
+              {form.currency !== BASE_CURRENCY && (
+                <p style={{ fontSize: 12, color: '#64748B', textAlign: 'right' }}>
+                  Equivalent to {formatCurrencyAmount(convertAmount(total, form.currency, BASE_CURRENCY), BASE_CURRENCY)} {BASE_CURRENCY} at current rate
+                </p>
+              )}
             </div>
           )}
         </DialogContent>

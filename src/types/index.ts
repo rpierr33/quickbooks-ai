@@ -37,6 +37,9 @@ export interface Transaction {
   ai_confidence: number | null;
   notes: string | null;
   attachments: string[];
+  currency: string;
+  exchange_rate: number;
+  base_amount: number;
   created_at: string;
   updated_at: string;
 }
@@ -55,6 +58,9 @@ export interface Invoice {
   due_date: string | null;
   paid_date: string | null;
   notes: string | null;
+  currency: string;
+  exchange_rate: number;
+  base_amount: number;
   created_at: string;
   updated_at: string;
 }
@@ -346,4 +352,37 @@ export interface ScannedReceipt {
   status: 'scanned' | 'confirmed' | 'saved';
   transaction_id: string | null;
   created_at: string;
+}
+
+// ── Bills / Accounts Payable ──
+export interface BillItem {
+  description: string;
+  category: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface Bill {
+  id: string;
+  bill_number: string;
+  vendor_name: string;
+  vendor_email: string | null;
+  items: BillItem[];
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
+  currency: string;
+  exchange_rate: number;
+  base_amount: number;
+  status: 'draft' | 'pending' | 'paid' | 'overdue';
+  bill_date: string;
+  due_date: string | null;
+  paid_date: string | null;
+  payment_terms: 'net15' | 'net30' | 'net60' | 'net90' | 'due_on_receipt';
+  notes: string | null;
+  scheduled_payment_date: string | null;
+  created_at: string;
+  updated_at: string;
 }

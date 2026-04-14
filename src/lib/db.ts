@@ -30,6 +30,15 @@ interface MockStore {
   inventory: Record<string, any>[];
   users: Record<string, any>[];
   companies: Record<string, any>[];
+  mileage: Record<string, any>[];
+  time_entries: Record<string, any>[];
+  purchase_orders: Record<string, any>[];
+  employees: Record<string, any>[];
+  payroll_runs: Record<string, any>[];
+  contractors: Record<string, any>[];
+  projects: Record<string, any>[];
+  bills: Record<string, any>[];
+  invite_tokens: Record<string, any>[];
 }
 
 let mockStore: MockStore | null = null;
@@ -89,6 +98,10 @@ function mockQuery(sql: string, params?: any[]): { rows: any[] } {
     else if (sqlLower.includes('from budgets')) table = 'budgets';
     else if (sqlLower.includes('from scanned_receipts')) table = 'scanned_receipts';
     else if (sqlLower.includes('from journal_entries')) table = 'journal_entries';
+    else if (sqlLower.includes('from bills')) table = 'bills';
+    else if (sqlLower.includes('from mileage')) table = 'mileage';
+    else if (sqlLower.includes('from time_entries')) table = 'time_entries';
+    else if (sqlLower.includes('from purchase_orders')) table = 'purchase_orders';
 
     if (!table) return { rows: [] };
 
@@ -194,6 +207,17 @@ export function listFromStore(table: string): Record<string, any>[] {
   if (pool) return [];
   const store = getMockStore();
   return (store[table as keyof MockStore] as any[]) ?? [];
+}
+
+export function deleteFromStore(table: string, id: string): boolean {
+  if (pool) return false;
+  const store = getMockStore();
+  const rows = store[table as keyof MockStore] as any[];
+  if (!rows) return false;
+  const idx = rows.findIndex(r => r.id === id);
+  if (idx === -1) return false;
+  rows.splice(idx, 1);
+  return true;
 }
 
 export function findInStore(table: string, predicate: (row: any) => boolean): Record<string, any> | null {

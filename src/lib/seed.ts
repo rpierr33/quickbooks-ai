@@ -567,9 +567,230 @@ export function seedMockStore() {
       password_hash:
         'scrypt:96c3557e6b4a1d80591321af73208ddf:5d1945033f1e4a1057333f907db692f771d391dddd200ea21c528a9bbec37d50',
       company_id: uuid(901),
+      role: 'owner',
+      status: 'active',
+      invite_token: null,
       is_demo: true,
       created_at: '2025-09-01T00:00:00Z',
       updated_at: '2025-09-01T00:00:00Z',
+    },
+  ];
+
+  // ── Mileage ───────────────────────────────────────────────
+  const mileage = [
+    { id: uuid(1001), date: '2026-03-10', from_location: 'Office - 123 Main St', to_location: 'Client HQ - 456 Park Ave', miles: 14.2, purpose: 'business', rate_per_mile: 0.70, deduction_amount: 9.94, is_round_trip: false, notes: 'Quarterly review meeting', created_at: '2026-03-10T09:00:00Z', updated_at: '2026-03-10T09:00:00Z' },
+    { id: uuid(1002), date: '2026-03-12', from_location: 'Home', to_location: 'Post Office', miles: 3.8, purpose: 'business', rate_per_mile: 0.70, deduction_amount: 2.66, is_round_trip: true, notes: 'Shipped contracts to client', created_at: '2026-03-12T11:00:00Z', updated_at: '2026-03-12T11:00:00Z' },
+    { id: uuid(1003), date: '2026-03-18', from_location: 'Office', to_location: 'Airport - JFK', miles: 22.5, purpose: 'business', rate_per_mile: 0.70, deduction_amount: 15.75, is_round_trip: false, notes: 'Chicago conference trip', created_at: '2026-03-18T07:00:00Z', updated_at: '2026-03-18T07:00:00Z' },
+    { id: uuid(1004), date: '2026-04-01', from_location: 'Office', to_location: 'Doctor - 789 Health Blvd', miles: 8.4, purpose: 'medical', rate_per_mile: 0.21, deduction_amount: 1.76, is_round_trip: true, notes: null, created_at: '2026-04-01T14:00:00Z', updated_at: '2026-04-01T14:00:00Z' },
+    { id: uuid(1005), date: '2026-04-07', from_location: 'Home', to_location: 'TechStart Inc Office', miles: 19.0, purpose: 'business', rate_per_mile: 0.70, deduction_amount: 13.30, is_round_trip: true, notes: 'Monthly client strategy session', created_at: '2026-04-07T09:00:00Z', updated_at: '2026-04-07T09:00:00Z' },
+  ];
+
+  // ── Time Entries ──────────────────────────────────────────
+  const time_entries = [
+    { id: uuid(1101), date: '2026-04-01', client_name: 'Acme Corp', project_name: 'Website Redesign', description: 'Homepage mockups and design review', hours: 3, minutes: 30, is_billable: true, hourly_rate: 150, total_amount: 525.00, timer_start: null, timer_end: null, notes: null, created_at: '2026-04-01T17:30:00Z', updated_at: '2026-04-01T17:30:00Z' },
+    { id: uuid(1102), date: '2026-04-02', client_name: 'TechStart Inc', project_name: 'API Integration', description: 'OAuth2 setup and endpoint testing', hours: 4, minutes: 0, is_billable: true, hourly_rate: 175, total_amount: 700.00, timer_start: null, timer_end: null, notes: null, created_at: '2026-04-02T18:00:00Z', updated_at: '2026-04-02T18:00:00Z' },
+    { id: uuid(1103), date: '2026-04-03', client_name: 'Internal', project_name: 'Admin & Ops', description: 'Invoicing, email follow-ups', hours: 1, minutes: 15, is_billable: false, hourly_rate: 0, total_amount: 0, timer_start: null, timer_end: null, notes: null, created_at: '2026-04-03T12:15:00Z', updated_at: '2026-04-03T12:15:00Z' },
+    { id: uuid(1104), date: '2026-04-07', client_name: 'Bright Ideas LLC', project_name: 'Mobile App', description: 'Sprint planning and architecture review', hours: 2, minutes: 45, is_billable: true, hourly_rate: 200, total_amount: 550.00, timer_start: null, timer_end: null, notes: 'Phase 2 kickoff', created_at: '2026-04-07T15:45:00Z', updated_at: '2026-04-07T15:45:00Z' },
+    { id: uuid(1105), date: '2026-04-08', client_name: 'Acme Corp', project_name: 'Website Redesign', description: 'Responsive CSS implementation', hours: 5, minutes: 0, is_billable: true, hourly_rate: 150, total_amount: 750.00, timer_start: null, timer_end: null, notes: null, created_at: '2026-04-08T17:00:00Z', updated_at: '2026-04-08T17:00:00Z' },
+  ];
+
+  // ── Purchase Orders ───────────────────────────────────────
+  const purchase_orders = [
+    { id: uuid(1201), po_number: 'PO-001', vendor_name: 'Dell Technologies', vendor_email: 'orders@dell.com', items: JSON.stringify([{ description: 'Dell XPS 15 Laptop', quantity: 2, unit_price: 1899.00, amount: 3798.00 }, { description: 'USB-C Docking Station', quantity: 2, unit_price: 199.00, amount: 398.00 }]), subtotal: 4196.00, tax_rate: 8.875, tax_amount: 372.39, total: 4568.39, status: 'received', shipping_address: '123 Main St, New York, NY 10001', expected_date: '2026-02-15', notes: 'For new hires starting March', created_at: '2026-02-01T10:00:00Z', updated_at: '2026-02-18T09:00:00Z' },
+    { id: uuid(1202), po_number: 'PO-002', vendor_name: 'Staples Business', vendor_email: 'business@staples.com', items: JSON.stringify([{ description: 'Copy Paper Case (10 reams)', quantity: 3, unit_price: 49.99, amount: 149.97 }, { description: 'Printer Ink Cartridges', quantity: 2, unit_price: 34.99, amount: 69.98 }]), subtotal: 219.95, tax_rate: 8.875, tax_amount: 19.52, total: 239.47, status: 'closed', shipping_address: '123 Main St, New York, NY 10001', expected_date: '2026-03-05', notes: null, created_at: '2026-03-01T09:00:00Z', updated_at: '2026-03-08T11:00:00Z' },
+    { id: uuid(1203), po_number: 'PO-003', vendor_name: 'AWS Marketplace', vendor_email: null, items: JSON.stringify([{ description: 'EC2 Reserved Instance 1yr', quantity: 1, unit_price: 2500.00, amount: 2500.00 }]), subtotal: 2500.00, tax_rate: 0, tax_amount: 0, total: 2500.00, status: 'sent', shipping_address: null, expected_date: '2026-04-20', notes: 'Annual cloud commitment', created_at: '2026-04-05T10:00:00Z', updated_at: '2026-04-05T10:00:00Z' },
+    { id: uuid(1204), po_number: 'PO-004', vendor_name: 'Herman Miller', vendor_email: 'contracts@hermanmiller.com', items: JSON.stringify([{ description: 'Aeron Chair - Size B', quantity: 4, unit_price: 1675.00, amount: 6700.00 }]), subtotal: 6700.00, tax_rate: 8.875, tax_amount: 594.63, total: 7294.63, status: 'draft', shipping_address: '123 Main St, New York, NY 10001', expected_date: '2026-05-01', notes: 'Office expansion - new desks incoming', created_at: '2026-04-10T14:00:00Z', updated_at: '2026-04-10T14:00:00Z' },
+  ];
+
+  // ── Employees (seed data for payroll) ────────────────────
+  const employees = [
+    { id: uuid(1301), name: 'Sarah Johnson', email: 'sarah@mybusiness.com', role: 'Senior Developer', pay_type: 'salary', rate: 85000, tax_withholding_pct: 22, status: 'active', start_date: '2024-01-15', created_at: '2024-01-15T00:00:00Z' },
+    { id: uuid(1302), name: 'Michael Chen', email: 'michael@mybusiness.com', role: 'Product Manager', pay_type: 'salary', rate: 95000, tax_withholding_pct: 24, status: 'active', start_date: '2023-06-01', created_at: '2023-06-01T00:00:00Z' },
+    { id: uuid(1303), name: 'Emily Rodriguez', email: 'emily@mybusiness.com', role: 'Designer', pay_type: 'salary', rate: 72000, tax_withholding_pct: 22, status: 'active', start_date: '2025-03-10', created_at: '2025-03-10T00:00:00Z' },
+    { id: uuid(1304), name: 'David Kim', email: 'david@mybusiness.com', role: 'Support Specialist', pay_type: 'hourly', rate: 28, tax_withholding_pct: 15, status: 'active', start_date: '2025-07-01', created_at: '2025-07-01T00:00:00Z' },
+  ];
+
+  // ── Payroll Runs ─────────────────────────────────────────
+  const payroll_runs = [
+    {
+      id: uuid(1401),
+      pay_period_start: '2026-03-01',
+      pay_period_end: '2026-03-15',
+      run_date: '2026-03-15',
+      entries: [
+        { employee_id: uuid(1301), employee_name: 'Sarah Johnson', gross: 3269.23, taxes: 718.23, deductions: 150, net: 2401 },
+        { employee_id: uuid(1302), employee_name: 'Michael Chen', gross: 3653.85, taxes: 876.92, deductions: 150, net: 2626.93 },
+        { employee_id: uuid(1303), employee_name: 'Emily Rodriguez', gross: 2769.23, taxes: 608.23, deductions: 100, net: 2061 },
+      ],
+      total_gross: 9692.31,
+      total_taxes: 2203.38,
+      total_net: 7088.93,
+      status: 'completed',
+    },
+    {
+      id: uuid(1402),
+      pay_period_start: '2026-03-16',
+      pay_period_end: '2026-03-31',
+      run_date: '2026-03-31',
+      entries: [
+        { employee_id: uuid(1301), employee_name: 'Sarah Johnson', gross: 3269.23, taxes: 718.23, deductions: 150, net: 2401 },
+        { employee_id: uuid(1302), employee_name: 'Michael Chen', gross: 3653.85, taxes: 876.92, deductions: 150, net: 2626.93 },
+        { employee_id: uuid(1303), employee_name: 'Emily Rodriguez', gross: 2769.23, taxes: 608.23, deductions: 100, net: 2061 },
+        { employee_id: uuid(1304), employee_name: 'David Kim', gross: 2240, taxes: 336, deductions: 0, net: 1904 },
+      ],
+      total_gross: 11932.31,
+      total_taxes: 2539.38,
+      total_net: 8992.93,
+      status: 'completed',
+    },
+  ];
+
+  // ── Contractors ──────────────────────────────────────────
+  const contractors = [
+    { id: uuid(1501), name: 'Alex Torres', email: 'alex@freelance.io', address: '45 Park Ave, New York, NY 10016', tax_id_last4: '5678', tax_id_type: 'SSN', payment_terms: 'net30', rate: 125, rate_type: 'hourly', total_paid_ytd: 8750, is_active: true, notes: 'Backend API specialist', created_at: '2025-10-01T00:00:00Z' },
+    { id: uuid(1502), name: 'Priya Sharma', email: 'priya@designstudio.co', address: '78 Broadway, Brooklyn, NY 11249', tax_id_last4: '2345', tax_id_type: 'SSN', payment_terms: 'net15', rate: 95, rate_type: 'hourly', total_paid_ytd: 5700, is_active: true, notes: 'Brand + UI design', created_at: '2025-11-15T00:00:00Z' },
+    { id: uuid(1503), name: 'Ramos Consulting LLC', email: 'billing@ramosconsulting.com', address: '200 West St, New York, NY 10282', tax_id_last4: '9012', tax_id_type: 'EIN', payment_terms: 'net30', rate: 5000, rate_type: 'project', total_paid_ytd: 15000, is_active: true, notes: 'Strategy & operations', created_at: '2026-01-05T00:00:00Z' },
+    { id: uuid(1504), name: 'Jordan Blake', email: 'jordan@jbcontent.com', address: '321 Content Way, Austin, TX 73301', tax_id_last4: '4321', tax_id_type: 'SSN', payment_terms: 'net15', rate: 75, rate_type: 'hourly', total_paid_ytd: 450, is_active: false, notes: 'Content writer (inactive)', created_at: '2025-09-20T00:00:00Z' },
+  ];
+
+  // ── Projects ─────────────────────────────────────────────
+  const projects = [
+    { id: uuid(1601), name: 'Website Redesign', client_name: 'Acme Corp', client_id: null, status: 'active', budget: 18000, spent: 11250, billing_type: 'fixed', start_date: '2026-01-15', end_date: '2026-05-01', description: 'Full redesign of acmecorp.com — new brand, responsive, CMS migration.', notes: null, created_at: '2026-01-15T00:00:00Z', updated_at: '2026-04-10T00:00:00Z' },
+    { id: uuid(1602), name: 'API Integration', client_name: 'TechStart Inc', client_id: null, status: 'active', budget: 12000, spent: 8400, billing_type: 'hourly', start_date: '2026-02-01', end_date: '2026-04-30', description: 'Build REST API endpoints and integrate with Salesforce CRM.', notes: null, created_at: '2026-02-01T00:00:00Z', updated_at: '2026-04-12T00:00:00Z' },
+    { id: uuid(1603), name: 'Mobile App', client_name: 'Bright Ideas LLC', client_id: null, status: 'active', budget: 35000, spent: 27800, billing_type: 'milestone', start_date: '2025-11-01', end_date: '2026-06-30', description: 'iOS + Android app with React Native. 4 milestone payments.', notes: 'Currently on milestone 3 of 4.', created_at: '2025-11-01T00:00:00Z', updated_at: '2026-04-08T00:00:00Z' },
+    { id: uuid(1604), name: 'Brand Strategy', client_name: 'GreenLeaf Co', client_id: null, status: 'completed', budget: 8000, spent: 7500, billing_type: 'fixed', start_date: '2025-10-01', end_date: '2025-12-31', description: 'Brand positioning, visual identity, and messaging framework.', notes: 'Delivered and invoiced.', created_at: '2025-10-01T00:00:00Z', updated_at: '2026-01-05T00:00:00Z' },
+    { id: uuid(1605), name: 'Q3 Growth Campaign', client_name: 'Internal', client_id: null, status: 'on-hold', budget: 5000, spent: 2200, billing_type: 'fixed', start_date: '2026-03-01', end_date: '2026-09-30', description: 'Internal marketing campaign — LinkedIn ads + content calendar.', notes: 'On hold pending budget review.', created_at: '2026-03-01T00:00:00Z', updated_at: '2026-04-01T00:00:00Z' },
+  ];
+
+  // ── Bills / Accounts Payable ──────────────────────────────
+  const bills = [
+    {
+      id: uuid(1701),
+      bill_number: 'BILL-001',
+      vendor_name: 'Digital Ocean',
+      vendor_email: 'billing@digitalocean.com',
+      items: JSON.stringify([
+        { description: 'Droplet - App Server', category: 'Software & SaaS', quantity: 1, rate: 80.00, amount: 80.00 },
+        { description: 'Managed Database', category: 'Software & SaaS', quantity: 1, rate: 50.00, amount: 50.00 },
+      ]),
+      subtotal: 130.00,
+      tax_rate: 0,
+      tax_amount: 0,
+      total: 130.00,
+      currency: 'USD',
+      exchange_rate: 1.0,
+      base_amount: 130.00,
+      status: 'paid',
+      bill_date: '2026-03-01',
+      due_date: '2026-03-31',
+      paid_date: '2026-03-15',
+      payment_terms: 'net30',
+      notes: 'March infrastructure bill',
+      scheduled_payment_date: null,
+      created_at: '2026-03-01T08:00:00Z',
+      updated_at: '2026-03-15T10:00:00Z',
+    },
+    {
+      id: uuid(1702),
+      bill_number: 'BILL-002',
+      vendor_name: 'Adobe Creative Cloud',
+      vendor_email: 'invoices@adobe.com',
+      items: JSON.stringify([
+        { description: 'Creative Cloud All Apps - Annual Plan', category: 'Software & SaaS', quantity: 1, rate: 599.88, amount: 599.88 },
+      ]),
+      subtotal: 599.88,
+      tax_rate: 0,
+      tax_amount: 0,
+      total: 599.88,
+      currency: 'USD',
+      exchange_rate: 1.0,
+      base_amount: 599.88,
+      status: 'paid',
+      bill_date: '2026-01-15',
+      due_date: '2026-02-14',
+      paid_date: '2026-02-10',
+      payment_terms: 'net30',
+      notes: 'Annual subscription renewal',
+      scheduled_payment_date: null,
+      created_at: '2026-01-15T09:00:00Z',
+      updated_at: '2026-02-10T14:00:00Z',
+    },
+    {
+      id: uuid(1703),
+      bill_number: 'BILL-003',
+      vendor_name: 'Office Depot',
+      vendor_email: 'billing@officedepot.com',
+      items: JSON.stringify([
+        { description: 'Printer Paper (Case of 10)', category: 'Office Supplies', quantity: 2, rate: 54.99, amount: 109.98 },
+        { description: 'Stapler & Staples Set', category: 'Office Supplies', quantity: 3, rate: 12.99, amount: 38.97 },
+        { description: 'Whiteboard Markers (Box)', category: 'Office Supplies', quantity: 2, rate: 8.99, amount: 17.98 },
+      ]),
+      subtotal: 166.93,
+      tax_rate: 8.875,
+      tax_amount: 14.82,
+      total: 181.75,
+      currency: 'USD',
+      exchange_rate: 1.0,
+      base_amount: 181.75,
+      status: 'pending',
+      bill_date: '2026-04-05',
+      due_date: '2026-04-20',
+      paid_date: null,
+      payment_terms: 'net15',
+      notes: null,
+      scheduled_payment_date: null,
+      created_at: '2026-04-05T10:00:00Z',
+      updated_at: '2026-04-05T10:00:00Z',
+    },
+    {
+      id: uuid(1704),
+      bill_number: 'BILL-004',
+      vendor_name: 'Shopify Partners',
+      vendor_email: 'partners@shopify.com',
+      items: JSON.stringify([
+        { description: 'Theme Development - Acme Corp Store', category: 'Professional Services', quantity: 20, rate: 85.00, amount: 1700.00 },
+      ]),
+      subtotal: 1700.00,
+      tax_rate: 0,
+      tax_amount: 0,
+      total: 1700.00,
+      currency: 'USD',
+      exchange_rate: 1.0,
+      base_amount: 1700.00,
+      status: 'overdue',
+      bill_date: '2026-03-01',
+      due_date: '2026-03-31',
+      paid_date: null,
+      payment_terms: 'net30',
+      notes: 'Subcontractor invoice for Acme project',
+      scheduled_payment_date: null,
+      created_at: '2026-03-01T11:00:00Z',
+      updated_at: '2026-04-01T08:00:00Z',
+    },
+    {
+      id: uuid(1705),
+      bill_number: 'BILL-005',
+      vendor_name: 'Canva Pro',
+      vendor_email: null,
+      items: JSON.stringify([
+        { description: 'Canva Pro Team (5 seats)', category: 'Software & SaaS', quantity: 1, rate: 54.99, amount: 54.99 },
+      ]),
+      subtotal: 54.99,
+      tax_rate: 0,
+      tax_amount: 0,
+      total: 54.99,
+      currency: 'USD',
+      exchange_rate: 1.0,
+      base_amount: 54.99,
+      status: 'draft',
+      bill_date: '2026-04-10',
+      due_date: '2026-04-25',
+      paid_date: null,
+      payment_terms: 'net15',
+      notes: null,
+      scheduled_payment_date: null,
+      created_at: '2026-04-10T08:00:00Z',
+      updated_at: '2026-04-10T08:00:00Z',
     },
   ];
 
@@ -590,5 +811,14 @@ export function seedMockStore() {
     inventory: [],
     users,
     companies,
+    mileage,
+    time_entries,
+    purchase_orders,
+    employees,
+    payroll_runs,
+    contractors,
+    projects,
+    bills,
+    invite_tokens: [],
   };
 }

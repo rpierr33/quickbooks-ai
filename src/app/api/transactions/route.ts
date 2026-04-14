@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
 import { categorizeTransaction } from '@/lib/ai';
 import { applyRules } from '@/lib/rules-engine';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
 const TX_TYPES = ['income', 'expense', 'transfer'] as const;
@@ -29,10 +29,13 @@ export async function GET(request: NextRequest) {
       rows = rows.filter(r => r.description.toLowerCase().includes(s));
     }
 
-    // Parse amounts
+    // Parse amounts and currency fields
     rows = rows.map(r => ({
       ...r,
       amount: parseFloat(r.amount),
+      currency: r.currency ?? 'USD',
+      exchange_rate: parseFloat(r.exchange_rate ?? 1) || 1,
+      base_amount: parseFloat(r.base_amount ?? r.amount) || parseFloat(r.amount),
     }));
 
     return NextResponse.json(rows);
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized } = await requireWrite();
     if (unauthorized) return unauthorized;
     const body = asRecord(await request.json());
     const date = getString(body, 'date', { required: true, max: 40 })!;
@@ -54,6 +57,10 @@ export async function POST(request: NextRequest) {
     const account_id = getString(body, 'account_id', { max: 64 });
     const category_id = getString(body, 'category_id', { max: 64 });
     const notes = getString(body, 'notes', { max: 2000 });
+
+    const currency = getString(body, 'currency', { max: 10 }) ?? 'USD';
+    const exchange_rate = getNumber(body, 'exchange_rate', { min: 0 }) ?? 1.0;
+    const base_amount = getNumber(body, 'base_amount', { min: 0 }) ?? amount;
 
     let finalCategoryId = category_id;
     let aiCategorized = false;
@@ -101,6 +108,9 @@ export async function POST(request: NextRequest) {
       ai_confidence: aiConfidence,
       notes: notes ?? null,
       attachments: [],
+      currency,
+      exchange_rate,
+      base_amount,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

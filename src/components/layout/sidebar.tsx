@@ -21,6 +21,13 @@ import {
   Upload,
   FileCheck,
   Activity,
+  Building2,
+  Car,
+  Clock,
+  ShoppingCart,
+  UserSquare2,
+  Briefcase,
+  CircleDollarSign,
 } from "lucide-react";
 
 interface NavSection {
@@ -42,8 +49,17 @@ const navSections: NavSection[] = [
       { href: "/scanner", icon: ScanLine, label: "Scan Receipt" },
       { href: "/import", icon: Upload, label: "Import" },
       { href: "/invoices", icon: FileText, label: "Invoices" },
+      { href: "/bills", icon: Building2, label: "Bills" },
       { href: "/estimates", icon: FileCheck, label: "Estimates" },
       { href: "/recurring", icon: Receipt, label: "Recurring" },
+      { href: "/purchase-orders", icon: ShoppingCart, label: "Purchase Orders" },
+    ],
+  },
+  {
+    title: "Tracking",
+    items: [
+      { href: "/mileage", icon: Car, label: "Mileage" },
+      { href: "/time-tracking", icon: Clock, label: "Time Tracking" },
     ],
   },
   {
@@ -55,9 +71,17 @@ const navSections: NavSection[] = [
     ],
   },
   {
+    title: "Team",
+    items: [
+      { href: "/payroll", icon: CircleDollarSign, label: "Payroll" },
+      { href: "/contractors", icon: UserSquare2, label: "Contractors" },
+    ],
+  },
+  {
     title: "Business",
     items: [
       { href: "/clients", icon: Users, label: "Clients" },
+      { href: "/projects", icon: Briefcase, label: "Projects" },
       { href: "/inventory", icon: Package, label: "Inventory" },
       { href: "/budgets", icon: DollarSign, label: "Budgets" },
       { href: "/reports", icon: BarChart3, label: "Reports" },
