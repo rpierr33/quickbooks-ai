@@ -1,20 +1,295 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useId, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Building2, ArrowRight, Sparkles, UserCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2, UserCheck } from "lucide-react";
 
-// Inner component that uses useSearchParams (must be wrapped in Suspense)
+// ─── Logo (shared pattern) ────────────────────────────────────────────────────
+function LedgrLogo() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 32 }}>
+      <div
+        aria-hidden="true"
+        style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 16px rgba(124,58,237,0.4)",
+        }}
+      >
+        <span style={{ fontSize: 18, fontWeight: 800, color: "#fff", fontFamily: "Georgia, serif" }}>L</span>
+      </div>
+      <span style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.03em" }}>Ledgr</span>
+    </div>
+  );
+}
+
+// ─── Step indicator ────────────────────────────────────────────────────────────
+function StepIndicator({ current, total }: { current: number; total: number }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 28 }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          style={{
+            height: 4,
+            borderRadius: 99,
+            width: i < current ? 28 : 20,
+            background: i < current
+              ? "linear-gradient(90deg, #7C3AED, #9333EA)"
+              : "rgba(255,255,255,0.2)",
+            transition: "all 0.3s ease",
+          }}
+        />
+      ))}
+      <span className="sr-only">Step {current} of {total}</span>
+    </div>
+  );
+}
+
+// ─── Field ─────────────────────────────────────────────────────────────────────
+function Field({
+  id,
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required,
+  disabled,
+  hasError,
+  errorId,
+  autoComplete,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  hasError?: boolean;
+  errorId?: string;
+  autoComplete?: string;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}
+      >
+        {label}
+        {required && (
+          <>
+            <span aria-hidden="true" style={{ color: "#DC2626", marginLeft: 2 }}>*</span>
+            <span className="sr-only"> (required)</span>
+          </>
+        )}
+      </label>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        aria-required={required}
+        aria-invalid={hasError || undefined}
+        aria-describedby={errorId && hasError ? errorId : undefined}
+        style={{
+          width: "100%",
+          padding: "12px 14px",
+          borderRadius: 10,
+          border: hasError ? "1.5px solid #DC2626" : "1.5px solid #D1D5DB",
+          fontSize: 14,
+          color: "#111827",
+          background: disabled ? "#F9FAFB" : "#FFFFFF",
+          outline: "none",
+          transition: "border-color 0.15s, box-shadow 0.15s",
+          boxSizing: "border-box",
+          minHeight: 44,
+          opacity: disabled ? 0.65 : 1,
+          cursor: disabled ? "not-allowed" : "text",
+        }}
+        onFocus={(e) => {
+          if (!disabled) {
+            e.currentTarget.style.borderColor = "#7C3AED";
+            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.12)";
+          }
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = hasError ? "#DC2626" : "#D1D5DB";
+          e.currentTarget.style.boxShadow = "none";
+        }}
+      />
+    </div>
+  );
+}
+
+// ─── PasswordField with show/hide ─────────────────────────────────────────────
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+  hasError,
+  errorId,
+  autoComplete,
+  showHint,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  hasError?: boolean;
+  errorId?: string;
+  autoComplete?: string;
+  showHint?: boolean;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  const strength = getPasswordStrength(value);
+  const hintId = `${id}-hint`;
+
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}
+      >
+        {label}
+        {required && (
+          <>
+            <span aria-hidden="true" style={{ color: "#DC2626", marginLeft: 2 }}>*</span>
+            <span className="sr-only"> (required)</span>
+          </>
+        )}
+      </label>
+      <div style={{ position: "relative" }}>
+        <input
+          id={id}
+          name={id}
+          type={visible ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          required={required}
+          autoComplete={autoComplete}
+          aria-required={required}
+          aria-invalid={hasError || undefined}
+          aria-describedby={[errorId && hasError ? errorId : null, showHint && value ? hintId : null].filter(Boolean).join(" ") || undefined}
+          style={{
+            width: "100%",
+            padding: "12px 44px 12px 14px",
+            borderRadius: 10,
+            border: hasError ? "1.5px solid #DC2626" : "1.5px solid #D1D5DB",
+            fontSize: 14,
+            color: "#111827",
+            background: "#FFFFFF",
+            outline: "none",
+            transition: "border-color 0.15s, box-shadow 0.15s",
+            boxSizing: "border-box",
+            minHeight: 44,
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "#7C3AED";
+            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.12)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = hasError ? "#DC2626" : "#D1D5DB";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? "Hide password" : "Show password"}
+          style={{
+            position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+            background: "none", border: "none", cursor: "pointer", padding: 4,
+            color: "#6B7280", display: "flex", alignItems: "center", minWidth: 28, minHeight: 28,
+            borderRadius: 4,
+          }}
+        >
+          {visible ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
+        </button>
+      </div>
+
+      {/* Password strength bar */}
+      {showHint && value && (
+        <div style={{ marginTop: 8 }} id={hintId}>
+          <div style={{ display: "flex", gap: 4, marginBottom: 6 }} aria-hidden="true">
+            {[1, 2, 3, 4].map((level) => (
+              <div
+                key={level}
+                style={{
+                  flex: 1, height: 3, borderRadius: 99,
+                  background: level <= strength.score ? strength.color : "#E5E7EB",
+                  transition: "background 0.2s",
+                }}
+              />
+            ))}
+          </div>
+          <p style={{ fontSize: 11, color: strength.textColor, fontWeight: 500 }}>
+            {strength.label}
+          </p>
+          <span className="sr-only">Password strength: {strength.label}</span>
+        </div>
+      )}
+
+      {/* Requirements */}
+      {showHint && (
+        <ul style={{ marginTop: 8, listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+          {[
+            { test: value.length >= 8, label: "At least 8 characters" },
+            { test: /[A-Z]/.test(value), label: "One uppercase letter" },
+            { test: /[0-9]/.test(value), label: "One number" },
+          ].map(({ test, label }) => (
+            <li key={label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: test ? "#059669" : "#9CA3AF" }}>
+              <CheckCircle2 style={{ width: 12, height: 12, flexShrink: 0, color: test ? "#059669" : "#D1D5DB" }} aria-hidden="true" />
+              {label}
+              {test && <span className="sr-only"> ✓</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function getPasswordStrength(pw: string): { score: number; label: string; color: string; textColor: string } {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const map = [
+    { score: 1, label: "Weak", color: "#EF4444", textColor: "#DC2626" },
+    { score: 2, label: "Fair", color: "#F59E0B", textColor: "#D97706" },
+    { score: 3, label: "Good", color: "#3B82F6", textColor: "#2563EB" },
+    { score: 4, label: "Strong", color: "#10B981", textColor: "#059669" },
+  ];
+  return map[Math.max(0, score - 1)] ?? { score: 0, label: "Too short", color: "#E5E7EB", textColor: "#9CA3AF" };
+}
+
+// ─── SignupForm ────────────────────────────────────────────────────────────────
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const inviteToken = searchParams.get("invite");
 
   const [name, setName] = useState("");
-  const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -27,10 +302,11 @@ function SignupForm() {
   const [inviteRole, setInviteRole] = useState<string | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
-  // If there's an invite token, validate it and prefill email
+  const formErrorId = useId();
+  const confirmErrorId = useId();
+
   useEffect(() => {
     if (!inviteToken) return;
-
     async function validateInvite() {
       try {
         const res = await fetch(`/api/team/accept?token=${inviteToken}`);
@@ -56,19 +332,22 @@ function SignupForm() {
     e.preventDefault();
     setError("");
 
-    if (password !== confirm) {
-      setError("Passwords don't match");
+    if (!name.trim()) {
+      setError("Full name is required.");
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords don't match. Please re-enter.");
       return;
     }
 
     setLoading(true);
     try {
       if (inviteToken && inviteValid) {
-        // Accept invite flow: set name + password, activate existing pending user
         const res = await fetch("/api/team/accept", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -80,43 +359,27 @@ function SignupForm() {
           setLoading(false);
           return;
         }
-
-        // Sign in with the newly activated credentials
-        const signed = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
+        const signed = await signIn("credentials", { email, password, redirect: false });
         if (signed?.error) {
-          setError("Account activated — please sign in.");
-          setLoading(false);
           router.push("/login");
           return;
         }
-        router.push("/dashboard");
+        router.push("/");
         router.refresh();
       } else {
-        // Normal signup flow: create a new user + company
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password, companyName }),
+          body: JSON.stringify({ name, email, password }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data?.error || "Sign up failed");
+          setError(data?.error || "Sign up failed. Please try again.");
           setLoading(false);
           return;
         }
-
-        const signed = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-        });
+        const signed = await signIn("credentials", { email, password, redirect: false });
         if (signed?.error) {
-          setError("Account created — please sign in.");
-          setLoading(false);
           router.push("/login");
           return;
         }
@@ -124,164 +387,205 @@ function SignupForm() {
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      setError(err instanceof Error ? err.message : "Network error. Please try again.");
       setLoading(false);
     }
   }
 
-  // Loading state while validating invite
   if (inviteToken && inviteLoading) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "32px 0" }}>
-        <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #7C3AED", borderTopColor: "transparent", animation: "spin 0.7s linear infinite" }} />
-        <p style={{ fontSize: 14, color: "#64748B" }}>Validating invite...</p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "40px 0" }}>
+        <Loader2 style={{ width: 28, height: 28, color: "#7C3AED", animation: "spin 0.8s linear infinite" }} aria-hidden="true" />
+        <p style={{ fontSize: 14, color: "#6B7280" }}>Validating your invite...</p>
       </div>
     );
   }
 
-  // Invalid invite
   if (inviteToken && inviteError) {
     return (
-      <div style={{ padding: "24px 0", textAlign: "center" }}>
-        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-          <span style={{ fontSize: 22, color: "#DC2626" }}>!</span>
+      <div style={{ padding: "32px 0", textAlign: "center" }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+          <span style={{ fontSize: 22, color: "#DC2626" }} aria-hidden="true">!</span>
         </div>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>Invalid Invite</h2>
-        <p style={{ fontSize: 14, color: "#64748B", marginBottom: 20 }}>{inviteError}</p>
-        <Link href="/login" style={{ color: "#7C3AED", fontWeight: 600, fontSize: 14 }}>Back to sign in</Link>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 8 }}>Invite Not Found</h2>
+        <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 20, lineHeight: 1.5 }}>{inviteError}</p>
+        <Link href="/login" style={{ color: "#7C3AED", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
+          Back to sign in
+        </Link>
       </div>
     );
   }
 
+  const passwordMismatch = confirm.length > 0 && password !== confirm;
+
   return (
-    <div>
-      <div style={{ textAlign: "center", marginBottom: 20 }}>
-        {inviteToken && inviteValid ? (
-          <>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, background: "#EDE9FE", marginBottom: 10 }}>
-              <UserCheck style={{ width: 14, height: 14, color: "#7C3AED" }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#7C3AED", textTransform: "capitalize" }}>
-                Joining as {inviteRole}
-              </span>
-            </div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A" }}>Accept your invite</h1>
-            <p style={{ fontSize: 13, color: "#64748B", marginTop: 4 }}>
-              Set your name and password to join the team.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A" }}>Create your account</h1>
-            <p style={{ fontSize: 13, color: "#64748B", marginTop: 4 }}>Start your books in under a minute.</p>
-          </>
-        )}
+    <>
+      {/* Invite banner */}
+      {inviteToken && inviteValid && (
+        <div
+          role="status"
+          style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "10px 14px", borderRadius: 10,
+            background: "#EDE9FE", border: "1px solid #C4B5FD",
+            marginBottom: 20,
+          }}
+        >
+          <UserCheck style={{ width: 16, height: 16, color: "#7C3AED", flexShrink: 0 }} aria-hidden="true" />
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#6D28D9", textTransform: "capitalize" }}>
+            You&apos;ve been invited — joining as {inviteRole}
+          </span>
+        </div>
+      )}
+
+      {/* Heading */}
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+          {inviteToken ? "Accept your invite" : "Start your free trial"}
+        </h1>
+        <p style={{ fontSize: 14, color: "#6B7280", marginTop: 6, lineHeight: 1.5 }}>
+          {inviteToken
+            ? "Set your name and password to join the team."
+            : "Up and running in under 60 seconds. No credit card required."}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* Error summary */}
+      {error && (
+        <div
+          id={formErrorId}
+          role="alert"
+          aria-live="assertive"
+          style={{
+            padding: "10px 14px",
+            borderRadius: 10,
+            background: "#FEF2F2",
+            border: "1px solid #FECACA",
+            color: "#DC2626",
+            fontSize: 13,
+            fontWeight: 500,
+            marginBottom: 16,
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-describedby={error ? formErrorId : undefined}
+        style={{ display: "flex", flexDirection: "column", gap: 14 }}
+      >
         <Field
-          label="Your name"
-          icon={<User style={{ width: 16, height: 16, color: "#94A3B8" }} />}
+          id="name"
+          label="Full name"
           value={name}
           onChange={setName}
           placeholder="Jane Doe"
-          type="text"
           required
+          autoComplete="name"
         />
-        {!inviteToken && (
-          <Field
-            label="Business name"
-            icon={<Building2 style={{ width: 16, height: 16, color: "#94A3B8" }} />}
-            value={companyName}
-            onChange={setCompanyName}
-            placeholder="Acme Consulting LLC"
-            type="text"
-          />
-        )}
+
         <Field
+          id="email"
           label="Work email"
-          icon={<Mail style={{ width: 16, height: 16, color: "#94A3B8" }} />}
+          type="email"
           value={email}
           onChange={setEmail}
           placeholder="you@company.com"
-          type="email"
           required
           disabled={!!(inviteToken && inviteValid)}
+          autoComplete="email"
         />
-        <Field
+
+        <PasswordField
+          id="password"
           label="Password"
-          icon={<Lock style={{ width: 16, height: 16, color: "#94A3B8" }} />}
           value={password}
           onChange={setPassword}
           placeholder="At least 8 characters"
-          type="password"
           required
-        />
-        <Field
-          label="Confirm password"
-          icon={<Lock style={{ width: 16, height: 16, color: "#94A3B8" }} />}
-          value={confirm}
-          onChange={setConfirm}
-          placeholder="Re-enter password"
-          type="password"
-          required
+          autoComplete="new-password"
+          showHint
         />
 
-        {error && (
-          <div
-            style={{
-              padding: "10px 14px",
-              borderRadius: 10,
-              background: "#FEF2F2",
-              border: "1px solid #FECACA",
-              color: "#DC2626",
-              fontSize: 13,
-              fontWeight: 500,
-            }}
-          >
-            {error}
-          </div>
-        )}
+        <div>
+          <Field
+            id="confirm"
+            label="Confirm password"
+            type="password"
+            value={confirm}
+            onChange={setConfirm}
+            placeholder="Re-enter password"
+            required
+            hasError={passwordMismatch}
+            errorId={confirmErrorId}
+            autoComplete="new-password"
+          />
+          {passwordMismatch && (
+            <p id={confirmErrorId} role="alert" style={{ marginTop: 6, fontSize: 12, color: "#DC2626" }}>
+              Passwords don&apos;t match.
+            </p>
+          )}
+        </div>
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || passwordMismatch}
+          aria-busy={loading}
           style={{
             marginTop: 6,
             width: "100%",
+            minHeight: 48,
             padding: "12px 16px",
             borderRadius: 12,
             border: "none",
-            background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+            background: loading || passwordMismatch
+              ? "#9CA3AF"
+              : "linear-gradient(135deg, #7C3AED, #9333EA)",
             color: "#FFFFFF",
             fontSize: 15,
-            fontWeight: 600,
-            cursor: loading ? "not-allowed" : "pointer",
+            fontWeight: 700,
+            cursor: loading || passwordMismatch ? "not-allowed" : "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 8,
-            opacity: loading ? 0.7 : 1,
-            boxShadow: "0 4px 12px rgba(124,58,237,0.3)",
+            transition: "all 0.15s",
+            boxShadow: loading || passwordMismatch ? "none" : "0 4px 14px rgba(124,58,237,0.35)",
+            letterSpacing: "-0.01em",
           }}
         >
           {loading ? (
-            <span>{inviteToken ? "Joining..." : "Creating account..."}</span>
+            <>
+              <Loader2 style={{ width: 16, height: 16, animation: "spin 0.8s linear infinite" }} aria-hidden="true" />
+              {inviteToken ? "Joining..." : "Creating account..."}
+            </>
           ) : (
             <>
-              {inviteToken ? "Join Team" : "Create Account"}
-              <ArrowRight style={{ width: 16, height: 16 }} />
+              {inviteToken ? "Join Team" : "Start Free Trial"}
+              <ArrowRight style={{ width: 16, height: 16 }} aria-hidden="true" />
             </>
           )}
         </button>
       </form>
 
-      <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginTop: 18 }}>
+      {/* ToS */}
+      <p style={{ fontSize: 11, color: "#9CA3AF", textAlign: "center", marginTop: 14, lineHeight: 1.6 }}>
+        By continuing, you agree to our{" "}
+        <Link href="/terms" style={{ color: "#7C3AED", textDecoration: "none" }}>Terms of Service</Link>
+        {" "}and{" "}
+        <Link href="/privacy" style={{ color: "#7C3AED", textDecoration: "none" }}>Privacy Policy</Link>.
+      </p>
+
+      <p style={{ fontSize: 13, color: "#6B7280", textAlign: "center", marginTop: 16 }}>
         Already have an account?{" "}
-        <Link href="/login" style={{ color: "#7C3AED", fontWeight: 600 }}>
+        <Link href="/login" style={{ color: "#7C3AED", fontWeight: 700, textDecoration: "none" }}>
           Sign in
         </Link>
       </p>
-    </div>
+    </>
   );
 }
 
@@ -289,138 +593,57 @@ export default function SignupPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         background: "linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #312E81 100%)",
-        padding: 24,
+        padding: "24px 16px",
       }}
     >
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0,0,0,0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+      `}</style>
+
+      {/* Background orbs */}
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: "5%", right: "8%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", bottom: "10%", left: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%)" }} />
+      </div>
+
       <div style={{ width: "100%", maxWidth: 440, position: "relative", zIndex: 1 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 12,
-            marginBottom: 28,
-          }}
-        >
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, #7C3AED, #9333EA)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 4px 16px rgba(124,58,237,0.4)",
-            }}
-          >
-            <span style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>L</span>
-          </div>
-          <span style={{ fontSize: 24, fontWeight: 700, color: "#FFFFFF", letterSpacing: "-0.02em" }}>
-            Ledgr
-          </span>
-        </div>
+        <LedgrLogo />
+
+        {/* Step indicator: signup = step 1 of 2 (onboarding is step 2) */}
+        <StepIndicator current={1} total={2} />
 
         <div
           style={{
-            background: "rgba(255,255,255,0.95)",
-            backdropFilter: "blur(20px)",
+            background: "#FFFFFF",
             borderRadius: 20,
             padding: "32px 28px",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.28)",
           }}
         >
-          <Suspense fallback={<div style={{ height: 120 }} />}>
+          <Suspense fallback={<div style={{ height: 320 }} aria-label="Loading form" />}>
             <SignupForm />
           </Suspense>
         </div>
 
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: 20,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-          }}
-        >
-          <Sparkles style={{ width: 14, height: 14, color: "#7C3AED" }} />
-          <span style={{ fontSize: 13, color: "#94A3B8" }}>
-            AI-powered accounting for modern businesses
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Field(props: {
-  label: string;
-  icon: React.ReactNode;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  type?: string;
-  required?: boolean;
-  disabled?: boolean;
-}) {
-  const { label, icon, value, onChange, placeholder, type = "text", required, disabled } = props;
-  return (
-    <div>
-      <label
-        style={{
-          display: "block",
-          fontSize: 13,
-          fontWeight: 600,
-          color: "#374151",
-          marginBottom: 6,
-        }}
-      >
-        {label}
-        {required && <span style={{ color: "#DC2626" }}> *</span>}
-      </label>
-      <div style={{ position: "relative" }}>
-        <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }}>
-          {icon}
-        </div>
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          required={required}
-          disabled={disabled}
-          style={{
-            width: "100%",
-            padding: "12px 12px 12px 40px",
-            borderRadius: 10,
-            border: "1px solid #E2E8F0",
-            fontSize: 14,
-            color: "#0F172A",
-            background: disabled ? "#F1F5F9" : "#F8FAFC",
-            outline: "none",
-            boxSizing: "border-box",
-            opacity: disabled ? 0.7 : 1,
-            cursor: disabled ? "not-allowed" : "text",
-          }}
-          onFocus={(e) => {
-            if (!disabled) {
-              e.currentTarget.style.borderColor = "#7C3AED";
-              e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.1)";
-            }
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "#E2E8F0";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        />
+        <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+          AI-powered accounting for modern businesses
+        </p>
       </div>
     </div>
   );

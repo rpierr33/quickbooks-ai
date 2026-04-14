@@ -1,39 +1,172 @@
 @import "tailwindcss";
 
+/* ── Design Tokens (Tailwind v4 @theme) ──────────────────────────────────────
+   Plus Jakarta Sans is loaded via <link> in layout.tsx (the primary loader).
+   Defining the font family here so Tailwind can reference it.
+   These map directly to Tailwind utility classes.
+   e.g. bg-brand-blue, text-text-primary, shadow-card
+   ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Font family */
+  --font-family-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Brand colors */
+  --color-brand-blue:   #2563EB;
+  --color-brand-green:  #16A34A;
+  --color-brand-red:    #EF4444;
+  --color-brand-amber:  #D97706;
+  --color-brand-purple: #7C3AED;
+
+  /* Surface tokens */
+  --color-surface-page:    #F8FAFC;
+  --color-surface-default: #FFFFFF;
+  --color-surface-subtle:  #F1F5F9;
+
+  /* Text tokens */
+  --color-text-primary:   #0F172A;
+  --color-text-secondary: #334155;
+  --color-text-muted:     #64748B;
+  --color-text-faint:     #94A3B8;
+
+  /* Border tokens */
+  --color-border-default: #E2E8F0;
+  --color-border-strong:  #CBD5E1;
+
+  /* Semantic financial tokens */
+  --color-income:          #16A34A;
+  --color-income-bg:       #F0FDF4;
+  --color-income-border:   #BBF7D0;
+  --color-expense:         #EF4444;
+  --color-expense-bg:      #FEF2F2;
+  --color-expense-border:  #FECACA;
+  --color-warning-bg:      #FFFBEB;
+  --color-warning-border:  #FDE68A;
+
+  /* Radius scale */
+  --radius-sm:  0.375rem;   /* 6px */
+  --radius-md:  0.5rem;     /* 8px */
+  --radius-lg:  0.75rem;    /* 12px */
+  --radius-xl:  1rem;       /* 16px */
+  --radius-2xl: 1.25rem;    /* 20px */
+
+  /* Shadow scale (layered — product-ui.md formula) */
+  --shadow-card:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  --shadow-card-hover:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.08),
+    0 4px 12px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.08),
+    0 4px 12px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.10),
+    0 12px 32px -4px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 10px 32px -4px rgba(0, 0, 0, 0.10);
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow:   300ms ease;
+
+  /* Animations */
+  --animate-fade-in:    fade-in 0.25s ease-out;
+  --animate-slide-up:   slide-up 0.25s ease-out;
+  --animate-shimmer:    shimmer 1.6s ease-in-out infinite;
+  --animate-pulse-dot:  pulse-dot 2s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ── Base layer ──────────────────────────────────────────────────────────────*/
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Prevent content reflow from scrollbar appearing */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-surface-page, #F8FAFC);
+    color: var(--color-text-primary, #0F172A);
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    font-size: 14px;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Selection color — on-brand */
+  ::selection {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+  }
+
+  /* Focus ring — consistent, accessible */
+  *:focus-visible {
+    outline: 2px solid #2563EB;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Tabular numbers on financial data — applied via utility class */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
 }
 
-body {
-  background: #F8FAFC;
-  color: #0F172A;
-  font-family: var(--font-family-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* ── Layout helpers ──────────────────────────────────────────────────────────*/
 
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* ── Sidebar offset — desktop only ── */
+/* Desktop: content area is offset by sidebar width */
 @media (min-width: 768px) {
   .main-content-wrapper {
     margin-left: 240px;
   }
   .main-content-area {
-    max-width: 1280px;
+    max-width: 1400px;
   }
 }
 
-/* ── Mobile content padding ── */
+/* Mobile: account for bottom nav bar */
 @media (max-width: 767px) {
   .main-content-area {
     padding: 16px 16px 96px !important;
@@ -44,56 +177,80 @@ html, body {
   }
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+/* Safe area for notched devices */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────────*/
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #CBD5E1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(24px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* ── Animation utilities ─────────────────────────────────────────────────────*/
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
 }
 
-.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-slide-up {
+  animation: slide-up 0.25s ease-out both;
+}
+
 .animate-shimmer {
-  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background: linear-gradient(
+    90deg,
+    #F1F5F9 25%,
+    #E2E8F0 50%,
+    #F1F5F9 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-.animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
-.animate-slide-up { animation: slideUp 0.25s ease-out; }
-
-*:focus-visible {
-  outline: 2px solid #7C3AED;
-  outline-offset: 2px;
-  border-radius: 8px;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
-.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
 
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Staggered entry animations ─────────────────────────────────────────────*/
+.animate-stagger > * {
+  animation: fade-in 0.3s ease-out both;
+}
+.animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.animate-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.animate-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.animate-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.animate-stagger > *:nth-child(5) { animation-delay: 200ms; }
+
+/* ── Card shared style ───────────────────────────────────────────────────────*/
+.card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  transition: box-shadow 200ms ease;
+}
+
+.card:hover {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.08),
+    0 4px 12px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────*/
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
