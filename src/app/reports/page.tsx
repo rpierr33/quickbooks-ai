@@ -68,39 +68,56 @@ export default function ReportsPage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Convert dateRange to months count for APIs that accept it
+  const rangeToMonths = (range: string): string => {
+    switch (range) {
+      case "1m": return "1";
+      case "3m": return "3";
+      case "6m": return "6";
+      case "1y": return "12";
+      case "ytd": {
+        const now = new Date();
+        return String(now.getMonth() + 1); // months since Jan 1
+      }
+      case "all": return "120"; // 10 years effectively
+      default: return "6";
+    }
+  };
+  const months = rangeToMonths(dateRange);
+
   const { data: plData, isLoading: plLoading } = useQuery<ProfitLossReport>({
-    queryKey: ["reports", "profit-loss"],
-    queryFn: () => fetch("/api/reports/profit-loss").then(r => r.json()),
+    queryKey: ["reports", "profit-loss", dateRange],
+    queryFn: () => fetch(`/api/reports/profit-loss?months=${months}`).then(r => r.json()),
     enabled: activeTab === "pl",
   });
   const { data: bsData, isLoading: bsLoading } = useQuery<BalanceSheetReport>({
-    queryKey: ["reports", "balance-sheet"],
-    queryFn: () => fetch("/api/reports/balance-sheet").then(r => r.json()),
+    queryKey: ["reports", "balance-sheet", dateRange],
+    queryFn: () => fetch(`/api/reports/balance-sheet?range=${dateRange}`).then(r => r.json()),
     enabled: activeTab === "bs",
   });
   const { data: cfData, isLoading: cfLoading } = useQuery<CashFlowReport>({
-    queryKey: ["reports", "cash-flow"],
-    queryFn: () => fetch("/api/reports/cash-flow").then(r => r.json()),
+    queryKey: ["reports", "cash-flow", dateRange],
+    queryFn: () => fetch(`/api/reports/cash-flow?months=${months}`).then(r => r.json()),
     enabled: activeTab === "cf",
   });
   const { data: arData, isLoading: arLoading } = useQuery<AgedReceivablesReport>({
-    queryKey: ["reports", "aged-receivables"],
-    queryFn: () => fetch("/api/reports/aged-receivables").then(r => r.json()),
+    queryKey: ["reports", "aged-receivables", dateRange],
+    queryFn: () => fetch(`/api/reports/aged-receivables?range=${dateRange}`).then(r => r.json()),
     enabled: activeTab === "ar",
   });
   const { data: tbData, isLoading: tbLoading } = useQuery<TrialBalanceReport>({
-    queryKey: ["reports", "trial-balance"],
-    queryFn: () => fetch("/api/reports/trial-balance").then(r => r.json()),
+    queryKey: ["reports", "trial-balance", dateRange],
+    queryFn: () => fetch(`/api/reports/trial-balance?range=${dateRange}`).then(r => r.json()),
     enabled: activeTab === "tb",
   });
   const { data: taxData, isLoading: taxLoading } = useQuery<TaxSummaryReport>({
-    queryKey: ["reports", "tax-summary"],
-    queryFn: () => fetch("/api/reports/tax-summary").then(r => r.json()),
+    queryKey: ["reports", "tax-summary", dateRange],
+    queryFn: () => fetch(`/api/reports/tax-summary?range=${dateRange}`).then(r => r.json()),
     enabled: activeTab === "tax",
   });
   const { data: glData, isLoading: glLoading } = useQuery<GeneralLedgerReport>({
-    queryKey: ["reports", "general-ledger"],
-    queryFn: () => fetch("/api/reports/general-ledger").then(r => r.json()),
+    queryKey: ["reports", "general-ledger", dateRange],
+    queryFn: () => fetch(`/api/reports/general-ledger?months=${months}`).then(r => r.json()),
     enabled: activeTab === "gl",
   });
 

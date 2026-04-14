@@ -13,8 +13,14 @@ import {
   ScanLine,
   Receipt,
   DollarSign,
-  PieChart,
   CreditCard,
+  BookOpen,
+  Wallet,
+  RefreshCcw,
+  Package,
+  Upload,
+  FileCheck,
+  Activity,
 } from "lucide-react";
 
 interface NavSection {
@@ -34,14 +40,25 @@ const navSections: NavSection[] = [
     items: [
       { href: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
       { href: "/scanner", icon: ScanLine, label: "Scan Receipt" },
+      { href: "/import", icon: Upload, label: "Import" },
       { href: "/invoices", icon: FileText, label: "Invoices" },
+      { href: "/estimates", icon: FileCheck, label: "Estimates" },
       { href: "/recurring", icon: Receipt, label: "Recurring" },
+    ],
+  },
+  {
+    title: "Bookkeeping",
+    items: [
+      { href: "/accounts", icon: Wallet, label: "Accounts" },
+      { href: "/journal", icon: BookOpen, label: "Journal Entries" },
+      { href: "/reconciliation", icon: RefreshCcw, label: "Reconciliation" },
     ],
   },
   {
     title: "Business",
     items: [
       { href: "/clients", icon: Users, label: "Clients" },
+      { href: "/inventory", icon: Package, label: "Inventory" },
       { href: "/budgets", icon: DollarSign, label: "Budgets" },
       { href: "/reports", icon: BarChart3, label: "Reports" },
     ],
@@ -51,6 +68,7 @@ const navSections: NavSection[] = [
     items: [
       { href: "/billing", icon: CreditCard, label: "Billing" },
       { href: "/settings", icon: Settings, label: "Settings" },
+      { href: "/activity", icon: Activity, label: "Activity Log" },
     ],
   },
 ];

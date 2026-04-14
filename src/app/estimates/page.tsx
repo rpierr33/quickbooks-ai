@@ -32,6 +32,7 @@ export default function EstimatesPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('all');
   const [showCreate, setShowCreate] = useState(false);
+  const [viewEstimate, setViewEstimate] = useState<Estimate | null>(null);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     client_name: "", client_email: "", valid_until: "", tax_rate: "0", notes: "",
@@ -245,7 +246,11 @@ export default function EstimatesPage() {
                       </button>
                     </>
                   )}
-                  <button className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}>
+                  <button
+                    onClick={() => setViewEstimate(est)}
+                    className="cursor-pointer"
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}
+                  >
                     <FileText style={{ width: 12, height: 12 }} /> View
                   </button>
                 </div>
@@ -310,6 +315,110 @@ export default function EstimatesPage() {
           </Button>
         </DialogFooter>
       </Dialog>
+
+      {/* View Estimate Dialog */}
+      {viewEstimate && (() => {
+        const est = viewEstimate;
+        const sc = statusConfig[est.status] || statusConfig.draft;
+        const items = typeof est.items === 'string' ? JSON.parse(est.items as unknown as string) : est.items;
+        const viewSubtotal = Array.isArray(items) ? items.reduce((s: number, it: EstimateItem) => s + it.amount, 0) : 0;
+        const viewTaxRate = typeof est.tax_rate === 'string' ? parseFloat(est.tax_rate as unknown as string) : est.tax_rate;
+        const viewTaxAmount = viewSubtotal * (viewTaxRate / 100);
+        const viewTotal = typeof est.total === 'string' ? parseFloat(est.total as unknown as string) : est.total;
+        return (
+          <Dialog open={!!viewEstimate} onClose={() => setViewEstimate(null)}>
+            <DialogHeader>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, paddingRight: 24 }}>
+                <div>
+                  <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: '#94A3B8' }}>{est.estimate_number}</p>
+                  <DialogTitle style={{ marginTop: 4 }}>{est.client_name}</DialogTitle>
+                  {est.client_email && <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{est.client_email}</p>}
+                </div>
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 99,
+                  textTransform: 'capitalize', flexShrink: 0,
+                  background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`,
+                }}>
+                  {est.status}
+                </span>
+              </div>
+            </DialogHeader>
+            <DialogContent>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {/* Dates */}
+                {(est.valid_until || est.created_at) && (
+                  <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                    {est.created_at && (
+                      <div>
+                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 2 }}>Created</p>
+                        <p style={{ fontSize: 13, color: '#475569' }}>{formatDate(est.created_at)}</p>
+                      </div>
+                    )}
+                    {est.valid_until && (
+                      <div>
+                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 2 }}>Valid Until</p>
+                        <p style={{ fontSize: 13, color: '#475569' }}>{formatDate(est.valid_until)}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Line Items */}
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                  <div style={{ padding: '10px 14px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Description</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Amount</span>
+                  </div>
+                  {Array.isArray(items) && items.map((item: EstimateItem, i: number) => (
+                    <div key={i} style={{ padding: '12px 14px', borderBottom: i < items.length - 1 ? '1px solid #F1F5F9' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <p style={{ fontSize: 13, color: '#0F172A', fontWeight: 500 }}>{item.description}</p>
+                        <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{item.quantity} &times; {formatCurrency(item.rate)}</p>
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A', flexShrink: 0, marginLeft: 12 }}>{formatCurrency(item.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Totals */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748B' }}>
+                    <span>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewSubtotal)}</span>
+                  </div>
+                  {viewTaxRate > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748B' }}>
+                      <span>Tax ({viewTaxRate}%)</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewTaxAmount)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, color: '#0F172A', paddingTop: 8, borderTop: '1px solid #E2E8F0', marginTop: 4 }}>
+                    <span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewTotal)}</span>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {est.notes && (
+                  <div style={{ padding: 12, borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 6 }}>Notes</p>
+                    <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{est.notes}</p>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewEstimate(null)} className="cursor-pointer flex-1">Close</Button>
+              {est.status === 'accepted' && (
+                <Button
+                  onClick={() => { convertMutation.mutate(est); setViewEstimate(null); }}
+                  disabled={convertMutation.isPending}
+                  className="cursor-pointer flex-1"
+                >
+                  <ArrowRight style={{ width: 14, height: 14, marginRight: 6 }} /> Convert to Invoice
+                </Button>
+              )}
+            </DialogFooter>
+          </Dialog>
+        );
+      })()}
     </div>
   );
 }

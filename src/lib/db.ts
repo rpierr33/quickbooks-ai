@@ -26,6 +26,8 @@ interface MockStore {
   budgets: Record<string, any>[];
   scanned_receipts: Record<string, any>[];
   journal_entries: Record<string, any>[];
+  clients: Record<string, any>[];
+  inventory: Record<string, any>[];
   users: Record<string, any>[];
   companies: Record<string, any>[];
 }

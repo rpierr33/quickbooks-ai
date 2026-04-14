@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useMemo, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 import {
   Scale,
   CheckCircle2,
@@ -15,6 +16,7 @@ import {
   CalendarDays,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import type { Account, Transaction } from "@/types";
 
@@ -54,6 +56,8 @@ const thStyle: React.CSSProperties = {
 
 /* ─── Component ─── */
 export default function ReconciliationPage() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const [statementBalance, setStatementBalance] = useState("");
   const [statementDate, setStatementDate] = useState(
@@ -61,6 +65,7 @@ export default function ReconciliationPage() {
   );
   const [clearedIds, setClearedIds] = useState<Set<string>>(new Set());
   const [reconciled, setReconciled] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
 
   /* ─── Data Fetching ─── */
   const { data: accounts, isLoading: accountsLoading } = useQuery<Account[]>({
@@ -76,6 +81,12 @@ export default function ReconciliationPage() {
   );
 
   /* ─── Derived State ─── */
+  // FIX 6: Only show bank/cash accounts (type === 'asset') in reconciliation dropdown
+  const bankAccounts = useMemo(
+    () => (accounts ?? []).filter((a) => a.type === "asset"),
+    [accounts]
+  );
+
   const accountTransactions = useMemo(() => {
     if (!transactions) return [];
     if (!selectedAccountId) return transactions;
@@ -129,8 +140,57 @@ export default function ReconciliationPage() {
     });
   }, []);
 
-  const handleCompleteReconciliation = () => {
-    setReconciled(true);
+  const handleCompleteReconciliation = async () => {
+    if (clearedIds.size === 0) return;
+    setIsCompleting(true);
+
+    // Batch PUT each cleared transaction to persist reconciled status in notes
+    const reconcileDate = statementDate;
+    const reconcileNote = `Reconciled: ${reconcileDate}`;
+
+    try {
+      const results = await Promise.allSettled(
+        Array.from(clearedIds).map(async (txId) => {
+          const tx = accountTransactions.find((t) => t.id === txId);
+          if (!tx) return;
+          // Append reconciliation marker to notes without overwriting existing notes
+          const existingNotes = tx.notes || "";
+          const alreadyMarked = existingNotes.includes("Reconciled:");
+          const updatedNotes = alreadyMarked
+            ? existingNotes.replace(/Reconciled: [^\n]+/, reconcileNote)
+            : existingNotes
+            ? `${existingNotes}\n${reconcileNote}`
+            : reconcileNote;
+
+          return fetch(`/api/transactions/${txId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: tx.date,
+              description: tx.description,
+              amount: typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount,
+              type: tx.type,
+              notes: updatedNotes,
+            }),
+          }).then((r) => {
+            if (!r.ok) throw new Error(`Failed to update transaction ${txId}`);
+            return r.json();
+          });
+        })
+      );
+
+      const failed = results.filter((r) => r.status === "rejected").length;
+      if (failed > 0) {
+        toast(`${failed} transaction(s) failed to update`, "error");
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        setReconciled(true);
+      }
+    } catch {
+      toast("Reconciliation failed — please try again", "error");
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   const handleReset = () => {
@@ -377,7 +437,7 @@ export default function ReconciliationPage() {
                 }}
               >
                 <option value="">Select an account...</option>
-                {accounts?.map((a) => (
+                {bankAccounts.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
                   </option>
@@ -601,12 +661,21 @@ export default function ReconciliationPage() {
           </p>
           <Button
             onClick={handleCompleteReconciliation}
-            disabled={!isDifferenceZero}
+            disabled={!isDifferenceZero || isCompleting}
             className="cursor-pointer"
             style={{ gap: 8 }}
           >
-            <CheckCircle2 style={{ width: 16, height: 16 }} />
-            Complete Reconciliation
+            {isCompleting ? (
+              <>
+                <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} />
+                Saving...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 style={{ width: 16, height: 16 }} />
+                Complete Reconciliation
+              </>
+            )}
           </Button>
         </div>
       )}

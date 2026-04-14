@@ -6,14 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Plus, Trash2, BookOpen, ArrowRight } from "lucide-react";
+import { Plus, Trash2, BookOpen, ArrowRight, Ban } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import type { Account } from "@/types";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
 
 interface JournalLine { accountId: string; accountName: string; debit: number; credit: number; }
-interface JournalEntry { id: string; date: string; memo: string; lines: JournalLine[]; created_at: string; }
+interface JournalEntry { id: string; date: string; memo: string; lines: JournalLine[]; status?: string; voided_at?: string; created_at: string; }
 
 export default function JournalPage() {
   const queryClient = useQueryClient();
@@ -50,11 +50,24 @@ export default function JournalPage() {
     setLines(updated);
   };
 
+  const [voidingId, setVoidingId] = useState<string | null>(null);
+
   const createMutation = useMutation({
     mutationFn: (data: { date: string; memo: string; lines: JournalLine[] }) =>
       fetch("/api/journal-entries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["journal-entries"] }); resetForm(); toast("Journal entry created"); },
     onError: () => { toast("Failed to create journal entry", "error"); },
+  });
+
+  const voidMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/journal-entries/${id}`, { method: "DELETE" }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
+      setVoidingId(null);
+      toast("Journal entry voided");
+    },
+    onError: () => { toast("Failed to void journal entry", "error"); },
   });
 
   const handleCreate = () => {
@@ -99,14 +112,32 @@ export default function JournalPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {entries.map(entry => (
-            <div key={entry.id} style={{ ...card, padding: 20 }}>
+          {entries.map(entry => {
+            const isVoided = entry.status === 'voided';
+            return (
+            <div key={entry.id} style={{ ...card, padding: 20, opacity: isVoided ? 0.6 : 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{entry.memo}</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', textDecoration: isVoided ? 'line-through' : 'none' }}>{entry.memo}</p>
                   <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{formatDate(entry.date)}</p>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#ECFDF5', color: '#059669' }}>Balanced</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {isVoided ? (
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Voided</span>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#ECFDF5', color: '#059669' }}>Balanced</span>
+                      <button
+                        onClick={() => setVoidingId(entry.id)}
+                        className="cursor-pointer"
+                        title="Void this entry"
+                        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA' }}
+                      >
+                        <Ban style={{ width: 12, height: 12 }} /> Void
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
               <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
                 <thead>
@@ -132,9 +163,33 @@ export default function JournalPage() {
                 </tbody>
               </table>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
+
+      {/* Void Confirm Dialog */}
+      <Dialog open={!!voidingId} onClose={() => setVoidingId(null)}>
+        <DialogHeader>
+          <DialogTitle>Void Journal Entry</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: '#475569' }}>
+            Voiding this entry will mark it as invalid. The entry will remain visible in the audit trail but will be struck through. This cannot be undone.
+          </p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setVoidingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => { if (voidingId) voidMutation.mutate(voidingId); }}
+            disabled={voidMutation.isPending}
+            className="flex-1 w-full cursor-pointer"
+            style={{ background: '#EF4444', color: '#FFFFFF' }}
+          >
+            {voidMutation.isPending ? "Voiding..." : "Void Entry"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
 
       {/* Create Dialog */}
       <Dialog open={showCreate} onClose={resetForm}>

@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import { formatCurrency } from "@/lib/utils";
-import { Plus, Search, Users, Building2, Mail, Phone, MapPin, FileText, DollarSign, AlertCircle } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { Plus, Search, Users, Building2, Mail, Phone, MapPin, FileText, DollarSign, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
-import type { Client } from "@/types";
+import type { Client, Invoice } from "@/types";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
 
@@ -18,6 +18,8 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [showCreate, setShowCreate] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', address: '', tax_id: '', type: 'client' as string, notes: '' });
 
@@ -26,14 +28,45 @@ export default function ClientsPage() {
     queryFn: () => fetch("/api/clients").then(r => r.json()),
   });
 
+  const { data: allInvoices = [] } = useQuery<Invoice[]>({
+    queryKey: ["invoices"],
+    queryFn: () => fetch("/api/invoices").then(r => r.json()),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); resetForm(); toast("Contact created successfully"); },
     onError: () => { toast("Failed to create contact", "error"); },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & typeof form) =>
+      fetch(`/api/clients/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); closeClientDialog(); toast("Contact updated"); },
+    onError: () => { toast("Failed to update contact", "error"); },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => fetch(`/api/clients/${id}`, { method: "DELETE" }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clients"] }); setDeletingId(null); toast("Contact deleted"); },
+    onError: () => { toast("Failed to delete contact", "error"); },
+  });
+
+  function openEditClient(client: Client) {
+    setForm({ name: client.name, email: client.email ?? '', phone: client.phone ?? '', company: client.company ?? '', address: client.address ?? '', tax_id: client.tax_id ?? '', type: client.type, notes: client.notes ?? '' });
+    setEditingClient(client);
+    setShowCreate(true);
+  }
+
   const resetForm = () => {
     setShowCreate(false);
+    setEditingClient(null);
+    setForm({ name: '', email: '', phone: '', company: '', address: '', tax_id: '', type: 'client', notes: '' });
+  };
+
+  const closeClientDialog = () => {
+    setShowCreate(false);
+    setEditingClient(null);
     setForm({ name: '', email: '', phone: '', company: '', address: '', tax_id: '', type: 'client', notes: '' });
   };
 
@@ -128,6 +161,7 @@ export default function ClientsPage() {
                 <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Invoiced</th>
                 <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Paid</th>
                 <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Outstanding</th>
+                <th style={{ width: 80, padding: '12px 16px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -164,6 +198,16 @@ export default function ClientsPage() {
                   <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#0F172A' }} className="hidden md:table-cell">{formatCurrency(client.total_invoiced)}</td>
                   <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#059669' }} className="hidden md:table-cell">{formatCurrency(client.total_paid)}</td>
                   <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
+                  <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                      <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                        <Pencil style={{ width: 13, height: 13 }} />
+                      </button>
+                      <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                        <Trash2 style={{ width: 13, height: 13 }} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -178,48 +222,124 @@ export default function ClientsPage() {
             <DialogTitle>{selectedClient.name}</DialogTitle>
           </DialogHeader>
           <DialogContent>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
-                <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Invoiced</p>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_invoiced)}</p>
+            {(() => {
+              // Match invoices by client name or email
+              const clientInvoices = allInvoices
+                .filter((inv) =>
+                  inv.client_name === selectedClient.name ||
+                  (selectedClient.email && inv.client_email === selectedClient.email)
+                )
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 10);
+
+              const statusColors: Record<string, { bg: string; color: string }> = {
+                draft: { bg: '#F1F5F9', color: '#475569' },
+                sent: { bg: '#EFF6FF', color: '#2563EB' },
+                paid: { bg: '#ECFDF5', color: '#059669' },
+                overdue: { bg: '#FEF2F2', color: '#DC2626' },
+              };
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Financial summary */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
+                    <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Invoiced</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_invoiced)}</p>
+                    </div>
+                    <div style={{ background: '#F0FDF4', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Paid</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: '#059669', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_paid)}</p>
+                    </div>
+                    <div style={{ background: selectedClient.outstanding_balance > 0 ? '#FEF2F2' : '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Outstanding</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: selectedClient.outstanding_balance > 0 ? '#EF4444' : '#94A3B8', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.outstanding_balance)}</p>
+                    </div>
+                  </div>
+
+                  {/* Contact details */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {selectedClient.email && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Mail style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.email}</span>
+                      </div>
+                    )}
+                    {selectedClient.phone && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Phone style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.phone}</span>
+                      </div>
+                    )}
+                    {selectedClient.company && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <Building2 style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.company}</span>
+                      </div>
+                    )}
+                    {selectedClient.address && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <MapPin style={{ width: 14, height: 14, color: '#94A3B8' }} />
+                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.address}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Recent Invoices */}
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: 10 }}>
+                      Recent Invoices {clientInvoices.length > 0 && <span style={{ color: '#94A3B8', fontWeight: 400 }}>({clientInvoices.length})</span>}
+                    </p>
+                    {clientInvoices.length === 0 ? (
+                      <div style={{ padding: '20px 0', textAlign: 'center' }}>
+                        <FileText style={{ width: 28, height: 28, color: '#CBD5E1', margin: '0 auto 8px' }} />
+                        <p style={{ fontSize: 13, color: '#94A3B8' }}>No invoices found for this client</p>
+                      </div>
+                    ) : (
+                      <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' }}>
+                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Invoice</th>
+                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }} className="hidden sm:table-cell">Date</th>
+                              <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Amount</th>
+                              <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {clientInvoices.map((inv, i) => {
+                              const sc = statusColors[inv.status] || statusColors.draft;
+                              const invTotal = typeof inv.total === 'string' ? parseFloat(inv.total) : inv.total;
+                              return (
+                                <tr
+                                  key={inv.id}
+                                  style={{
+                                    borderBottom: i < clientInvoices.length - 1 ? '1px solid #F1F5F9' : 'none',
+                                    background: i % 2 === 1 ? '#FAFBFC' : 'transparent',
+                                  }}
+                                >
+                                  <td style={{ padding: '10px 12px', color: '#0F172A', fontFamily: 'monospace', fontSize: 11 }}>{inv.invoice_number}</td>
+                                  <td style={{ padding: '10px 12px', color: '#64748B' }} className="hidden sm:table-cell">{formatDate(inv.created_at)}</td>
+                                  <td style={{ padding: '10px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0F172A' }}>{formatCurrency(invTotal)}</td>
+                                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                                    <span style={{
+                                      fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, textTransform: 'capitalize',
+                                      background: sc.bg, color: sc.color,
+                                    }}>
+                                      {inv.status}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div style={{ background: '#F0FDF4', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Paid</p>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: '#059669', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_paid)}</p>
-                </div>
-                <div style={{ background: selectedClient.outstanding_balance > 0 ? '#FEF2F2' : '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Outstanding</p>
-                  <p style={{ fontSize: 18, fontWeight: 700, color: selectedClient.outstanding_balance > 0 ? '#EF4444' : '#94A3B8', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.outstanding_balance)}</p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {selectedClient.email && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Mail style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.email}</span>
-                  </div>
-                )}
-                {selectedClient.phone && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Phone style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.phone}</span>
-                  </div>
-                )}
-                {selectedClient.company && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Building2 style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.company}</span>
-                  </div>
-                )}
-                {selectedClient.address && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <MapPin style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                    <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.address}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+              );
+            })()}
           </DialogContent>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSelectedClient(null)} className="w-full cursor-pointer">Close</Button>
@@ -227,10 +347,26 @@ export default function ClientsPage() {
         </Dialog>
       )}
 
-      {/* Create Dialog */}
-      <Dialog open={showCreate} onClose={resetForm}>
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)}>
         <DialogHeader>
-          <DialogTitle>New Contact</DialogTitle>
+          <DialogTitle>Delete Contact</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>Are you sure you want to delete this contact? This action cannot be undone.</p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setDeletingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }} disabled={deleteMutation.isPending} className="flex-1 w-full cursor-pointer" style={{ background: '#EF4444', borderColor: '#EF4444' }}>
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Create / Edit Dialog */}
+      <Dialog open={showCreate} onClose={closeClientDialog}>
+        <DialogHeader>
+          <DialogTitle>{editingClient ? "Edit Contact" : "New Contact"}</DialogTitle>
         </DialogHeader>
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -273,8 +409,22 @@ export default function ClientsPage() {
           </div>
         </DialogContent>
         <DialogFooter className="flex gap-3">
-          <Button variant="outline" onClick={resetForm} className="flex-1 w-full cursor-pointer">Cancel</Button>
-          <Button onClick={() => createMutation.mutate(form)} disabled={!form.name} className="flex-1 w-full cursor-pointer">Create Contact</Button>
+          <Button variant="outline" onClick={closeClientDialog} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => {
+              if (editingClient) {
+                updateMutation.mutate({ id: editingClient.id, ...form });
+              } else {
+                createMutation.mutate(form);
+              }
+            }}
+            disabled={(editingClient ? updateMutation.isPending : createMutation.isPending) || !form.name}
+            className="flex-1 w-full cursor-pointer"
+          >
+            {editingClient
+              ? (updateMutation.isPending ? "Saving..." : "Update Contact")
+              : (createMutation.isPending ? "Creating..." : "Create Contact")}
+          </Button>
         </DialogFooter>
       </Dialog>
     </div>

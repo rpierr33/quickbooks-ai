@@ -586,6 +586,8 @@ export function seedMockStore() {
     budgets,
     scanned_receipts,
     journal_entries,
+    clients: [],
+    inventory: [],
     users,
     companies,
   };

@@ -20,6 +20,8 @@ import {
   TrendingDown,
   TrendingUp,
   Wallet,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import type { Budget, Transaction, Category } from "@/types";
@@ -66,6 +68,8 @@ export default function BudgetsPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
   const [showSetBudgetDialog, setShowSetBudgetDialog] = useState(false);
+  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null);
+  const [deletingBudgetId, setDeletingBudgetId] = useState<string | null>(null);
   const [form, setForm] = useState({
     category_id: "",
     category_name: "",
@@ -109,6 +113,36 @@ export default function BudgetsPage() {
     },
     onError: () => {
       toast("Failed to save budget", "error");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; category_id: string; category_name: string; monthly_amount: string; period: string }) =>
+      fetch(`/api/budgets/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, monthly_amount: parseFloat(data.monthly_amount) }),
+      }).then((r) => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      closeBudgetDialog();
+      toast("Budget updated successfully");
+    },
+    onError: () => {
+      toast("Failed to update budget", "error");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/budgets/${id}`, { method: "DELETE" }).then((r) => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      setDeletingBudgetId(null);
+      toast("Budget deleted");
+    },
+    onError: () => {
+      toast("Failed to delete budget", "error");
     },
   });
 
@@ -179,13 +213,32 @@ export default function BudgetsPage() {
 
   const isLoading = budgetsLoading || txLoading;
 
+  const closeBudgetDialog = () => {
+    setShowSetBudgetDialog(false);
+    setEditingBudgetId(null);
+    setForm({ category_id: "", category_name: "", monthly_amount: "" });
+  };
+
+  const openEditBudget = (row: { id: string; category_id: string; category_name: string; monthly_amount: number; period?: string }) => {
+    setEditingBudgetId(row.id);
+    setForm({
+      category_id: row.category_id,
+      category_name: row.category_name,
+      monthly_amount: String(row.monthly_amount),
+    });
+    setShowSetBudgetDialog(true);
+  };
+
   const handleSubmit = () => {
     if (!form.category_id || !form.monthly_amount) return;
-    createMutation.mutate({
-      ...form,
-      period: selectedPeriod,
-    });
+    if (editingBudgetId) {
+      updateMutation.mutate({ id: editingBudgetId, ...form, period: selectedPeriod });
+    } else {
+      createMutation.mutate({ ...form, period: selectedPeriod });
+    }
   };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div
@@ -508,8 +561,8 @@ export default function BudgetsPage() {
               const progressBg = getProgressBg(row.pctUsed);
               const isOver = row.variance < 0;
               return (
-                <div key={row.id} style={{ ...card, padding: "18px 20px" }}>
-                  {/* Top: Category name + percentage */}
+                <div key={row.id} className="group" style={{ ...card, padding: "18px 20px" }}>
+                  {/* Top: Category name + percentage + actions */}
                   <div
                     style={{
                       display: "flex",
@@ -527,16 +580,34 @@ export default function BudgetsPage() {
                     >
                       {row.category_name}
                     </span>
-                    <span
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        fontVariantNumeric: "tabular-nums",
-                        color: progressColor,
-                      }}
-                    >
-                      {row.pctUsed.toFixed(1)}%
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          fontVariantNumeric: "tabular-nums",
+                          color: progressColor,
+                        }}
+                      >
+                        {row.pctUsed.toFixed(1)}%
+                      </span>
+                      <button
+                        onClick={() => openEditBudget(row)}
+                        className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "#F1F5F9", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        title="Edit budget"
+                      >
+                        <Pencil style={{ width: 13, height: 13 }} />
+                      </button>
+                      <button
+                        onClick={() => setDeletingBudgetId(row.id)}
+                        className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        title="Delete budget"
+                      >
+                        <Trash2 style={{ width: 13, height: 13 }} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Progress bar */}
@@ -636,18 +707,38 @@ export default function BudgetsPage() {
         )}
       </div>
 
-      {/* Set Budget Dialog */}
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deletingBudgetId} onClose={() => setDeletingBudgetId(null)}>
+        <DialogHeader>
+          <DialogTitle>Delete Budget</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: "#475569" }}>
+            Are you sure you want to delete this budget? This cannot be undone.
+          </p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setDeletingBudgetId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => { if (deletingBudgetId) deleteMutation.mutate(deletingBudgetId); }}
+            disabled={deleteMutation.isPending}
+            className="flex-1 w-full cursor-pointer"
+            style={{ background: "#EF4444", color: "#FFFFFF" }}
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Set / Edit Budget Dialog */}
       <Dialog
         open={showSetBudgetDialog}
-        onClose={() => {
-          setShowSetBudgetDialog(false);
-          setForm({ category_id: "", category_name: "", monthly_amount: "" });
-        }}
+        onClose={closeBudgetDialog}
       >
         <DialogHeader>
-          <DialogTitle>Set Budget</DialogTitle>
+          <DialogTitle>{editingBudgetId ? "Edit Budget" : "Set Budget"}</DialogTitle>
           <p style={{ fontSize: 13, color: "#64748B", marginTop: 4 }}>
-            Set a monthly budget for {formatPeriodLabel(selectedPeriod)}
+            {editingBudgetId ? "Update monthly budget" : `Set a monthly budget for ${formatPeriodLabel(selectedPeriod)}`}
           </p>
         </DialogHeader>
         <DialogContent>
@@ -714,14 +805,7 @@ export default function BudgetsPage() {
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => {
-              setShowSetBudgetDialog(false);
-              setForm({
-                category_id: "",
-                category_name: "",
-                monthly_amount: "",
-              });
-            }}
+            onClick={closeBudgetDialog}
             className="flex-1 w-full cursor-pointer"
           >
             Cancel
@@ -729,13 +813,13 @@ export default function BudgetsPage() {
           <Button
             onClick={handleSubmit}
             disabled={
-              createMutation.isPending ||
+              isSaving ||
               !form.category_id ||
               !form.monthly_amount
             }
             className="flex-1 w-full cursor-pointer"
           >
-            {createMutation.isPending ? "Saving..." : "Save Budget"}
+            {isSaving ? "Saving..." : editingBudgetId ? "Update Budget" : "Save Budget"}
           </Button>
         </DialogFooter>
       </Dialog>

@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const RECURRING_WRITE_FIELDS = [
+  'description',
+  'amount',
+  'type',
+  'frequency',
+  'next_date',
+  'category',
+  'is_active',
+  'notes',
+] as const;
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -29,8 +41,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Recurring transaction not found' }, { status: 404 });
     }
 
-    const updated = { ...result.rows[0], ...body, amount: parseFloat(body.amount ?? result.rows[0].amount) };
-    updateInStore('recurring_transactions', id, body);
+    const allowed = pickAllowed(body, RECURRING_WRITE_FIELDS);
+    const updated = { ...result.rows[0], ...allowed, amount: parseFloat((allowed.amount as string | number | undefined) ?? result.rows[0].amount) };
+    updateInStore('recurring_transactions', id, allowed);
 
     return NextResponse.json(updated);
   } catch (error) {

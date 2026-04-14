@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   XCircle,
   Landmark,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import type { Account } from "@/types";
@@ -59,6 +61,8 @@ export default function AccountsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     type: "asset" as string,
@@ -79,21 +83,61 @@ export default function AccountsPage() {
       }).then(r => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      setShowAddDialog(false);
-      setForm({ name: "", type: "asset", sub_type: "" });
+      closeAccountDialog();
       toast("Account created successfully");
     },
     onError: () => { toast("Failed to create account", "error"); },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; name: string; type: string; sub_type: string }) =>
+      fetch(`/api/accounts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      closeAccountDialog();
+      toast("Account updated");
+    },
+    onError: () => { toast("Failed to update account", "error"); },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/accounts/${id}`, { method: "DELETE" }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      setDeletingId(null);
+      toast("Account deleted");
+    },
+    onError: () => { toast("Failed to delete account", "error"); },
+  });
+
+  function openEdit(account: Account) {
+    setForm({ name: account.name, type: account.type, sub_type: account.sub_type ?? "" });
+    setEditingId(account.id);
+    setShowAddDialog(true);
+  }
+
+  function closeAccountDialog() {
+    setShowAddDialog(false);
+    setEditingId(null);
+    setForm({ name: "", type: "asset", sub_type: "" });
+  }
+
   const handleSubmit = () => {
     if (!form.name.trim()) return;
-    createMutation.mutate({
-      name: form.name.trim(),
-      type: form.type,
-      ...(form.sub_type.trim() ? { sub_type: form.sub_type.trim() } : {}),
-    });
+    const payload = { name: form.name.trim(), type: form.type, sub_type: form.sub_type.trim() };
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, ...payload });
+    } else {
+      createMutation.mutate(payload);
+    }
   };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const totals = useMemo(() => {
     if (!accounts) return { asset: 0, liability: 0, equity: 0 };
@@ -287,15 +331,22 @@ export default function AccountsPage() {
                     </div>
                   </div>
 
-                  <span style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    fontVariantNumeric: 'tabular-nums',
-                    color: account.is_active ? '#0F172A' : '#94A3B8',
-                    flexShrink: 0,
-                  }}>
-                    {formatCurrency(typeof account.balance === 'string' ? parseFloat(account.balance as unknown as string) : account.balance)}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    <span style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      fontVariantNumeric: 'tabular-nums',
+                      color: account.is_active ? '#0F172A' : '#94A3B8',
+                    }}>
+                      {formatCurrency(typeof account.balance === 'string' ? parseFloat(account.balance as unknown as string) : account.balance)}
+                    </span>
+                    <button onClick={() => openEdit(account)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', transition: 'all 0.15s' }}>
+                      <Pencil style={{ width: 13, height: 13 }} />
+                    </button>
+                    <button onClick={() => setDeletingId(account.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', transition: 'all 0.15s' }}>
+                      <Trash2 style={{ width: 13, height: 13 }} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -335,10 +386,10 @@ export default function AccountsPage() {
         </div>
       )}
 
-      {/* Add Account Dialog */}
-      <Dialog open={showAddDialog} onClose={() => setShowAddDialog(false)}>
+      {/* Add / Edit Account Dialog */}
+      <Dialog open={showAddDialog} onClose={closeAccountDialog}>
         <DialogHeader>
-          <DialogTitle>New Account</DialogTitle>
+          <DialogTitle>{editingId ? "Edit Account" : "New Account"}</DialogTitle>
         </DialogHeader>
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -374,15 +425,38 @@ export default function AccountsPage() {
           </div>
         </DialogContent>
         <DialogFooter className="flex gap-3">
-          <Button variant="outline" onClick={() => setShowAddDialog(false)} className="flex-1 w-full cursor-pointer">
+          <Button variant="outline" onClick={closeAccountDialog} className="flex-1 w-full cursor-pointer">
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={createMutation.isPending || !form.name.trim()}
+            disabled={isSaving || !form.name.trim()}
             className="flex-1 w-full cursor-pointer"
           >
-            {createMutation.isPending ? "Creating..." : "Create Account"}
+            {isSaving ? "Saving..." : editingId ? "Update Account" : "Create Account"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)}>
+        <DialogHeader>
+          <DialogTitle>Delete Account</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+            Are you sure you want to delete this account? This cannot be undone.
+          </p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setDeletingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
+            disabled={deleteMutation.isPending}
+            className="flex-1 w-full cursor-pointer"
+            style={{ background: '#EF4444', borderColor: '#EF4444' }}
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </Dialog>

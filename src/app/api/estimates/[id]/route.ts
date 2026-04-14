@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const ESTIMATE_WRITE_FIELDS = [
+  'client_name',
+  'client_email',
+  'items',
+  'notes',
+  'status',
+  'valid_until',
+  'tax_rate',
+  'discount',
+] as const;
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -37,7 +49,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Estimate not found' }, { status: 404 });
     }
 
-    const updates = { ...body, updated_at: new Date().toISOString() };
+    const allowed = pickAllowed(body, ESTIMATE_WRITE_FIELDS);
+    const updates = { ...allowed, updated_at: new Date().toISOString() };
     const updated = { ...result.rows[0], ...updates };
     updateInStore('estimates', id, updates);
 

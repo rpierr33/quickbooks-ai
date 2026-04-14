@@ -216,19 +216,18 @@ export default function PayInvoicePage() {
 
   const returnStatus = searchParams.get("status"); // "success" or "cancelled"
 
-  // Fetch invoice on mount
+  // Fetch invoice on mount — uses public endpoint (no auth required)
   useEffect(() => {
     async function fetchInvoice() {
       try {
-        const res = await fetch("/api/invoices");
-        if (!res.ok) throw new Error("Failed to load invoices");
-        const invoices: Invoice[] = await res.json();
-        const found = invoices.find((inv) => inv.id === invoiceId);
-        if (!found) {
+        const res = await fetch(`/api/public/invoice/${invoiceId}`);
+        if (res.status === 404) {
           setError("Invoice not found");
-        } else {
-          setInvoice(found);
+          return;
         }
+        if (!res.ok) throw new Error("Failed to load invoice");
+        const invoice: Invoice = await res.json();
+        setInvoice(invoice);
       } catch {
         setError("Unable to load invoice. Please try again later.");
       } finally {

@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 /**
  * Third-Party Integrations Framework
  *
@@ -83,13 +85,13 @@ export async function dispatchEvent(type: EventType, data: Record<string, unknow
 async function deliverWebhook(sub: WebhookSubscription, event: WebhookEvent): Promise<void> {
   try {
     const payload = JSON.stringify(event);
-    // In production, compute HMAC signature: crypto.createHmac('sha256', sub.secret).update(payload).digest('hex')
+    const signature = crypto.createHmac('sha256', sub.secret).update(payload).digest('hex');
     await fetch(sub.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Ledgr-Event': event.type,
-        'X-Ledgr-Signature': `sha256=${sub.secret}`, // Simplified — use HMAC in production
+        'X-Ledgr-Signature': `sha256=${signature}`,
       },
       body: payload,
     });

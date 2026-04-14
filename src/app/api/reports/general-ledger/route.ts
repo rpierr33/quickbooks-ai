@@ -1,17 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const { searchParams } = new URL(request.url);
+    const months = parseInt(searchParams.get('months') || '6');
+
     const accountsResult = await query('SELECT * FROM accounts');
     const txResult = await query('SELECT * FROM transactions ORDER BY date ASC');
     const now = new Date();
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+    const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    const filteredTx = txResult.rows.filter(t => new Date(t.date) >= sixMonthsAgo);
+    const filteredTx = txResult.rows.filter(t => new Date(t.date) >= startDate);
 
     const accounts = accountsResult.rows.map(acc => {
       const openingBalance = parseFloat(acc.balance);
@@ -53,7 +56,7 @@ export async function GET() {
     const activeAccounts = accounts.filter(a => a.entries.length > 0);
 
     return NextResponse.json({
-      period_start: sixMonthsAgo.toISOString(),
+      period_start: startDate.toISOString(),
       period_end: now.toISOString(),
       accounts: activeAccounts,
     });

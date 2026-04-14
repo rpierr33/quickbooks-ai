@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
     }
 
     const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
-    const taxAmount = subtotal * ((tax_rate || 0) / 100);
+    const parsedTaxRate = parseFloat(tax_rate) || 0;
+    const taxAmount = subtotal * (parsedTaxRate / 100);
     const total = subtotal + taxAmount;
 
     // Generate estimate number
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       client_email: client_email || null,
       items,
       subtotal: parseFloat(subtotal.toFixed(2)),
-      tax_rate: parseFloat((tax_rate || 0).toFixed(2)),
+      tax_rate: parseFloat(parsedTaxRate.toFixed(2)),
       tax_amount: parseFloat(taxAmount.toFixed(2)),
       total: parseFloat(total.toFixed(2)),
       status: status || 'draft',
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
     addToStore('estimates', newEstimate);
     return NextResponse.json(newEstimate, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create estimate' }, { status: 500 });
+    console.error('estimates.POST failed:', error);
+    return NextResponse.json({ error: 'Failed to create estimate', detail: String(error) }, { status: 500 });
   }
 }

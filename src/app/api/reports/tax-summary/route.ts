@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
@@ -10,10 +10,26 @@ const DEDUCTIBLE_CATEGORIES = [
   'Professional Services',
 ];
 
-export async function GET() {
+function rangeToStartDate(range: string): Date {
+  const now = new Date();
+  switch (range) {
+    case '1m': return new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    case '3m': return new Date(now.getFullYear(), now.getMonth() - 3, 1);
+    case '6m': return new Date(now.getFullYear(), now.getMonth() - 6, 1);
+    case '1y': return new Date(now.getFullYear() - 1, now.getMonth(), 1);
+    case 'all': return new Date(2000, 0, 1);
+    case 'ytd':
+    default: return new Date(now.getFullYear(), 0, 1);
+  }
+}
+
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const { searchParams } = new URL(request.url);
+    const range = searchParams.get('range') || 'ytd';
+
     const txResult = await query('SELECT * FROM transactions ORDER BY date DESC');
     const catResult = await query('SELECT * FROM categories');
     const categoryMap: Record<string, string> = {};
@@ -22,7 +38,7 @@ export async function GET() {
     }
 
     const now = new Date();
-    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const yearStart = rangeToStartDate(range);
 
     const ytdTransactions = txResult.rows.filter(t => new Date(t.date) >= yearStart);
 

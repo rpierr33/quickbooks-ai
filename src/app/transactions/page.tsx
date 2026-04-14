@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Plus, ArrowLeftRight, Sparkles, Search, ChevronLeft, ChevronRight, Download, Paperclip, X, Image } from "lucide-react";
+import { Plus, ArrowLeftRight, Sparkles, Search, ChevronLeft, ChevronRight, Download, Paperclip, X, Image, Pencil, Trash2 } from "lucide-react";
 import { exportTransactions } from "@/lib/export";
 import { useToast } from "@/components/ui/toast";
 import type { Transaction } from "@/types";
@@ -26,13 +26,14 @@ export default function TransactionsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState("all");
+  const [dateRangeFilter, setDateRangeFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [step, setStep] = useState(1);
   const [page, setPage] = useState(1);
   const [sortCol, setSortCol] = useState<'date' | 'description' | 'amount' | 'type'>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [receipt, setReceipt] = useState<{ name: string; size: string } | null>(null);
+  const [receipt, setReceipt] = useState<{ name: string; size: string; file?: File } | null>(null);
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
@@ -40,6 +41,8 @@ export default function TransactionsPage() {
     type: "expense" as string,
     notes: "",
   });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions", typeFilter, search],
@@ -51,7 +54,20 @@ export default function TransactionsPage() {
     },
   });
 
-  React.useEffect(() => { setPage(1); }, [typeFilter, search]);
+  React.useEffect(() => { setPage(1); }, [typeFilter, search, dateRangeFilter]);
+
+  // Client-side date range filtering
+  const getDateRangeStart = (range: string): Date | null => {
+    const now = new Date();
+    switch (range) {
+      case "7d": return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case "30d": return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case "3m": return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      case "6m": return new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      case "ytd": return new Date(now.getFullYear(), 0, 1);
+      default: return null; // "all" — no filter
+    }
+  };
 
   const toggleSort = (col: typeof sortCol) => {
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -61,7 +77,11 @@ export default function TransactionsPage() {
 
   const sortedTransactions = useMemo(() => {
     if (!transactions) return [];
-    return [...transactions].sort((a, b) => {
+    const rangeStart = getDateRangeStart(dateRangeFilter);
+    const filtered = rangeStart
+      ? transactions.filter((t) => new Date(t.date) >= rangeStart)
+      : transactions;
+    return [...filtered].sort((a, b) => {
       let cmp = 0;
       switch (sortCol) {
         case 'date': cmp = a.date.localeCompare(b.date); break;
@@ -85,17 +105,36 @@ export default function TransactionsPage() {
   }, [sortedTransactions, page]);
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof form) =>
-      fetch("/api/transactions", {
+    mutationFn: async (data: typeof form) => {
+      let receiptNote = "";
+      if (receipt?.file) {
+        const file = receipt.file;
+        // Only attach images (skip PDF for now — base64 PDFs are large)
+        if (file.type.startsWith("image/")) {
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve((reader.result as string).split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          receiptNote = `Receipt: ${file.name} (${(file.size / 1024).toFixed(1)} KB) [base64:${base64.substring(0, 40)}...]`;
+        } else {
+          receiptNote = `Receipt attached: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        }
+      }
+      const notes = [data.notes, receiptNote].filter(Boolean).join("\n") || null;
+      return fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }).then(r => r.json()),
+        body: JSON.stringify({ ...data, notes }),
+      }).then(r => r.json());
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       setShowAddDialog(false);
       setStep(1);
+      setReceipt(null);
       setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "" });
       toast("Transaction created successfully");
     },
@@ -104,7 +143,61 @@ export default function TransactionsPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; date: string; description: string; amount: string; type: string; notes: string }) =>
+      fetch(`/api/transactions/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, amount: parseFloat(data.amount) }),
+      }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      closeEditDialog();
+      toast("Transaction updated");
+    },
+    onError: () => { toast("Failed to update transaction", "error"); },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/transactions/${id}`, { method: "DELETE" }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      setDeletingId(null);
+      toast("Transaction deleted");
+    },
+    onError: () => { toast("Failed to delete transaction", "error"); },
+  });
+
+  function openEdit(tx: Transaction) {
+    setForm({
+      date: tx.date?.split("T")[0] ?? new Date().toISOString().split("T")[0],
+      description: tx.description,
+      amount: String(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount),
+      type: tx.type,
+      notes: tx.notes ?? "",
+    });
+    setEditingId(tx.id);
+    setStep(1);
+    setShowAddDialog(true);
+  }
+
+  function closeEditDialog() {
+    setShowAddDialog(false);
+    setEditingId(null);
+    setStep(1);
+    setReceipt(null);
+    setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "" });
+  }
+
   const handleSubmit = () => {
+    if (editingId) {
+      if (!form.description || !form.amount) return;
+      updateMutation.mutate({ id: editingId, ...form });
+      return;
+    }
     if (step === 1) {
       if (!form.description || !form.amount) return;
       setStep(2);
@@ -112,6 +205,8 @@ export default function TransactionsPage() {
     }
     createMutation.mutate(form);
   };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
@@ -121,11 +216,19 @@ export default function TransactionsPage() {
           <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8', pointerEvents: 'none' }} />
           <Input placeholder="Search transactions..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 flex-wrap">
           <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-28">
             <option value="all">All types</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
+          </Select>
+          <Select value={dateRangeFilter} onChange={(e) => setDateRangeFilter(e.target.value)} className="w-36">
+            <option value="all">All time</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="3m">Last 3 months</option>
+            <option value="6m">Last 6 months</option>
+            <option value="ytd">This year</option>
           </Select>
           {transactions && transactions.length > 0 && (
             <button
@@ -185,16 +288,24 @@ export default function TransactionsPage() {
                       {tx.category_name && <span> &middot; {tx.category_name}</span>}
                     </p>
                   </div>
-                  <span style={{ fontSize: 14, fontVariantNumeric: 'tabular-nums', fontWeight: 600, flexShrink: 0, color: tx.type === 'income' ? '#059669' : '#EF4444' }}>
-                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    <span style={{ fontSize: 14, fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: tx.type === 'income' ? '#059669' : '#EF4444' }}>
+                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
+                    </span>
+                    <button onClick={() => openEdit(tx)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                      <Pencil style={{ width: 13, height: 13 }} />
+                    </button>
+                    <button onClick={() => setDeletingId(tx.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                      <Trash2 style={{ width: 13, height: 13 }} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
 
             {/* Desktop table */}
             <div className="hidden md:block" style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 640 }}>
+              <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 720 }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #E2E8F0' }}>
                     {([
@@ -203,6 +314,7 @@ export default function TransactionsPage() {
                       { key: null, label: 'Category', align: 'left', w: 160 },
                       { key: 'amount' as const, label: 'Amount', align: 'right', w: 140 },
                       { key: 'type' as const, label: 'Type', align: 'center', w: 100 },
+                      { key: null, label: '', align: 'center', w: 88 },
                     ] as const).map((col, ci) => (
                       <th
                         key={ci}
@@ -257,6 +369,16 @@ export default function TransactionsPage() {
                         }}>
                           {tx.type}
                         </span>
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          <button onClick={() => openEdit(tx)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', transition: 'all 0.15s' }}>
+                            <Pencil style={{ width: 13, height: 13 }} />
+                          </button>
+                          <button onClick={() => setDeletingId(tx.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', transition: 'all 0.15s' }}>
+                            <Trash2 style={{ width: 13, height: 13 }} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -319,17 +441,19 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      {/* Add Transaction Dialog */}
-      <Dialog open={showAddDialog} onClose={() => { setShowAddDialog(false); setStep(1); }}>
+      {/* Add / Edit Transaction Dialog */}
+      <Dialog open={showAddDialog} onClose={closeEditDialog}>
         <DialogHeader>
-          <DialogTitle>{step === 1 ? "New Transaction" : "Additional Details"}</DialogTitle>
-          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 1 ? '#7C3AED' : '#E2E8F0' }} />
-            <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 2 ? '#7C3AED' : '#E2E8F0' }} />
-          </div>
+          <DialogTitle>{editingId ? "Edit Transaction" : step === 1 ? "New Transaction" : "Additional Details"}</DialogTitle>
+          {!editingId && (
+            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+              <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 1 ? '#7C3AED' : '#E2E8F0' }} />
+              <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 2 ? '#7C3AED' : '#E2E8F0' }} />
+            </div>
+          )}
         </DialogHeader>
         <DialogContent>
-          {step === 1 ? (
+          {(step === 1 || editingId) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Description</label>
@@ -349,6 +473,18 @@ export default function TransactionsPage() {
                   </Select>
                 </div>
               </div>
+              {editingId && (
+                <>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Date</label>
+                    <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
+                    <Input placeholder="Add any notes..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -388,7 +524,7 @@ export default function TransactionsPage() {
                       e.preventDefault();
                       e.currentTarget.style.borderColor = '#E2E8F0';
                       const file = e.dataTransfer.files[0];
-                      if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB` });
+                      if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB`, file });
                     }}
                   >
                     <Paperclip style={{ width: 20, height: 20, color: '#94A3B8', marginBottom: 6 }} />
@@ -400,7 +536,7 @@ export default function TransactionsPage() {
                       style={{ display: 'none' }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB` });
+                        if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB`, file });
                       }}
                     />
                   </label>
@@ -414,11 +550,37 @@ export default function TransactionsPage() {
           )}
         </DialogContent>
         <DialogFooter className="flex gap-3">
-          {step === 2 && (
+          {step === 2 && !editingId && (
             <Button variant="outline" onClick={() => setStep(1)} className="flex-1 w-full cursor-pointer">Back</Button>
           )}
-          <Button onClick={handleSubmit} disabled={createMutation.isPending} className="flex-1 w-full cursor-pointer">
-            {step === 1 ? "Next" : createMutation.isPending ? "Saving..." : "Save Transaction"}
+          <Button onClick={handleSubmit} disabled={isSaving} className="flex-1 w-full cursor-pointer">
+            {editingId
+              ? (isSaving ? "Saving..." : "Update Transaction")
+              : step === 1 ? "Next"
+              : (isSaving ? "Saving..." : "Save Transaction")}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Delete Confirm Dialog */}
+      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)}>
+        <DialogHeader>
+          <DialogTitle>Delete Transaction</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+            Are you sure you want to delete this transaction? This action cannot be undone.
+          </p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setDeletingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
+            disabled={deleteMutation.isPending}
+            className="flex-1 w-full cursor-pointer"
+            style={{ background: '#EF4444', borderColor: '#EF4444' }}
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </Dialog>

@@ -13,6 +13,8 @@ const INVOICE_WRITE_FIELDS = [
   'due_date',
   'notes',
   'tax_rate',
+  'items',
+  'discount',
 ] as const;
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -68,6 +70,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if ('tax_rate' in allowed) {
       patch.tax_rate = getNumber(body, 'tax_rate', { min: 0, max: 100 });
     }
+    if ('items' in allowed) {
+      // items is a JSON array — accept as-is after basic type check
+      const rawItems = body.items;
+      if (!Array.isArray(rawItems)) throw new ValidationError('items must be an array');
+      patch.items = rawItems;
+    }
+    if ('discount' in allowed) {
+      patch.discount = getNumber(body, 'discount', { min: 0 });
+    }
 
     const result = await query('SELECT * FROM invoices WHERE id = $1', [id]);
     if (result.rows.length === 0) {
@@ -78,6 +89,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (patch.status === 'paid' && !result.rows[0].paid_date) {
       updates.paid_date = new Date().toISOString().split('T')[0];
     }
+
+    // Recalculate totals when items or tax_rate change
+    if ('items' in patch || 'tax_rate' in patch || 'discount' in patch) {
+      const items = (patch.items as Array<{ quantity: number; rate: number }> | undefined)
+        ?? (typeof result.rows[0].items === 'string' ? JSON.parse(result.rows[0].items) : result.rows[0].items ?? []);
+      const taxRate = ('tax_rate' in patch ? (patch.tax_rate as number) : parseFloat(String(result.rows[0].tax_rate))) || 0;
+      const discount = ('discount' in patch ? (patch.discount as number) : parseFloat(String(result.rows[0].discount ?? 0))) || 0;
+      const subtotal = (items as Array<{ quantity: number; rate: number; amount?: number }>).reduce((s, it) => {
+        const amt = it.amount ?? it.quantity * it.rate;
+        return s + (typeof amt === 'number' ? amt : parseFloat(String(amt)) || 0);
+      }, 0);
+      const discounted = subtotal - discount;
+      const taxAmount = discounted * (taxRate / 100);
+      updates.subtotal = subtotal;
+      updates.tax_amount = taxAmount;
+      updates.total = discounted + taxAmount;
+      updates.items = typeof items === 'string' ? items : JSON.stringify(items);
+    }
+
     const updated = { ...result.rows[0], ...updates };
     updateInStore('invoices', id, updates);
 

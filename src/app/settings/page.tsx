@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Building2, CreditCard, Shield, Bell, Database, Receipt, Users, Plus, Trash2, Mail } from "lucide-react";
+import { Building2, CreditCard, Shield, Bell, Database, Receipt, Users, Trash2, Mail } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { exportTransactions, exportInvoices } from "@/lib/export";
 
 const card: React.CSSProperties = {
   background: '#FFFFFF',
@@ -51,11 +52,34 @@ interface TeamMember {
   role: string;
 }
 
+// Fiscal month names to API values
+const FISCAL_MONTHS = [
+  { label: 'January', value: 'january' },
+  { label: 'April', value: 'april' },
+  { label: 'July', value: 'july' },
+  { label: 'October', value: 'october' },
+];
+
+const TAX_SETTINGS_KEY = 'ledgr_tax_settings';
+
 export default function SettingsPage() {
   const { toast } = useToast();
+
+  // Company info state
+  const [companyName, setCompanyName] = useState('');
+  const [email, setEmail] = useState('');
+  const [currency, setCurrency] = useState('USD');
+  const [fiscalYearStart, setFiscalYearStart] = useState('january');
+  const [savingCompany, setSavingCompany] = useState(false);
+  const [loadingCompany, setLoadingCompany] = useState(true);
+
+  // Tax settings state
   const [taxEnabled, setTaxEnabled] = useState(true);
-  const [defaultTaxRate, setDefaultTaxRate] = useState("8.875");
-  const [taxName, setTaxName] = useState("Sales Tax");
+  const [defaultTaxRate, setDefaultTaxRate] = useState('8.875');
+  const [taxName, setTaxName] = useState('Sales Tax');
+  const [savingTax, setSavingTax] = useState(false);
+
+  // Team state
   const [team, setTeam] = useState<TeamMember[]>([
     { name: 'John Doe', email: 'john@mybusiness.com', role: 'admin' },
     { name: 'Sarah Chen', email: 'sarah@mybusiness.com', role: 'accountant' },
@@ -64,17 +88,115 @@ export default function SettingsPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('viewer');
 
+  // Load company data on mount
+  useEffect(() => {
+    async function loadCompany() {
+      try {
+        const res = await fetch('/api/onboarding');
+        if (res.ok) {
+          const data = await res.json();
+          const c = data.company;
+          if (c) {
+            setCompanyName(c.name || '');
+            setEmail(c.email || '');
+            setFiscalYearStart(c.fiscal_year_start || 'january');
+          }
+        }
+      } catch {
+        // Non-critical — fields stay empty
+      } finally {
+        setLoadingCompany(false);
+      }
+    }
+    loadCompany();
+
+    // Load tax settings from localStorage
+    const stored = localStorage.getItem(TAX_SETTINGS_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (typeof parsed.taxEnabled === 'boolean') setTaxEnabled(parsed.taxEnabled);
+        if (parsed.defaultTaxRate) setDefaultTaxRate(parsed.defaultTaxRate);
+        if (parsed.taxName) setTaxName(parsed.taxName);
+      } catch {
+        // Ignore malformed storage
+      }
+    }
+  }, []);
+
+  const saveCompanySettings = async () => {
+    if (!companyName.trim()) {
+      toast('Company name is required', 'error');
+      return;
+    }
+    setSavingCompany(true);
+    try {
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          email: email.trim() || undefined,
+          fiscalYearStart,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to save');
+      }
+      toast('Company settings saved');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to save company settings';
+      toast(message, 'error');
+    } finally {
+      setSavingCompany(false);
+    }
+  };
+
+  const saveTaxSettings = () => {
+    setSavingTax(true);
+    try {
+      localStorage.setItem(TAX_SETTINGS_KEY, JSON.stringify({ taxEnabled, defaultTaxRate, taxName }));
+      toast('Tax settings saved');
+    } catch {
+      toast('Failed to save tax settings', 'error');
+    } finally {
+      setSavingTax(false);
+    }
+  };
+
   const addTeamMember = () => {
     if (!inviteEmail.trim()) return;
     setTeam([...team, { name: inviteEmail.split('@')[0], email: inviteEmail, role: inviteRole }]);
     setInviteEmail('');
     setInviteRole('viewer');
-    toast("Teammate added");
+    toast('Teammate added');
   };
 
   const removeTeamMember = (idx: number) => {
     if (team[idx].role === 'admin' && team.filter(m => m.role === 'admin').length <= 1) return;
     setTeam(team.filter((_, i) => i !== idx));
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      // Fetch both transactions and invoices for export
+      const [txRes, invRes] = await Promise.all([
+        fetch('/api/transactions'),
+        fetch('/api/invoices'),
+      ]);
+      if (txRes.ok) {
+        const transactions = await txRes.json();
+        exportTransactions(transactions);
+      }
+      if (invRes.ok) {
+        const invoices = await invRes.json();
+        exportInvoices(invoices);
+      }
+      toast('Export complete');
+    } catch {
+      toast('Export failed', 'error');
+    }
   };
 
   const roleColors: Record<string, { bg: string; color: string }> = {
@@ -90,37 +212,49 @@ export default function SettingsPage() {
         <div style={card}>
           {sectionHeader(<Building2 style={{ width: 18, height: 18, color: '#7C3AED' }} />, '#EDE9FE', 'Company Information', 'Basic details about your business')}
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Company Name</label>
-              <Input defaultValue="My Business" />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
-              <Input type="email" defaultValue="admin@mybusiness.com" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
-                <Select defaultValue="USD">
-                  <option value="USD">USD — US Dollar</option>
-                  <option value="EUR">EUR — Euro</option>
-                  <option value="GBP">GBP — British Pound</option>
-                  <option value="CAD">CAD — Canadian Dollar</option>
-                </Select>
-              </div>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Fiscal Year Start</label>
-                <Select defaultValue="jan">
-                  <option value="jan">January</option>
-                  <option value="apr">April</option>
-                  <option value="jul">July</option>
-                  <option value="oct">October</option>
-                </Select>
-              </div>
-            </div>
-            <div style={{ paddingTop: 4 }}>
-              <Button onClick={() => toast("Company settings saved")} className="cursor-pointer" style={{ padding: '0 20px' }}>Save Changes</Button>
-            </div>
+            {loadingCompany ? (
+              <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 13 }}>Loading...</div>
+            ) : (
+              <>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Company Name</label>
+                  <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="My Business" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
+                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@mybusiness.com" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
+                    <Select value={currency} onChange={e => setCurrency(e.target.value)}>
+                      <option value="USD">USD — US Dollar</option>
+                      <option value="EUR">EUR — Euro</option>
+                      <option value="GBP">GBP — British Pound</option>
+                      <option value="CAD">CAD — Canadian Dollar</option>
+                    </Select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Fiscal Year Start</label>
+                    <Select value={fiscalYearStart} onChange={e => setFiscalYearStart(e.target.value)}>
+                      {FISCAL_MONTHS.map(m => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
+                <div style={{ paddingTop: 4 }}>
+                  <Button
+                    onClick={saveCompanySettings}
+                    disabled={savingCompany}
+                    className="cursor-pointer"
+                    style={{ padding: '0 20px' }}
+                  >
+                    {savingCompany ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -167,7 +301,14 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div style={{ paddingTop: 4 }}>
-                  <Button onClick={() => toast("Tax settings saved")} className="cursor-pointer" style={{ padding: '0 20px' }}>Save Tax Settings</Button>
+                  <Button
+                    onClick={saveTaxSettings}
+                    disabled={savingTax}
+                    className="cursor-pointer"
+                    style={{ padding: '0 20px' }}
+                  >
+                    {savingTax ? 'Saving...' : 'Save Tax Settings'}
+                  </Button>
                 </div>
               </>
             )}
@@ -269,8 +410,18 @@ export default function SettingsPage() {
         {/* Data & Export */}
         <div style={card}>
           {sectionHeader(<Database style={{ width: 18, height: 18, color: '#059669' }} />, '#ECFDF5', 'Data & Export', 'Export your data or manage backups')}
-          {settingRow('Export All Data', 'Download all transactions, invoices, and reports as CSV',
-            <Button variant="outline" size="sm" className="cursor-pointer shrink-0">Export CSV</Button>, false
+          {settingRow(
+            'Export All Data',
+            'Download all transactions and invoices as CSV',
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer shrink-0"
+              onClick={handleExportCSV}
+            >
+              Export CSV
+            </Button>,
+            false
           )}
         </div>
 
