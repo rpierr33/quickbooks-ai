@@ -37,8 +37,49 @@ export default function OnboardingPage() {
   const [industry, setIndustry] = useState('');
   const [fiscalYear, setFiscalYear] = useState('january');
   const [coaTemplate, setCoaTemplate] = useState('standard');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const next = () => setStep(s => Math.min(s + 1, 5));
+  async function persistOnboarding(): Promise<boolean> {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyName: company.name,
+          email: company.email || undefined,
+          phone: company.phone || undefined,
+          address: company.address || undefined,
+          taxId: company.taxId || undefined,
+          industry: industry || undefined,
+          fiscalYearStart: fiscalYear,
+          coaTemplate,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data?.error || 'Could not save — try again.');
+        return false;
+      }
+      return true;
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Network error');
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function next() {
+    // On step 4 ("Finish Setup") we save before transitioning to Done.
+    if (step === 4) {
+      const ok = await persistOnboarding();
+      if (!ok) return;
+    }
+    setStep(s => Math.min(s + 1, 5));
+  }
   const prev = () => setStep(s => Math.max(s - 1, 1));
 
   return (
@@ -246,17 +287,39 @@ export default function OnboardingPage() {
 
         {/* Navigation */}
         {step < 5 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28 }}>
-            <Button variant="outline" onClick={prev} disabled={step === 1} className="cursor-pointer">
-              Back
-            </Button>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {step === 4 && (
-                <Button variant="outline" onClick={next} className="cursor-pointer">Skip</Button>
-              )}
-              <Button onClick={next} disabled={step === 1 && !company.name} className="cursor-pointer">
-                {step === 4 ? 'Finish Setup' : 'Continue'} <ArrowRight style={{ width: 14, height: 14, marginLeft: 6 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 28 }}>
+            {saveError && (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: 10,
+                  background: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  color: '#DC2626',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                {saveError}
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button variant="outline" onClick={prev} disabled={step === 1 || saving} className="cursor-pointer">
+                Back
               </Button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {step === 4 && (
+                  <Button variant="outline" onClick={next} disabled={saving} className="cursor-pointer">Skip</Button>
+                )}
+                <Button
+                  onClick={next}
+                  disabled={(step === 1 && !company.name) || saving}
+                  className="cursor-pointer"
+                >
+                  {saving ? 'Saving…' : step === 4 ? 'Finish Setup' : 'Continue'}{' '}
+                  <ArrowRight style={{ width: 14, height: 14, marginLeft: 6 }} />
+                </Button>
+              </div>
             </div>
           </div>
         )}

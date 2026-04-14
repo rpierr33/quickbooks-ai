@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Sparkles, Lock, Mail, ArrowRight, Zap } from "lucide-react";
 
 function LoginForm() {
@@ -402,6 +403,14 @@ function LoginForm() {
               )}
             </button>
           </form>
+
+          {/* Signup link */}
+          <p style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginTop: 18 }}>
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" style={{ color: "#7C3AED", fontWeight: 600 }}>
+              Sign up
+            </Link>
+          </p>
         </div>
 
         {/* Footer */}

@@ -26,6 +26,8 @@ interface MockStore {
   budgets: Record<string, any>[];
   scanned_receipts: Record<string, any>[];
   journal_entries: Record<string, any>[];
+  users: Record<string, any>[];
+  companies: Record<string, any>[];
 }
 
 let mockStore: MockStore | null = null;
@@ -183,6 +185,18 @@ export function updateInStore(table: string, id: string, updates: Record<string,
   if (idx === -1) return null;
   rows[idx] = { ...rows[idx], ...updates };
   return rows[idx];
+}
+
+// Read-only accessor for API routes that filter in memory.
+export function listFromStore(table: string): Record<string, any>[] {
+  if (pool) return [];
+  const store = getMockStore();
+  return (store[table as keyof MockStore] as any[]) ?? [];
+}
+
+export function findInStore(table: string, predicate: (row: any) => boolean): Record<string, any> | null {
+  const rows = listFromStore(table);
+  return rows.find(predicate) ?? null;
 }
 
 export { pool };

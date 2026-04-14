@@ -535,6 +535,44 @@ export function seedMockStore() {
     },
   ];
 
+  // ── Companies (one default demo company) ──────────────────
+  // The seeded demo user is attached to this company. Fresh signups
+  // create their own company row during signup.
+  const companies = [
+    {
+      id: uuid(901),
+      name: 'Ledgr Demo Co.',
+      email: 'demo@ledgr.com',
+      phone: null,
+      address: null,
+      tax_id: null,
+      industry: 'Professional Services',
+      fiscal_year_start: 'january',
+      coa_template: 'standard',
+      onboarded_at: '2025-09-01T00:00:00Z',
+      created_at: '2025-09-01T00:00:00Z',
+      updated_at: '2025-09-01T00:00:00Z',
+    },
+  ];
+
+  // ── Users ─────────────────────────────────────────────────
+  // password_hash format: scrypt:<saltHex>:<hashHex>
+  // The seeded hash below is for the plaintext password "demo".
+  // It's safe to commit because it's a demo account only.
+  const users = [
+    {
+      id: uuid(801),
+      email: 'demo@ledgr.com',
+      name: 'Jane Doe',
+      password_hash:
+        'scrypt:96c3557e6b4a1d80591321af73208ddf:5d1945033f1e4a1057333f907db692f771d391dddd200ea21c528a9bbec37d50',
+      company_id: uuid(901),
+      is_demo: true,
+      created_at: '2025-09-01T00:00:00Z',
+      updated_at: '2025-09-01T00:00:00Z',
+    },
+  ];
+
   return {
     accounts,
     categories,
@@ -548,5 +586,7 @@ export function seedMockStore() {
     budgets,
     scanned_receipts,
     journal_entries,
+    users,
+    companies,
   };
 }

@@ -7,8 +7,8 @@ export default auth((req) => {
   // Public routes — no auth required
   const publicPaths = [
     "/login",
+    "/signup",
     "/billing",
-    "/onboarding",
     "/api/auth",
     "/pay",
   ];
