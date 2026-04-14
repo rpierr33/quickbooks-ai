@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listFromStore, updateInStore, deleteFromStore, addToStore } from '@/lib/db';
+import { listFromStore, updateInStore, deleteFromStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 import {
   asRecord,
@@ -32,7 +32,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('purchase_orders');
+    const rows = await listFromStore('purchase_orders');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Purchase order not found' }, { status: 404 });
@@ -81,7 +81,7 @@ export async function PUT(
 
     patch.updated_at = new Date().toISOString();
 
-    const updated = updateInStore('purchase_orders', id, patch);
+    const updated = await updateInStore('purchase_orders', id, patch);
     const result = updated ?? { ...existing, ...patch };
     return NextResponse.json({
       ...result,
@@ -105,7 +105,7 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('purchase_orders');
+    const rows = await listFromStore('purchase_orders');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Purchase order not found' }, { status: 404 });
@@ -114,7 +114,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only draft purchase orders can be deleted' }, { status: 400 });
     }
 
-    deleteFromStore('purchase_orders', id);
+    await deleteFromStore('purchase_orders', id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('purchase-orders[id].DELETE failed', error);

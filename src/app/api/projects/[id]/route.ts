@@ -19,7 +19,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const projects = listFromStore('projects');
+    const projects = await listFromStore('projects');
     const existing = projects.find(p => p.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -41,7 +41,7 @@ export async function PUT(
     if ('description' in allowed) patch.description = getString(body, 'description', { max: 2000 });
     if ('notes' in allowed) patch.notes = getString(body, 'notes', { max: 2000 });
 
-    const updated = updateInStore('projects', id, { ...patch, updated_at: new Date().toISOString() });
+    const updated = await updateInStore('projects', id, { ...patch, updated_at: new Date().toISOString() });
     return NextResponse.json(updated ?? { ...existing, ...patch });
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -61,7 +61,7 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const deleted = deleteFromStore('projects', id);
+    const deleted = await deleteFromStore('projects', id);
     if (!deleted) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }

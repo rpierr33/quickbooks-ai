@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Check, Building2, BarChart3, Landmark, Upload, ArrowRight, Sparkles } from "lucide-react";
+import { Check, Building2, BarChart3, Landmark, Upload, ArrowRight, Sparkles, FlaskConical } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
@@ -37,6 +37,7 @@ export default function OnboardingPage() {
   const [industry, setIndustry] = useState('');
   const [fiscalYear, setFiscalYear] = useState('january');
   const [coaTemplate, setCoaTemplate] = useState('standard');
+  const [loadSampleData, setLoadSampleData] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -77,6 +78,15 @@ export default function OnboardingPage() {
     if (step === 4) {
       const ok = await persistOnboarding();
       if (!ok) return;
+
+      // If the user opted into sample data, seed it now (best-effort; don't block if it fails)
+      if (loadSampleData) {
+        try {
+          await fetch('/api/onboarding/seed-demo', { method: 'POST' });
+        } catch {
+          // Non-fatal — app still proceeds
+        }
+      }
     }
     setStep(s => Math.min(s + 1, 5));
   }
@@ -221,6 +231,61 @@ export default function OnboardingPage() {
               <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A' }}>Import your data</h2>
               <p style={{ fontSize: 14, color: '#64748B', marginTop: 6 }}>Bring your existing financial data into Ledgr. You can always do this later.</p>
             </div>
+
+            {/* Sample data toggle */}
+            <button
+              type="button"
+              className="cursor-pointer"
+              onClick={() => setLoadSampleData(v => !v)}
+              style={{
+                padding: '16px 20px',
+                borderRadius: 12,
+                border: loadSampleData ? '2px solid #7C3AED' : '2px dashed #CBD5E1',
+                background: loadSampleData ? '#F5F3FF' : '#FAFBFC',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 14,
+                textAlign: 'left',
+                transition: 'all 0.15s',
+                width: '100%',
+              }}
+            >
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: loadSampleData ? '#EDE9FE' : '#F1F5F9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.15s',
+              }}>
+                <FlaskConical style={{ width: 18, height: 18, color: loadSampleData ? '#7C3AED' : '#94A3B8' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: loadSampleData ? '#7C3AED' : '#0F172A' }}>
+                  Load sample transactions to explore Ledgr
+                </p>
+                <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
+                  Creates 3 months of realistic data — invoices, clients, and transactions. Great for trying out reports and AI features.
+                </p>
+              </div>
+              <div style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: loadSampleData ? '#7C3AED' : '#E2E8F0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.15s',
+              }}>
+                {loadSampleData && <Check style={{ width: 13, height: 13, color: '#fff' }} />}
+              </div>
+            </button>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button
                 className="cursor-pointer"

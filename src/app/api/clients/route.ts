@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('clients', newClient);
+    await addToStore('clients', newClient);
     return NextResponse.json(newClient, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

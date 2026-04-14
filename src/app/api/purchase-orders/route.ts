@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
-    let rows = listFromStore('purchase_orders');
+    let rows = await listFromStore('purchase_orders');
 
     if (status && status !== 'all') {
       rows = rows.filter(r => r.status === status);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const tax_amount = parseFloat((subtotal * (tax_rate / 100)).toFixed(2));
     const total = parseFloat((subtotal + tax_amount).toFixed(2));
 
-    const existingPOs = listFromStore('purchase_orders');
+    const existingPOs = await listFromStore('purchase_orders');
     const po_number = nextPoNumber(existingPOs);
 
     const id = crypto.randomUUID();
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('purchase_orders', record);
+    await addToStore('purchase_orders', record);
     return NextResponse.json({ ...record, items: validatedItems }, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
-import { addToStore, listFromStore, updateInStore, deleteFromStore } from '@/lib/db';
+import { addToStore, listFromStore } from '@/lib/db';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
 const PAY_TYPES = ['salary', 'hourly'] as const;
@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
     const resource = searchParams.get('resource') ?? 'employees';
 
     if (resource === 'payroll_runs') {
-      const runs = listFromStore('payroll_runs');
+      const runs = await listFromStore('payroll_runs');
       runs.sort((a, b) => new Date(b.run_date).getTime() - new Date(a.run_date).getTime());
       return NextResponse.json(runs);
     }
 
     // Default: employees
-    const employees = listFromStore('employees');
+    const employees = await listFromStore('employees');
     employees.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
     // Summary stats
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const activeEmployees = employees.filter(e => e.status === 'active');
 
     // Total payroll this month (sum gross from runs this month)
-    const runs = listFromStore('payroll_runs');
+    const runs = await listFromStore('payroll_runs');
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 7);
     const monthlyRuns = runs.filter(r => r.run_date.startsWith(thisMonthStart));
     const totalPayrollThisMonth = monthlyRuns.reduce((sum: number, r: any) => sum + parseFloat(r.total_gross ?? 0), 0);
@@ -104,15 +104,15 @@ export async function POST(request: NextRequest) {
         pay_period_start: periodStart,
         pay_period_end: periodEnd,
         run_date: new Date().toISOString().slice(0, 10),
-        entries,
+        entries: JSON.stringify(entries),
         total_gross,
         total_taxes,
         total_net,
         status: 'completed',
         created_at: new Date().toISOString(),
       };
-      addToStore('payroll_runs', run);
-      return NextResponse.json(run, { status: 201 });
+      await addToStore('payroll_runs', run);
+      return NextResponse.json({ ...run, entries }, { status: 201 });
     }
 
     // Default: create employee
@@ -136,8 +136,9 @@ export async function POST(request: NextRequest) {
       status,
       start_date: start_date ?? new Date().toISOString().slice(0, 10),
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
-    addToStore('employees', employee);
+    await addToStore('employees', employee);
     return NextResponse.json(employee, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

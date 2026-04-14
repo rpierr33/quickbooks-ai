@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-guard';
 import { listFromStore, updateInStore, deleteFromStore } from '@/lib/db';
-import { asRecord, getString, getNumber, getEnum, getArray, pickAllowed, ValidationError } from '@/lib/validate';
+import { asRecord, getString, getNumber, getEnum, pickAllowed, ValidationError } from '@/lib/validate';
 
 const CONTRACTOR_WRITE_FIELDS = [
   'name', 'email', 'address', 'tax_id_last4', 'tax_id_type',
@@ -19,7 +19,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const contractors = listFromStore('contractors');
+    const contractors = await listFromStore('contractors');
     const existing = contractors.find(c => c.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Contractor not found' }, { status: 404 });
@@ -41,7 +41,7 @@ export async function PUT(
     if ('is_active' in allowed) patch.is_active = Boolean(body.is_active);
     if ('notes' in allowed) patch.notes = getString(body, 'notes', { max: 2000 });
 
-    const updated = updateInStore('contractors', id, { ...patch, updated_at: new Date().toISOString() });
+    const updated = await updateInStore('contractors', id, { ...patch, updated_at: new Date().toISOString() });
     return NextResponse.json(updated ?? { ...existing, ...patch });
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -61,7 +61,7 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const deleted = deleteFromStore('contractors', id);
+    const deleted = await deleteFromStore('contractors', id);
     if (!deleted) {
       return NextResponse.json({ error: 'Contractor not found' }, { status: 404 });
     }

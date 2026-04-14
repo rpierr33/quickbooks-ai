@@ -66,7 +66,7 @@ export async function PUT(
     }
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
-    updateInStore('accounts', id, updates);
+    await updateInStore('accounts', id, updates);
     const updated = { ...result.rows[0], ...updates };
     return NextResponse.json({ ...updated, balance: parseFloat(updated.balance as string) });
   } catch (error) {

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('categories', newCategory);
+    await addToStore('categories', newCategory);
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });

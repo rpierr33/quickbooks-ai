@@ -19,7 +19,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const employees = listFromStore('employees');
+    const employees = await listFromStore('employees');
     const existing = employees.find(e => e.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
@@ -38,7 +38,7 @@ export async function PUT(
     if ('status' in allowed) patch.status = getEnum(body, 'status', EMP_STATUSES);
     if ('start_date' in allowed) patch.start_date = getString(body, 'start_date', { max: 20 });
 
-    const updated = updateInStore('employees', id, { ...patch, updated_at: new Date().toISOString() });
+    const updated = await updateInStore('employees', id, { ...patch, updated_at: new Date().toISOString() });
     return NextResponse.json(updated ?? { ...existing, ...patch });
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -58,7 +58,7 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const deleted = deleteFromStore('employees', id);
+    const deleted = await deleteFromStore('employees', id);
     if (!deleted) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
     }

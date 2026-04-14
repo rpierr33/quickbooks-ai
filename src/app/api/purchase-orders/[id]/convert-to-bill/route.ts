@@ -11,7 +11,7 @@ export async function POST(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('purchase_orders');
+    const rows = await listFromStore('purchase_orders');
     const po = rows.find(r => r.id === id);
     if (!po) {
       return NextResponse.json({ error: 'Purchase order not found' }, { status: 404 });
@@ -39,10 +39,10 @@ export async function POST(
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('transactions', transaction);
+    await addToStore('transactions', transaction);
 
     // Mark PO as closed
-    updateInStore('purchase_orders', id, {
+    await updateInStore('purchase_orders', id, {
       status: 'closed',
       updated_at: new Date().toISOString(),
     });

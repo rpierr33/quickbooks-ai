@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, addToStore, listFromStore } from '@/lib/db';
+import { addToStore, listFromStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('date_from');
     const dateTo = searchParams.get('date_to');
 
-    // Use listFromStore for mock DB (avoids SQL parsing issues with new table)
-    let rows = listFromStore('mileage');
+    let rows = await listFromStore('mileage');
 
     if (purpose && purpose !== 'all') {
       rows = rows.filter(r => r.purpose === purpose);
@@ -28,7 +27,7 @@ export async function GET(request: NextRequest) {
       rows = rows.filter(r => r.date <= dateTo);
     }
 
-    rows = [...rows].sort((a, b) => b.date.localeCompare(a.date));
+    rows = [...rows].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
     // Parse numeric fields
     rows = rows.map(r => ({
@@ -86,7 +85,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('mileage', record);
+    await addToStore('mileage', record);
     return NextResponse.json(record, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

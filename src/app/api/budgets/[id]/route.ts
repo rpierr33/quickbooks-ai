@@ -41,7 +41,7 @@ export async function PUT(
     }
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
-    updateInStore('budgets', id, updates);
+    await updateInStore('budgets', id, updates);
     const updated = {
       ...result.rows[0],
       ...updates,

@@ -182,17 +182,42 @@ function mockQuery(sql: string, params?: any[]): { rows: any[] } {
   return { rows: [] };
 }
 
-// Direct mock store access for API routes that bypass SQL
-export function addToStore(table: string, record: Record<string, any>): void {
-  if (pool) return; // Real DB — records are inserted via SQL
+// Direct mock store access for API routes that bypass SQL.
+// All functions are async — callers must await them.
+
+export async function addToStore(table: string, record: Record<string, any>): Promise<void> {
+  if (pool) {
+    const keys = Object.keys(record).filter(k => record[k] !== undefined);
+    const values = keys.map(k => record[k]);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
+    const columns = keys.join(', ');
+    await pool.query(
+      `INSERT INTO ${table} (${columns}) VALUES (${placeholders}) ON CONFLICT (id) DO NOTHING`,
+      values.map(v => (typeof v === 'object' && v !== null && !Array.isArray(v)) ? JSON.stringify(v) : (Array.isArray(v) ? JSON.stringify(v) : v))
+    );
+    return;
+  }
   const store = getMockStore();
   if (store[table as keyof MockStore]) {
     (store[table as keyof MockStore] as any[]).push(record);
   }
 }
 
-export function updateInStore(table: string, id: string, updates: Record<string, any>): Record<string, any> | null {
-  if (pool) return null;
+export async function updateInStore(table: string, id: string, updates: Record<string, any>): Promise<Record<string, any> | null> {
+  if (pool) {
+    const keys = Object.keys(updates).filter(k => updates[k] !== undefined);
+    if (keys.length === 0) return null;
+    const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(', ');
+    const values = [id, ...keys.map(k => {
+      const v = updates[k];
+      return (typeof v === 'object' && v !== null && !Array.isArray(v)) ? JSON.stringify(v) : (Array.isArray(v) ? JSON.stringify(v) : v);
+    })];
+    const result = await pool.query(
+      `UPDATE ${table} SET ${sets} WHERE id = $1 RETURNING *`,
+      values
+    );
+    return result.rows[0] ?? null;
+  }
   const store = getMockStore();
   const rows = store[table as keyof MockStore] as any[];
   if (!rows) return null;
@@ -203,14 +228,20 @@ export function updateInStore(table: string, id: string, updates: Record<string,
 }
 
 // Read-only accessor for API routes that filter in memory.
-export function listFromStore(table: string): Record<string, any>[] {
-  if (pool) return [];
+export async function listFromStore(table: string): Promise<Record<string, any>[]> {
+  if (pool) {
+    const result = await pool.query(`SELECT * FROM ${table} ORDER BY created_at DESC`);
+    return result.rows;
+  }
   const store = getMockStore();
   return (store[table as keyof MockStore] as any[]) ?? [];
 }
 
-export function deleteFromStore(table: string, id: string): boolean {
-  if (pool) return false;
+export async function deleteFromStore(table: string, id: string): Promise<boolean> {
+  if (pool) {
+    const result = await pool.query(`DELETE FROM ${table} WHERE id = $1 RETURNING id`, [id]);
+    return result.rows.length > 0;
+  }
   const store = getMockStore();
   const rows = store[table as keyof MockStore] as any[];
   if (!rows) return false;
@@ -220,8 +251,8 @@ export function deleteFromStore(table: string, id: string): boolean {
   return true;
 }
 
-export function findInStore(table: string, predicate: (row: any) => boolean): Record<string, any> | null {
-  const rows = listFromStore(table);
+export async function findInStore(table: string, predicate: (row: any) => boolean): Promise<Record<string, any> | null> {
+  const rows = await listFromStore(table);
   return rows.find(predicate) ?? null;
 }
 

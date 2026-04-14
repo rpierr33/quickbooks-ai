@@ -33,7 +33,7 @@ export async function PUT(
     const body = asRecord(await request.json());
     const allowed = pickAllowed(body, MILEAGE_WRITE_FIELDS);
 
-    const rows = listFromStore('mileage');
+    const rows = await listFromStore('mileage');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Mileage record not found' }, { status: 404 });
@@ -64,7 +64,7 @@ export async function PUT(
     patch.deduction_amount = parseFloat((effectiveMiles * rate_per_mile).toFixed(2));
     patch.updated_at = new Date().toISOString();
 
-    const updated = updateInStore('mileage', id, patch);
+    const updated = await updateInStore('mileage', id, patch);
     return NextResponse.json(updated ?? { ...existing, ...patch });
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -84,13 +84,13 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('mileage');
+    const rows = await listFromStore('mileage');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Mileage record not found' }, { status: 404 });
     }
 
-    deleteFromStore('mileage', id);
+    await deleteFromStore('mileage', id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('mileage[id].DELETE failed', error);

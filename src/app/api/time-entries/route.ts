@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('date_from');
     const dateTo = searchParams.get('date_to');
 
-    let rows = listFromStore('time_entries');
+    let rows = await listFromStore('time_entries');
 
     if (client && client !== 'all') {
       rows = rows.filter(r => r.client_name === client);
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       rows = rows.filter(r => r.date <= dateTo);
     }
 
-    rows = [...rows].sort((a, b) => b.date.localeCompare(a.date));
+    rows = [...rows].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
     rows = rows.map(r => ({
       ...r,
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('time_entries', record);
+    await addToStore('time_entries', record);
     return NextResponse.json(record, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

@@ -11,7 +11,7 @@ export async function GET() {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
 
-    const projects = listFromStore('projects');
+    const projects = await listFromStore('projects');
     projects.sort((a, b) => new Date(b.updated_at ?? b.created_at).getTime() - new Date(a.updated_at ?? a.created_at).getTime());
 
     const activeProjects = projects.filter(p => p.status === 'active');
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('projects', project);
+    await addToStore('projects', project);
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

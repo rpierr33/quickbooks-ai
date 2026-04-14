@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('estimates', newEstimate);
+    await addToStore('estimates', newEstimate);
     return NextResponse.json(newEstimate, { status: 201 });
   } catch (error) {
     console.error('estimates.POST failed:', error);

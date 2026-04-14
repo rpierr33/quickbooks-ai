@@ -69,8 +69,7 @@ export async function PUT(
     if ('is_active' in allowed) patch.is_active = body.is_active;
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
-    // updateInStore for the mock store; for real DB a proper UPDATE query would run
-    updateInStore('clients', id, updates);
+    await updateInStore('clients', id, updates);
 
     return NextResponse.json({ id, ...updates });
   } catch (error) {

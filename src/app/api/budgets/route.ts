@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('budgets', newBudget);
+    await addToStore('budgets', newBudget);
     return NextResponse.json(newBudget, { status: 201 });
   } catch (error) {
     console.error('Budgets POST error:', error);

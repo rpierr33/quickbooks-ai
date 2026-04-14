@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const allowed = pickAllowed(body, RECURRING_WRITE_FIELDS);
     const updated = { ...result.rows[0], ...allowed, amount: parseFloat((allowed.amount as string | number | undefined) ?? result.rows[0].amount) };
-    updateInStore('recurring_transactions', id, allowed);
+    await updateInStore('recurring_transactions', id, allowed);
 
     return NextResponse.json(updated);
   } catch (error) {

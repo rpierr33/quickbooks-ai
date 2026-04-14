@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const updated = { ...result.rows[0], ...updates };
-    updateInStore('invoices', id, updates);
+    await updateInStore('invoices', id, updates);
 
     return NextResponse.json(updated);
   } catch (error) {

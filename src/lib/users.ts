@@ -79,7 +79,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
     if (!row) return null;
     return normalizeUserRow(row);
   }
-  const row = findInStore(
+  const row = await findInStore(
     "users",
     (u) => String(u.email).toLowerCase() === normalized
   );
@@ -96,7 +96,7 @@ export async function findUserById(id: string): Promise<UserRow | null> {
     if (!row) return null;
     return normalizeUserRow(row);
   }
-  const row = findInStore("users", (u) => u.id === id);
+  const row = await findInStore("users", (u) => u.id === id);
   return row ? normalizeUserRow(row) : null;
 }
 
@@ -112,7 +112,7 @@ export async function findUserByInviteToken(
     if (!row) return null;
     return normalizeUserRow(row);
   }
-  const row = findInStore("users", (u) => u.invite_token === token);
+  const row = await findInStore("users", (u) => u.invite_token === token);
   return row ? normalizeUserRow(row) : null;
 }
 
@@ -127,9 +127,8 @@ export async function listUsersByCompany(
     );
     return res.rows.map(normalizeUserRow);
   }
-  const rows = listFromStore("users").filter(
-    (u) => u.company_id === companyId
-  );
+  const allRows = await listFromStore("users");
+  const rows = allRows.filter((u) => u.company_id === companyId);
   return rows.map(normalizeUserRow);
 }
 
@@ -147,7 +146,7 @@ export async function updateUserRole(
     const row = res.rows[0];
     return row ? normalizeUserRow(row) : null;
   }
-  const updated = updateInStore("users", userId, { role, updated_at: now });
+  const updated = await updateInStore("users", userId, { role, updated_at: now });
   return updated ? normalizeUserRow(updated) : null;
 }
 
@@ -163,7 +162,7 @@ export async function removeUserFromCompany(
     );
     return res.rows.length > 0;
   }
-  const rows = listFromStore("users") as UserRow[];
+  const rows = (await listFromStore("users")) as UserRow[];
   const idx = rows.findIndex(
     (u) => u.id === userId && u.company_id === companyId
   );
@@ -228,7 +227,7 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
         [company_id, companyName, email, now]
       );
     } else {
-      addToStore("companies", {
+      await addToStore("companies", {
         id: company_id,
         name: companyName,
         email,
@@ -252,7 +251,7 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
       [user_id, email, name, password_hash, company_id, role, status, invite_token, now]
     );
   } else {
-    addToStore("users", {
+    await addToStore("users", {
       id: user_id,
       email,
       name,
@@ -300,7 +299,7 @@ export async function createInvitedUser(opts: {
       [user_id, email, name, opts.companyId, opts.role, opts.inviteToken, now]
     );
   } else {
-    addToStore("users", {
+    await addToStore("users", {
       id: user_id,
       email,
       name,
@@ -344,7 +343,7 @@ export async function acceptInvite(opts: {
     return row ? normalizeUserRow(row) : null;
   }
 
-  const updated = updateInStore("users", opts.userId, {
+  const updated = await updateInStore("users", opts.userId, {
     name: opts.name.trim(),
     password_hash,
     status: "active",
@@ -359,5 +358,5 @@ export async function countUsers(): Promise<number> {
     const res = await query("SELECT COUNT(*)::int AS c FROM users", []);
     return Number(res.rows[0]?.c ?? 0);
   }
-  return listFromStore("users").length;
+  return (await listFromStore("users")).length;
 }

@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const allowed = pickAllowed(body, ESTIMATE_WRITE_FIELDS);
     const updates = { ...allowed, updated_at: new Date().toISOString() };
     const updated = { ...result.rows[0], ...updates };
-    updateInStore('estimates', id, updates);
+    await updateInStore('estimates', id, updates);
 
     return NextResponse.json(updated);
   } catch (error) {

@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
-    updateInStore('transactions', id, updates);
+    await updateInStore('transactions', id, updates);
     const updated = { ...result.rows[0], ...updates };
     return NextResponse.json(updated);
   } catch (error) {

@@ -30,7 +30,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('time_entries');
+    const rows = await listFromStore('time_entries');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Time entry not found' }, { status: 404 });
@@ -59,7 +59,7 @@ export async function PUT(
     patch.total_amount = finalBillable ? parseFloat((totalHrs * finalRate).toFixed(2)) : 0;
     patch.updated_at = new Date().toISOString();
 
-    const updated = updateInStore('time_entries', id, patch);
+    const updated = await updateInStore('time_entries', id, patch);
     return NextResponse.json(updated ?? { ...existing, ...patch });
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -79,13 +79,13 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
     const { id } = await params;
 
-    const rows = listFromStore('time_entries');
+    const rows = await listFromStore('time_entries');
     const existing = rows.find(r => r.id === id);
     if (!existing) {
       return NextResponse.json({ error: 'Time entry not found' }, { status: 404 });
     }
 
-    deleteFromStore('time_entries', id);
+    await deleteFromStore('time_entries', id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('time-entries[id].DELETE failed', error);

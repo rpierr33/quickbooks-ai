@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get('year') ?? String(new Date().getFullYear());
 
-    const contractors = listFromStore('contractors');
+    const contractors = await listFromStore('contractors');
     contractors.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     const threshold = 600;
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('contractors', contractor);
+    await addToStore('contractors', contractor);
     return NextResponse.json(contractor, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

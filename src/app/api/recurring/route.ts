@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('recurring_transactions', newRecurring);
+    await addToStore('recurring_transactions', newRecurring);
     return NextResponse.json(newRecurring, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create recurring transaction' }, { status: 500 });

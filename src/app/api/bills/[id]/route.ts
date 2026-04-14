@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listFromStore, updateInStore, addToStore } from '@/lib/db';
+import { listFromStore, updateInStore, addToStore, deleteFromStore } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 import {
   asRecord,
@@ -37,7 +37,7 @@ export async function GET(
     if (unauthorized) return unauthorized;
 
     const { id } = await params;
-    const rows = listFromStore('bills');
+    const rows = await listFromStore('bills');
     const bill = rows.find(r => r.id === id);
 
     if (!bill) {
@@ -69,7 +69,7 @@ export async function PUT(
     if (unauthorized) return unauthorized;
 
     const { id } = await params;
-    const rows = listFromStore('bills');
+    const rows = await listFromStore('bills');
     const bill = rows.find(r => r.id === id);
 
     if (!bill) {
@@ -140,10 +140,14 @@ export async function PUT(
       patch.tax_amount = parseFloat(taxAmount.toFixed(2));
       patch.total = parseFloat(total.toFixed(2));
       patch.base_amount = parseFloat((total * exchangeRate).toFixed(2));
+      // Serialize items for DB storage
+      if (Array.isArray(patch.items)) {
+        patch.items = JSON.stringify(patch.items);
+      }
     }
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
-    const updated = updateInStore('bills', id, updates);
+    const updated = await updateInStore('bills', id, updates);
 
     return NextResponse.json({
       ...bill,
@@ -170,15 +174,10 @@ export async function DELETE(
     if (unauthorized) return unauthorized;
 
     const { id } = await params;
-    const rows = listFromStore('bills');
-    const idx = rows.findIndex(r => r.id === id);
-
-    if (idx === -1) {
+    const deleted = await deleteFromStore('bills', id);
+    if (!deleted) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
     }
-
-    // Remove from store
-    rows.splice(idx, 1);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('bills[id].DELETE failed', error);
@@ -187,7 +186,7 @@ export async function DELETE(
 }
 
 /**
- * POST /api/bills/[id]/pay — marks a bill paid and creates a corresponding
+ * PATCH /api/bills/[id] — marks a bill paid and creates a corresponding
  * expense transaction in the transaction store.
  */
 export async function PATCH(
@@ -199,7 +198,7 @@ export async function PATCH(
     if (unauthorized) return unauthorized;
 
     const { id } = await params;
-    const rows = listFromStore('bills');
+    const rows = await listFromStore('bills');
     const bill = rows.find(r => r.id === id);
 
     if (!bill) {
@@ -217,7 +216,7 @@ export async function PATCH(
         paid_date: paidDate,
         updated_at: new Date().toISOString(),
       };
-      const updated = updateInStore('bills', id, updates);
+      const updated = await updateInStore('bills', id, updates);
 
       // Create corresponding expense transaction
       const expenseTransaction = {
@@ -235,14 +234,14 @@ export async function PATCH(
         ai_categorized: false,
         ai_confidence: null,
         notes: `Auto-created from bill ${bill.bill_number}`,
-        attachments: [],
+        attachments: '[]',
         currency: bill.currency ?? 'USD',
         exchange_rate: parseFloat(String(bill.exchange_rate ?? 1)),
         base_amount: parseFloat(String(bill.base_amount ?? bill.total)),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-      addToStore('transactions', expenseTransaction);
+      await addToStore('transactions', expenseTransaction);
 
       return NextResponse.json({ ...bill, ...updated, transaction_id: expenseTransaction.id });
     }

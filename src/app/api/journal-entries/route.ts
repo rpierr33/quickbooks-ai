@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('journal_entries', entry);
+    await addToStore('journal_entries', entry);
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {
     console.error('Journal entries POST error:', error);

@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('scanned_receipts', scannedReceipt);
+    await addToStore('scanned_receipts', scannedReceipt);
 
     return NextResponse.json(scannedReceipt, { status: 201 });
   } catch (error) {

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
     };
 
-    addToStore('rules', newRule);
+    await addToStore('rules', newRule);
     return NextResponse.json(newRule, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create rule' }, { status: 500 });

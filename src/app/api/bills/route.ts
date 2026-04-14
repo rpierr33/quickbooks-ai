@@ -18,7 +18,7 @@ export async function GET() {
     const { unauthorized } = await requireAuth();
     if (unauthorized) return unauthorized;
 
-    const rows = listFromStore('bills');
+    const rows = await listFromStore('bills');
     const parsed = rows.map(r => ({
       ...r,
       subtotal: parseFloat(r.subtotal),
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const base_amount = parseFloat((total * exchange_rate).toFixed(2));
 
     // Generate bill number
-    const existing = listFromStore('bills');
+    const existing = await listFromStore('bills');
     const num = (existing.length + 1).toString().padStart(4, '0');
 
     const newBill = {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       bill_number: `BILL-${num}`,
       vendor_name,
       vendor_email: vendor_email ?? null,
-      items,
+      items: JSON.stringify(items),
       subtotal: parseFloat(subtotal.toFixed(2)),
       tax_rate: parseFloat(tax_rate.toFixed(2)),
       tax_amount: parseFloat(taxAmount.toFixed(2)),
@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     };
 
-    addToStore('bills', newBill);
-    return NextResponse.json(newBill, { status: 201 });
+    await addToStore('bills', newBill);
+    return NextResponse.json({ ...newBill, items }, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

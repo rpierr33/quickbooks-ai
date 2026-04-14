@@ -27,7 +27,7 @@ export async function DELETE(
       voided_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    updateInStore('journal_entries', id, updates);
+    await updateInStore('journal_entries', id, updates);
 
     return NextResponse.json({ success: true, id, status: 'voided' });
   } catch (error) {
