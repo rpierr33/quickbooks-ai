@@ -72,7 +72,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
   const normalized = email.trim().toLowerCase();
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at FROM users WHERE lower(email) = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, created_at FROM users WHERE lower(email) = $1 LIMIT 1",
       [normalized]
     );
     const row = res.rows[0];
