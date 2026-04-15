@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addToStore, listFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import {
   asRecord,
   getString,
@@ -15,11 +15,13 @@ const PAYMENT_TERMS = ['net15', 'net30', 'net60', 'net90', 'due_on_receipt'] as 
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
-    const rows = await listFromStore('bills');
-    const parsed = rows.map(r => ({
+    const all = await listFromStore('bills');
+    const companyBills = all.filter(r => r.company_id === companyId);
+    const parsed = companyBills.map(r => ({
       ...r,
       subtotal: parseFloat(r.subtotal),
       tax_rate: parseFloat(r.tax_rate),
@@ -52,8 +54,9 @@ interface BillLineItem {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
 
@@ -92,12 +95,14 @@ export async function POST(request: NextRequest) {
     const total = subtotal + taxAmount;
     const base_amount = parseFloat((total * exchange_rate).toFixed(2));
 
-    // Generate bill number
-    const existing = await listFromStore('bills');
-    const num = (existing.length + 1).toString().padStart(4, '0');
+    // Generate bill number scoped to company
+    const all = await listFromStore('bills');
+    const companyBills = all.filter(r => r.company_id === companyId);
+    const num = (companyBills.length + 1).toString().padStart(4, '0');
 
     const newBill = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       bill_number: `BILL-${num}`,
       vendor_name,
       vendor_email: vendor_email ?? null,

@@ -1,19 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const { searchParams } = new URL(request.url);
     const months = parseInt(searchParams.get('months') || '6');
 
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    const result = await query('SELECT * FROM transactions ORDER BY date ASC');
-    const transactions = result.rows.filter(t => new Date(t.date) >= startDate);
+    let txRows: Record<string, any>[];
+    let accRows: Record<string, any>[];
+
+    if (pool) {
+      const [txRes, accRes] = await Promise.all([
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date ASC', [companyId]),
+        query("SELECT * FROM accounts WHERE company_id = $1 AND type = 'asset'", [companyId]),
+      ]);
+      txRows = txRes.rows;
+      accRows = accRes.rows;
+    } else {
+      const [allTx, allAcc] = await Promise.all([
+        listFromStore('transactions'),
+        listFromStore('accounts'),
+      ]);
+      txRows = allTx.filter(t => t.company_id === companyId).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      accRows = allAcc.filter(a => a.company_id === companyId && a.type === 'asset');
+    }
+
+    const transactions = txRows.filter(t => new Date(t.date) >= startDate);
 
     const totalInflows = transactions
       .filter(t => t.type === 'income')
@@ -22,9 +42,7 @@ export async function GET(request: NextRequest) {
       .filter(t => t.type === 'expense')
       .reduce((s, t) => s + parseFloat(t.amount), 0);
 
-    // Get account balances for opening/closing
-    const accounts = await query('SELECT * FROM accounts WHERE type = \'asset\'');
-    const currentBalance = accounts.rows.reduce((s, a) => s + parseFloat(a.balance), 0);
+    const currentBalance = accRows.reduce((s, a) => s + parseFloat(a.balance), 0);
     const openingBalance = currentBalance - (totalInflows - totalOutflows);
 
     const monthlyData = [];

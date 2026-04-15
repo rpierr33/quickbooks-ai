@@ -9,17 +9,24 @@ const TX_TYPES = ['income', 'expense', 'transfer'] as const;
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const search = searchParams.get('search');
 
     let result;
     if (type && type !== 'all') {
-      result = await query('SELECT * FROM transactions WHERE type = $1 ORDER BY date DESC', [type]);
+      result = await query(
+        'SELECT * FROM transactions WHERE company_id = $1 AND type = $2 ORDER BY date DESC',
+        [companyId, type]
+      );
     } else {
-      result = await query('SELECT * FROM transactions ORDER BY date DESC');
+      result = await query(
+        'SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC',
+        [companyId]
+      );
     }
 
     let rows = result.rows;
@@ -47,8 +54,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const body = asRecord(await request.json());
     const date = getString(body, 'date', { required: true, max: 40 })!;
     const description = getString(body, 'description', { required: true, max: 500 })!;
@@ -81,8 +89,11 @@ export async function POST(request: NextRequest) {
     // If still no category, try AI
     if (!finalCategoryId) {
       const aiResult = await categorizeTransaction(description, amount);
-      // Find matching category by name
-      const categories = await query('SELECT * FROM categories');
+      // Find matching category by name scoped to company
+      const categories = await query(
+        'SELECT * FROM categories WHERE company_id = $1',
+        [companyId]
+      );
       const matchedCat = categories.rows.find(
         c => c.name.toLowerCase() === aiResult.category.toLowerCase()
       );
@@ -96,6 +107,7 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const newTransaction = {
       id,
+      company_id: companyId,
       date,
       description,
       amount,

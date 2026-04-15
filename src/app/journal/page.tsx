@@ -139,29 +139,31 @@ export default function JournalPage() {
                   )}
                 </div>
               </div>
-              <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                    <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Account</th>
-                    <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Debit</th>
-                    <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Credit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {entry.lines.map((line, li) => (
-                    <tr key={li} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '8px', color: '#0F172A', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>{line.accountName}</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.debit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.debit > 0 ? 600 : 400 }}>{line.debit > 0 ? formatCurrency(line.debit) : '—'}</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.credit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.credit > 0 ? 600 : 400 }}>{line.credit > 0 ? formatCurrency(line.credit) : '—'}</td>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse', minWidth: 300 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                      <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Account</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Debit</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Credit</th>
                     </tr>
-                  ))}
-                  <tr style={{ fontWeight: 700 }}>
-                    <td style={{ padding: '8px', color: '#64748B', fontSize: 11, textTransform: 'uppercase' }}>Total</td>
-                    <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.debit, 0))}</td>
-                    <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.credit, 0))}</td>
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {entry.lines.map((line, li) => (
+                      <tr key={li} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                        <td style={{ padding: '8px', color: '#0F172A', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>{line.accountName}</td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.debit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.debit > 0 ? 600 : 400 }}>{line.debit > 0 ? formatCurrency(line.debit) : '—'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.credit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.credit > 0 ? 600 : 400 }}>{line.credit > 0 ? formatCurrency(line.credit) : '—'}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ fontWeight: 700 }}>
+                      <td style={{ padding: '8px', color: '#64748B', fontSize: 11, textTransform: 'uppercase' }}>Total</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.debit, 0))}</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.credit, 0))}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             );
           })}

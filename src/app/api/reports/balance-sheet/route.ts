@@ -1,21 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(_request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM accounts WHERE is_active = true ORDER BY type, name');
-    const accounts = result.rows.map(a => ({
-      ...a,
-      balance: parseFloat(a.balance),
-    }));
+    const companyId = (session?.user as any)?.companyId;
+
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM accounts WHERE company_id = $1 AND is_active = true ORDER BY type, name',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('accounts');
+      rows = all.filter(a => a.company_id === companyId && a.is_active !== false);
+      rows.sort((a, b) => String(a.type).localeCompare(String(b.type)) || String(a.name).localeCompare(String(b.name)));
+    }
 
     const grouped: Record<string, { name: string; balance: number }[]> = {};
-    accounts.forEach(a => {
+    rows.forEach(a => {
+      const balance = parseFloat(a.balance);
       if (!grouped[a.type]) grouped[a.type] = [];
-      grouped[a.type].push({ name: a.name, balance: a.balance });
+      grouped[a.type].push({ name: a.name, balance });
     });
 
     const totalAssets = (grouped['asset'] || []).reduce((s, a) => s + a.balance, 0);

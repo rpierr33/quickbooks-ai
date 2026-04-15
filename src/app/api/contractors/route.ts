@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { addToStore, listFromStore } from '@/lib/db';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
@@ -8,13 +8,15 @@ const RATE_TYPES = ['hourly', 'project'] as const;
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { searchParams } = new URL(request.url);
     const year = searchParams.get('year') ?? String(new Date().getFullYear());
 
-    const contractors = await listFromStore('contractors');
+    const allContractors = await listFromStore('contractors');
+    const contractors = allContractors.filter(c => c.company_id === companyId);
     contractors.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     const threshold = 600;
@@ -41,8 +43,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const name = getString(body, 'name', { required: true, max: 200 })!;
@@ -57,6 +60,7 @@ export async function POST(request: NextRequest) {
 
     const contractor = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       email: email ?? null,
       address: address ?? null,

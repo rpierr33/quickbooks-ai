@@ -1,13 +1,27 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { query, addToStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { query, addToStore, listFromStore, pool } from '@/lib/db';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM categories ORDER BY name');
-    return NextResponse.json(result.rows);
+    const companyId = (session?.user as any)?.companyId;
+
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM categories WHERE company_id = $1 OR is_system = true ORDER BY name',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('categories');
+      rows = all.filter(c => c.company_id === companyId || c.is_system === true);
+      rows.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    }
+
+    return NextResponse.json(rows);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
@@ -15,8 +29,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth } = await requireAuth();
-    if (unauth) return unauth;
+    const { unauthorized, session } = await requireWrite();
+    if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const body = await request.json();
     const { name, type } = body;
 
@@ -26,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     const newCategory = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       type,
       parent_id: null,

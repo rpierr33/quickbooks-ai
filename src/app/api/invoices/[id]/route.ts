@@ -19,10 +19,14 @@ const INVOICE_WRITE_FIELDS = [
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    const result = await query('SELECT * FROM invoices WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM invoices WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
@@ -43,8 +47,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const body = asRecord(await request.json());
@@ -80,7 +85,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       patch.discount = getNumber(body, 'discount', { min: 0 });
     }
 
-    const result = await query('SELECT * FROM invoices WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM invoices WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
@@ -118,5 +126,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
     console.error('invoices[id].PUT failed', error);
     return NextResponse.json({ error: 'Failed to update invoice' }, { status: 500 });
+  }
+}
+
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { unauthorized, session } = await requireWrite();
+    if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+    const { id } = await params;
+    const result = await query(
+      'DELETE FROM invoices WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if ((result as any).rowCount === 0) {
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('invoices[id].DELETE failed', error);
+    return NextResponse.json({ error: 'Failed to delete invoice' }, { status: 500 });
   }
 }

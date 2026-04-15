@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createUser } from "@/lib/users";
+import { rateLimit, pruneExpired } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,26 @@ function isEmail(s: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limiting: 5 signups per IP per hour
+  pruneExpired();
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown";
+  const { allowed } = rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many signup attempts. Please try again later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": "3600",
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   let body: SignupBody;
   try {
     body = (await req.json()) as SignupBody;

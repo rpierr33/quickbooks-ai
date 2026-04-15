@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listFromStore, updateInStore, addToStore, deleteFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import {
   asRecord,
   getString,
@@ -33,12 +33,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { id } = await params;
     const rows = await listFromStore('bills');
-    const bill = rows.find(r => r.id === id);
+    const bill = rows.find(r => r.id === id && r.company_id === companyId);
 
     if (!bill) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
@@ -65,12 +66,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { id } = await params;
     const rows = await listFromStore('bills');
-    const bill = rows.find(r => r.id === id);
+    const bill = rows.find(r => r.id === id && r.company_id === companyId);
 
     if (!bill) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
@@ -120,12 +122,10 @@ export async function PUT(
       patch.scheduled_payment_date = getString(body, 'scheduled_payment_date', { max: 40 });
     }
 
-    // Handle paid status — auto-set paid_date
     if (patch.status === 'paid' && !bill.paid_date) {
       patch.paid_date = new Date().toISOString().split('T')[0];
     }
 
-    // Recalculate totals when items or tax_rate change
     if ('items' in patch || 'tax_rate' in patch) {
       const items = (patch.items as Array<{ quantity: number; rate: number; amount?: number }> | undefined)
         ?? (typeof bill.items === 'string' ? JSON.parse(bill.items) : bill.items ?? []);
@@ -140,7 +140,6 @@ export async function PUT(
       patch.tax_amount = parseFloat(taxAmount.toFixed(2));
       patch.total = parseFloat(total.toFixed(2));
       patch.base_amount = parseFloat((total * exchangeRate).toFixed(2));
-      // Serialize items for DB storage
       if (Array.isArray(patch.items)) {
         patch.items = JSON.stringify(patch.items);
       }
@@ -170,10 +169,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { id } = await params;
+    const rows = await listFromStore('bills');
+    const bill = rows.find(r => r.id === id && r.company_id === companyId);
+    if (!bill) {
+      return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
+    }
     const deleted = await deleteFromStore('bills', id);
     if (!deleted) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
@@ -185,21 +190,18 @@ export async function DELETE(
   }
 }
 
-/**
- * PATCH /api/bills/[id] — marks a bill paid and creates a corresponding
- * expense transaction in the transaction store.
- */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { id } = await params;
     const rows = await listFromStore('bills');
-    const bill = rows.find(r => r.id === id);
+    const bill = rows.find(r => r.id === id && r.company_id === companyId);
 
     if (!bill) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
@@ -209,7 +211,6 @@ export async function PATCH(
     const action = getString(body, 'action', { required: true, max: 50 });
 
     if (action === 'pay') {
-      // Mark bill as paid
       const paidDate = new Date().toISOString().split('T')[0];
       const updates = {
         status: 'paid',
@@ -218,9 +219,9 @@ export async function PATCH(
       };
       const updated = await updateInStore('bills', id, updates);
 
-      // Create corresponding expense transaction
       const expenseTransaction = {
         id: crypto.randomUUID(),
+        company_id: companyId,
         date: paidDate,
         description: `Bill Payment: ${bill.vendor_name} (${bill.bill_number})`,
         amount: parseFloat(String(bill.base_amount ?? bill.total)),

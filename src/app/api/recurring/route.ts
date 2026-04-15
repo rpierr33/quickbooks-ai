@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, addToStore } from '@/lib/db';
+import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM recurring_transactions ORDER BY next_run ASC');
-    const rows = result.rows.map(r => ({
+    const companyId = (session?.user as any)?.companyId;
+
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM recurring_transactions WHERE company_id = $1 ORDER BY next_run ASC',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('recurring_transactions');
+      rows = all.filter(r => r.company_id === companyId);
+      rows.sort((a, b) => String(a.next_run).localeCompare(String(b.next_run)));
+    }
+
+    rows = rows.map(r => ({
       ...r,
       amount: parseFloat(r.amount),
     }));
@@ -19,8 +33,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth } = await requireAuth();
+    const { unauthorized: unauth, session } = await requireAuth();
     if (unauth) return unauth;
+    const companyId = (session?.user as any)?.companyId;
     const body = await request.json();
     const { description, amount, type, account_id, category_id, frequency, next_run } = body;
 
@@ -30,6 +45,7 @@ export async function POST(request: NextRequest) {
 
     const newRecurring = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       description,
       amount: parseFloat(amount),
       type,

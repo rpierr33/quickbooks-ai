@@ -26,10 +26,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    const result = await query('SELECT * FROM accounts WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM accounts WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Account not found' }, { status: 404 });
     }
@@ -46,8 +50,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const body = asRecord(await request.json());
@@ -60,7 +65,10 @@ export async function PUT(
     if ('balance' in allowed) patch.balance = getNumber(body, 'balance');
     if ('is_active' in allowed) patch.is_active = body.is_active;
 
-    const result = await query('SELECT * FROM accounts WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM accounts WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Account not found' }, { status: 404 });
     }
@@ -83,10 +91,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireDelete();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    await query('DELETE FROM accounts WHERE id = $1', [id]);
+    const result = await query(
+      'DELETE FROM accounts WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if ((result as any).rowCount === 0) {
+      return NextResponse.json({ error: 'Account not found' }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('accounts[id].DELETE failed', error);

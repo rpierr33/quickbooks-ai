@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM estimates ORDER BY created_at DESC');
+    const companyId = (session?.user as any)?.companyId;
+    const result = await query(
+      'SELECT * FROM estimates WHERE company_id = $1 ORDER BY created_at DESC',
+      [companyId]
+    );
     const rows = result.rows.map(r => ({
       ...r,
       subtotal: parseFloat(r.subtotal),
@@ -23,8 +27,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth } = await requireAuth();
+    const { unauthorized: unauth, session } = await requireWrite();
     if (unauth) return unauth;
+    const companyId = (session?.user as any)?.companyId;
     const body = await request.json();
     const { client_name, client_email, items, tax_rate, valid_until, notes, status } = body;
 
@@ -37,12 +42,16 @@ export async function POST(request: NextRequest) {
     const taxAmount = subtotal * (parsedTaxRate / 100);
     const total = subtotal + taxAmount;
 
-    // Generate estimate number
-    const existing = await query('SELECT * FROM estimates');
+    // Generate estimate number scoped to company
+    const existing = await query(
+      'SELECT * FROM estimates WHERE company_id = $1',
+      [companyId]
+    );
     const num = (existing.rows.length + 1).toString().padStart(3, '0');
 
     const newEstimate = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       estimate_number: `EST-${num}`,
       client_name,
       client_email: client_email || null,

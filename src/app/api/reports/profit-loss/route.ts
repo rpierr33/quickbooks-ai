@@ -1,22 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const { searchParams } = new URL(request.url);
     const months = parseInt(searchParams.get('months') || '6');
-
-    const result = await query('SELECT * FROM transactions ORDER BY date DESC');
-    const categories = await query('SELECT * FROM categories');
-    const categoryMap = Object.fromEntries(categories.rows.map(c => [c.id, c.name]));
 
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    const transactions = result.rows.filter(t => new Date(t.date) >= startDate);
+    let txRows: Record<string, any>[];
+    let catRows: Record<string, any>[];
+
+    if (pool) {
+      const [txRes, catRes] = await Promise.all([
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC', [companyId]),
+        query('SELECT * FROM categories WHERE company_id = $1 OR is_system = true', [companyId]),
+      ]);
+      txRows = txRes.rows;
+      catRows = catRes.rows;
+    } else {
+      const [allTx, allCat] = await Promise.all([
+        listFromStore('transactions'),
+        listFromStore('categories'),
+      ]);
+      txRows = allTx.filter(t => t.company_id === companyId);
+      catRows = allCat.filter(c => c.company_id === companyId || c.is_system === true);
+    }
+
+    const categoryMap = Object.fromEntries(catRows.map(c => [c.id, c.name]));
+    const transactions = txRows.filter(t => new Date(t.date) >= startDate);
 
     const totalIncome = transactions
       .filter(t => t.type === 'income')
@@ -25,7 +43,6 @@ export async function GET(request: NextRequest) {
       .filter(t => t.type === 'expense')
       .reduce((s, t) => s + parseFloat(t.amount), 0);
 
-    // Group by category
     const incomeByCategory: Record<string, number> = {};
     const expensesByCategory: Record<string, number> = {};
 
@@ -39,7 +56,6 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Monthly breakdown
     const monthlyData = [];
     for (let i = months - 1; i >= 0; i--) {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);

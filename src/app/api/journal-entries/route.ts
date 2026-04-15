@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, addToStore } from '@/lib/db';
+import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth, requirePermission } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM journal_entries ORDER BY created_at DESC');
-    return NextResponse.json(result.rows);
+    const companyId = (session?.user as any)?.companyId;
+
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM journal_entries WHERE company_id = $1 ORDER BY created_at DESC',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('journal_entries');
+      rows = all.filter(r => r.company_id === companyId);
+      rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
+    return NextResponse.json(rows);
   } catch (error) {
     console.error('Journal entries GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch journal entries' }, { status: 500 });
@@ -17,8 +31,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     // Accountants can write journal entries; viewers cannot
-    const { unauthorized } = await requirePermission('write_journal_entries');
+    const { unauthorized, session } = await requirePermission('write_journal_entries');
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const body = await request.json();
     const { date, memo, lines } = body;
 
@@ -35,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     const entry = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       date: date || new Date().toISOString().split('T')[0],
       memo,
       lines,

@@ -153,65 +153,112 @@ export default function ClientsPage() {
         </div>
       ) : (
         <div style={{ ...card }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Contact</th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden sm:table-cell">Type</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Invoiced</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }} className="hidden md:table-cell">Paid</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Outstanding</th>
-                <th style={{ width: 80, padding: '12px 16px' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((client, i) => (
-                <tr
-                  key={client.id}
-                  onClick={() => setSelectedClient(client)}
-                  className="cursor-pointer"
-                  style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', transition: 'background 0.1s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#FAFBFC'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <td style={{ padding: '14px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
-                      </div>
-                      <div>
-                        <p style={{ fontWeight: 600, color: '#0F172A' }}>{client.name}</p>
-                        {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{client.email}</p>}
-                      </div>
+          {/* Mobile cards */}
+          <div className="md:hidden">
+            {filtered.map((client, i) => (
+              <div
+                key={client.id}
+                onClick={() => setSelectedClient(client)}
+                style={{
+                  padding: '14px 16px',
+                  borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
                     </div>
-                  </td>
-                  <td style={{ padding: '14px 16px' }} className="hidden sm:table-cell">
-                    <span style={{
-                      fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-                      background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE',
-                      color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED',
-                      textTransform: 'capitalize',
-                    }}>
-                      {client.type}
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#0F172A' }} className="hidden md:table-cell">{formatCurrency(client.total_invoiced)}</td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#059669' }} className="hidden md:table-cell">{formatCurrency(client.total_paid)}</td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
-                  <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                      <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
-                        <Pencil style={{ width: 13, height: 13 }} />
-                      </button>
-                      <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
-                        <Trash2 style={{ width: 13, height: 13 }} />
-                      </button>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.name}</p>
+                      {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.email}</p>}
                     </div>
-                  </td>
+                  </div>
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</p>
+                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>outstanding</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99, background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE', color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED', textTransform: 'capitalize' }}>
+                    {client.type}
+                  </span>
+                  <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
+                    <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                      <Pencil style={{ width: 13, height: 13 }} />
+                    </button>
+                    <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                      <Trash2 style={{ width: 13, height: 13 }} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 620 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Contact</th>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Type</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Invoiced</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Paid</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Outstanding</th>
+                  <th style={{ width: 80, padding: '12px 16px' }}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((client, i) => (
+                  <tr
+                    key={client.id}
+                    onClick={() => setSelectedClient(client)}
+                    className="cursor-pointer"
+                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', transition: 'background 0.1s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#FAFBFC'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <td style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: 600, color: '#0F172A' }}>{client.name}</p>
+                          {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{client.email}</p>}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      <span style={{
+                        fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
+                        background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE',
+                        color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED',
+                        textTransform: 'capitalize',
+                      }}>
+                        {client.type}
+                      </span>
+                    </td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#0F172A' }}>{formatCurrency(client.total_invoiced)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#059669' }}>{formatCurrency(client.total_paid)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
+                    <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                        <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                          <Pencil style={{ width: 13, height: 13 }} />
+                        </button>
+                        <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                          <Trash2 style={{ width: 13, height: 13 }} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

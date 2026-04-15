@@ -1,22 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const { searchParams } = new URL(request.url);
     const months = parseInt(searchParams.get('months') || '6');
 
-    const accountsResult = await query('SELECT * FROM accounts');
-    const txResult = await query('SELECT * FROM transactions ORDER BY date ASC');
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
 
-    const filteredTx = txResult.rows.filter(t => new Date(t.date) >= startDate);
+    let accRows: Record<string, any>[];
+    let txRows: Record<string, any>[];
 
-    const accounts = accountsResult.rows.map(acc => {
+    if (pool) {
+      const [accRes, txRes] = await Promise.all([
+        query('SELECT * FROM accounts WHERE company_id = $1', [companyId]),
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date ASC', [companyId]),
+      ]);
+      accRows = accRes.rows;
+      txRows = txRes.rows;
+    } else {
+      const [allAcc, allTx] = await Promise.all([
+        listFromStore('accounts'),
+        listFromStore('transactions'),
+      ]);
+      accRows = allAcc.filter(a => a.company_id === companyId);
+      txRows = allTx.filter(t => t.company_id === companyId).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    }
+
+    const filteredTx = txRows.filter(t => new Date(t.date) >= startDate);
+
+    const accounts = accRows.map(acc => {
       const openingBalance = parseFloat(acc.balance);
       const accountTx = filteredTx.filter(t => t.account_id === acc.id);
 
@@ -52,7 +71,6 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Only return accounts with activity
     const activeAccounts = accounts.filter(a => a.entries.length > 0);
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
-import { requireWrite, requireDelete } from '@/lib/auth-guard';
+import { requireWrite, requireDelete, requireAuth } from '@/lib/auth-guard';
 import {
   asRecord,
   getString,
@@ -23,10 +23,35 @@ const TX_WRITE_FIELDS = [
 ] as const;
 const TX_TYPES = ['income', 'expense', 'transfer'] as const;
 
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { unauthorized, session } = await requireAuth();
+    if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+    const { id } = await params;
+    const result = await query(
+      'SELECT * FROM transactions WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+    }
+    const row = result.rows[0];
+    return NextResponse.json({
+      ...row,
+      amount: parseFloat(row.amount),
+    });
+  } catch (error) {
+    console.error('transactions[id].GET failed', error);
+    return NextResponse.json({ error: 'Failed to fetch transaction' }, { status: 500 });
+  }
+}
+
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const body = asRecord(await request.json());
@@ -41,7 +66,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if ('category_id' in allowed) patch.category_id = getString(body, 'category_id', { max: 64 });
     if ('notes' in allowed) patch.notes = getString(body, 'notes', { max: 2000 });
 
-    const result = await query('SELECT * FROM transactions WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM transactions WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
@@ -61,10 +89,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { unauthorized } = await requireDelete();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    await query('DELETE FROM transactions WHERE id = $1', [id]);
+    const result = await query(
+      'DELETE FROM transactions WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if ((result as any).rowCount === 0) {
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('transactions[id].DELETE failed', error);

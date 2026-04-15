@@ -365,8 +365,37 @@ export default function ClientPortalPage() {
                     {outstanding.length}
                   </span>
                 </div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                {/* Mobile outstanding list */}
+                <div className="md:hidden">
+                  {outstanding.map((inv, i) => (
+                    <div key={inv.id} style={{ padding: "14px 16px", borderBottom: i < outstanding.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>{inv.invoice_number}</p>
+                          <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
+                            {fmtDate(inv.created_at)}
+                            {inv.due_date && <span style={{ color: new Date(inv.due_date) < new Date() ? "#DC2626" : "#64748B" }}> · Due {fmtDate(inv.due_date)}</span>}
+                          </p>
+                        </div>
+                        <div style={{ flexShrink: 0, textAlign: "right" }}>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>{fmtCurrency(inv.total)}</p>
+                          <StatusBadge status={inv.status} />
+                        </div>
+                      </div>
+                      <div style={{ marginTop: 10 }}>
+                        <a
+                          href={`/pay?invoice=${inv.id}`}
+                          style={{ fontSize: 12, fontWeight: 600, color: "#FFFFFF", background: "linear-gradient(135deg, #3B82F6, #1D4ED8)", padding: "8px 16px", borderRadius: 8, textDecoration: "none", display: "inline-block" }}
+                        >
+                          Pay Now
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop outstanding table */}
+                <div className="hidden md:block" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 520 }}>
                     <thead>
                       <tr style={{ background: "#F8FAFC" }}>
                         <th style={thStyle}>Invoice #</th>
@@ -453,8 +482,24 @@ export default function ClientPortalPage() {
                     Payment History
                   </h2>
                 </div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                {/* Mobile paid list */}
+                <div className="md:hidden">
+                  {paid.map((inv, i) => (
+                    <div key={inv.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderBottom: i < paid.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: "#0F172A" }}>{inv.invoice_number}</p>
+                        <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>
+                          {fmtDate(inv.created_at)}
+                          {inv.paid_date && <span style={{ color: "#059669" }}> · Paid {fmtDate(inv.paid_date)}</span>}
+                        </p>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#059669", flexShrink: 0 }}>{fmtCurrency(inv.total)}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop paid table */}
+                <div className="hidden md:block" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 400 }}>
                     <thead>
                       <tr style={{ background: "#F8FAFC" }}>
                         <th style={thStyle}>Invoice #</th>

@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listFromStore, addToStore, updateInStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const rows = await listFromStore('purchase_orders');
-    const po = rows.find(r => r.id === id);
+    const po = rows.find(r => r.id === id && r.company_id === companyId);
     if (!po) {
       return NextResponse.json({ error: 'Purchase order not found' }, { status: 404 });
     }
@@ -23,6 +24,7 @@ export async function POST(
 
     const transaction = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       date: new Date().toISOString().split('T')[0],
       description,
       amount: parseFloat(po.total ?? 0),

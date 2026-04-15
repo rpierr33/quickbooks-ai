@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listFromStore, updateInStore, deleteFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import {
   asRecord,
   getString,
@@ -26,15 +26,16 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const body = asRecord(await request.json());
     const allowed = pickAllowed(body, MILEAGE_WRITE_FIELDS);
 
     const rows = await listFromStore('mileage');
-    const existing = rows.find(r => r.id === id);
+    const existing = rows.find(r => r.id === id && r.company_id === companyId);
     if (!existing) {
       return NextResponse.json({ error: 'Mileage record not found' }, { status: 404 });
     }
@@ -80,12 +81,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const rows = await listFromStore('mileage');
-    const existing = rows.find(r => r.id === id);
+    const existing = rows.find(r => r.id === id && r.company_id === companyId);
     if (!existing) {
       return NextResponse.json({ error: 'Mileage record not found' }, { status: 404 });
     }

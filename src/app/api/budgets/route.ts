@@ -1,19 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, addToStore } from '@/lib/db';
+import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM budgets ORDER BY created_at DESC');
+    const companyId = (session?.user as any)?.companyId;
 
-    const rows = result.rows.map(r => ({
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM budgets WHERE company_id = $1 ORDER BY created_at DESC',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('budgets');
+      rows = all.filter(r => r.company_id === companyId);
+    }
+
+    const parsed = rows.map(r => ({
       ...r,
       monthly_amount: parseFloat(r.monthly_amount),
     }));
 
-    return NextResponse.json(rows);
+    return NextResponse.json(parsed);
   } catch (error) {
     console.error('Budgets GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch budgets' }, { status: 500 });
@@ -22,8 +34,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth } = await requireAuth();
+    const { unauthorized: unauth, session } = await requireAuth();
     if (unauth) return unauth;
+    const companyId = (session?.user as any)?.companyId;
     const body = await request.json();
     const { category_id, category_name, monthly_amount, period } = body;
 
@@ -33,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     const newBudget = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       category_id,
       category_name,
       monthly_amount: parseFloat(monthly_amount),

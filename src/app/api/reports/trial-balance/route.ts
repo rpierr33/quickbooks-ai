@@ -1,20 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(_request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const accountsResult = await query('SELECT * FROM accounts');
-    const now = new Date();
+    const companyId = (session?.user as any)?.companyId;
 
+    let accRows: Record<string, any>[];
+    if (pool) {
+      const result = await query('SELECT * FROM accounts WHERE company_id = $1', [companyId]);
+      accRows = result.rows;
+    } else {
+      const all = await listFromStore('accounts');
+      accRows = all.filter(a => a.company_id === companyId);
+    }
+
+    const now = new Date();
     let totalDebits = 0;
     let totalCredits = 0;
 
-    const rows = accountsResult.rows.map(acc => {
+    const rows = accRows.map(acc => {
       const balance = parseFloat(acc.balance);
-      // Normal balance rules: Assets & Expenses are debit-normal, Liabilities, Equity, Revenue are credit-normal
       const isDebitNormal = acc.type === 'asset' || acc.type === 'expense';
       const debit = isDebitNormal ? balance : 0;
       const credit = isDebitNormal ? 0 : balance;
@@ -31,7 +39,6 @@ export async function GET(_request: NextRequest) {
       };
     });
 
-    // Sort by type then name
     const typeOrder = ['asset', 'liability', 'equity', 'revenue', 'expense'];
     rows.sort((a, b) => {
       const aIdx = typeOrder.indexOf(a.account_type);

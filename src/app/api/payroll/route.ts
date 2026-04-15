@@ -1,54 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { addToStore, listFromStore } from '@/lib/db';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
 const PAY_TYPES = ['salary', 'hourly'] as const;
 const EMP_STATUSES = ['active', 'inactive'] as const;
 
-// ── Employees CRUD ────────────────────────────────────────────
-
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { searchParams } = new URL(request.url);
     const resource = searchParams.get('resource') ?? 'employees';
 
     if (resource === 'payroll_runs') {
       const runs = await listFromStore('payroll_runs');
-      runs.sort((a, b) => new Date(b.run_date).getTime() - new Date(a.run_date).getTime());
-      return NextResponse.json(runs);
+      const companyRuns = runs.filter(r => r.company_id === companyId);
+      companyRuns.sort((a, b) => new Date(b.run_date).getTime() - new Date(a.run_date).getTime());
+      return NextResponse.json(companyRuns);
     }
 
     // Default: employees
-    const employees = await listFromStore('employees');
+    const allEmployees = await listFromStore('employees');
+    const employees = allEmployees.filter(e => e.company_id === companyId);
     employees.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-    // Summary stats
     const now = new Date();
     const activeEmployees = employees.filter(e => e.status === 'active');
 
-    // Total payroll this month (sum gross from runs this month)
-    const runs = await listFromStore('payroll_runs');
+    const allRuns = await listFromStore('payroll_runs');
+    const runs = allRuns.filter(r => r.company_id === companyId);
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 7);
     const monthlyRuns = runs.filter(r => r.run_date.startsWith(thisMonthStart));
     const totalPayrollThisMonth = monthlyRuns.reduce((sum: number, r: any) => sum + parseFloat(r.total_gross ?? 0), 0);
 
-    // YTD payroll (all completed runs this year)
     const ytdStart = `${now.getFullYear()}-`;
     const ytdRuns = runs.filter(r => r.run_date.startsWith(ytdStart));
     const ytdPayroll = ytdRuns.reduce((sum: number, r: any) => sum + parseFloat(r.total_gross ?? 0), 0);
 
-    // Next pay date — next 15th or end of month
     const today = now.getDate();
     let nextPayDate: Date;
     if (today < 15) {
       nextPayDate = new Date(now.getFullYear(), now.getMonth(), 15);
     } else if (today < 28) {
       nextPayDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      nextPayDate.setDate(0); // last day of current month
+      nextPayDate.setDate(0);
     } else {
       nextPayDate = new Date(now.getFullYear(), now.getMonth() + 1, 15);
     }
@@ -71,13 +69,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const action = getString(body, 'action', { max: 50 });
 
-    // Run payroll action
     if (action === 'run_payroll') {
       const periodStart = getString(body, 'pay_period_start', { required: true, max: 20 })!;
       const periodEnd = getString(body, 'pay_period_end', { required: true, max: 20 })!;
@@ -101,6 +99,7 @@ export async function POST(request: NextRequest) {
 
       const run = {
         id: crypto.randomUUID(),
+        company_id: companyId,
         pay_period_start: periodStart,
         pay_period_end: periodEnd,
         run_date: new Date().toISOString().slice(0, 10),
@@ -127,6 +126,7 @@ export async function POST(request: NextRequest) {
 
     const employee = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       email: email ?? null,
       role: role ?? null,

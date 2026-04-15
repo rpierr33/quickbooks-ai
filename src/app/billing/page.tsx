@@ -145,8 +145,24 @@ export default function BillingPage() {
   const [annual, setAnnual] = useState(false);
   const [stripeAvailable, setStripeAvailable] = useState<boolean | null>(null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  // Current user plan — default to free_trial for demo; in production fetch from session/DB
-  const [currentPlan] = useState<string>('free_trial');
+  // Current user plan — fetched from /api/subscription
+  const [currentPlan, setCurrentPlan] = useState<string>('free_trial');
+  const [planLoading, setPlanLoading] = useState(true);
+
+  // Fetch real subscription plan
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/subscription')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!cancelled && data?.plan) {
+          setCurrentPlan(data.plan);
+        }
+      })
+      .catch(() => { /* graceful degradation — default stays free_trial */ })
+      .finally(() => { if (!cancelled) setPlanLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   // Check if Stripe is configured on mount
   useEffect(() => {
@@ -234,6 +250,17 @@ export default function BillingPage() {
       {/* Header */}
       <div style={{ textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
         <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Choose your plan</h2>
+        {!planLoading && currentPlan !== 'free_trial' && (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8,
+            padding: '4px 12px', borderRadius: 99,
+            background: '#ECFDF5', border: '1px solid #A7F3D0',
+            fontSize: 12, fontWeight: 600, color: '#065F46',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
+            Current plan: {plans.find(p => p.id === currentPlan)?.name ?? currentPlan}
+          </div>
+        )}
         <p style={{ fontSize: 14, color: '#64748B', marginTop: 8, lineHeight: 1.6 }}>
           Start with a 14-day free trial. No credit card required.
         </p>

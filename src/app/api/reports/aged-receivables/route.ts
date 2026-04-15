@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET(_request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const invoicesResult = await query('SELECT * FROM invoices ORDER BY created_at DESC');
+    const companyId = (session?.user as any)?.companyId;
+
+    let invRows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM invoices WHERE company_id = $1 ORDER BY created_at DESC',
+        [companyId]
+      );
+      invRows = result.rows;
+    } else {
+      const all = await listFromStore('invoices');
+      invRows = all.filter(i => i.company_id === companyId);
+      invRows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
     const now = new Date();
 
     const buckets: { label: string; min: number; max: number; total: number; clients: Map<string, { name: string; amount: number; invoice_count: number }> }[] = [
@@ -19,7 +33,7 @@ export async function GET(_request: NextRequest) {
 
     let totalOutstanding = 0;
 
-    for (const inv of invoicesResult.rows) {
+    for (const inv of invRows) {
       if (inv.status === 'paid' || inv.status === 'draft') continue;
 
       const total = parseFloat(inv.total);

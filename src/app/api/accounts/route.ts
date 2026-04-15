@@ -7,9 +7,13 @@ const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as 
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM accounts ORDER BY name');
+    const companyId = (session?.user as any)?.companyId;
+    const result = await query(
+      'SELECT * FROM accounts WHERE company_id = $1 ORDER BY name',
+      [companyId]
+    );
     const rows = result.rows.map(r => ({
       ...r,
       balance: parseFloat(r.balance),
@@ -23,8 +27,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const name = getString(body, 'name', { required: true, max: 100 })!;
@@ -33,6 +38,7 @@ export async function POST(request: NextRequest) {
 
     const newAccount = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       type,
       sub_type: sub_type ?? null,

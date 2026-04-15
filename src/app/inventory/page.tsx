@@ -82,7 +82,40 @@ export default function InventoryPage() {
             <Button size="sm" onClick={() => setShowAdd(true)} className="cursor-pointer"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Add Item</Button>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <>
+            {/* Mobile cards */}
+            <div className="md:hidden">
+              {filtered.map((item, i) => (
+                <div key={item.id} style={{ padding: '14px 16px', borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {item.low_stock && <AlertTriangle style={{ width: 13, height: 13, color: '#EF4444', flexShrink: 0 }} />}
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                      </div>
+                      <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{item.category}{item.sku ? ` · ${item.sku}` : ''}</p>
+                    </div>
+                    <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                      <p style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(item.total_value)}</p>
+                      <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>stock value</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, color: '#64748B' }}>Qty: <strong style={{ color: item.low_stock ? '#EF4444' : '#0F172A' }}>{item.quantity}</strong></span>
+                    <span style={{ fontSize: 11, color: '#64748B' }}>Price: <strong>{formatCurrency(item.sale_price)}</strong></span>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: item.margin >= 50 ? '#ECFDF5' : item.margin >= 25 ? '#FFFBEB' : '#FEF2F2', color: item.margin >= 50 ? '#059669' : item.margin >= 25 ? '#D97706' : '#EF4444' }}>{item.margin}% margin</span>
+                    {item.low_stock ? (
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#FEF2F2', color: '#DC2626' }}>Low Stock</span>
+                    ) : (
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: '#ECFDF5', color: '#059669' }}>In Stock</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 700 }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #E2E8F0' }}>
@@ -122,7 +155,8 @@ export default function InventoryPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 

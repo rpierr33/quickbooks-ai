@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 
 // Seed default inventory items once into the shared mock store when first accessed
 let mockSeeded = false;
 
-async function ensureMockSeeded() {
+async function ensureMockSeeded(companyId: string) {
   if (pool || mockSeeded) return;
   mockSeeded = true;
   const existing = await listFromStore('inventory');
-  if (existing.length > 0) return;
+  const hasForCompany = existing.some((i: any) => i.company_id === companyId);
+  if (hasForCompany) return;
 
   const items = [
-    { id: crypto.randomUUID(), name: 'Design System License', sku: 'DSL-001', category: 'Digital Products', quantity: 50, unit_cost: 49.99, sale_price: 99.00, reorder_point: 10, is_active: true, created_at: '2026-01-15T00:00:00Z', updated_at: '2026-01-15T00:00:00Z' },
-    { id: crypto.randomUUID(), name: 'Premium Support Plan', sku: 'PSP-001', category: 'Services', quantity: 999, unit_cost: 0, sale_price: 499.00, reorder_point: 0, is_active: true, created_at: '2026-01-15T00:00:00Z', updated_at: '2026-01-15T00:00:00Z' },
-    { id: crypto.randomUUID(), name: 'Brand Guidelines Package', sku: 'BGP-001', category: 'Digital Products', quantity: 25, unit_cost: 125.00, sale_price: 299.00, reorder_point: 5, is_active: true, created_at: '2026-02-01T00:00:00Z', updated_at: '2026-02-01T00:00:00Z' },
-    { id: crypto.randomUUID(), name: 'UI Component Kit', sku: 'UCK-001', category: 'Digital Products', quantity: 8, unit_cost: 75.00, sale_price: 149.00, reorder_point: 10, is_active: true, created_at: '2026-02-10T00:00:00Z', updated_at: '2026-02-10T00:00:00Z' },
-    { id: crypto.randomUUID(), name: 'Marketing Consultation (1hr)', sku: 'MC-001', category: 'Services', quantity: 40, unit_cost: 50.00, sale_price: 150.00, reorder_point: 5, is_active: true, created_at: '2026-03-01T00:00:00Z', updated_at: '2026-03-01T00:00:00Z' },
+    { id: crypto.randomUUID(), company_id: companyId, name: 'Design System License', sku: 'DSL-001', category: 'Digital Products', quantity: 50, unit_cost: 49.99, sale_price: 99.00, reorder_point: 10, is_active: true, created_at: '2026-01-15T00:00:00Z', updated_at: '2026-01-15T00:00:00Z' },
+    { id: crypto.randomUUID(), company_id: companyId, name: 'Premium Support Plan', sku: 'PSP-001', category: 'Services', quantity: 999, unit_cost: 0, sale_price: 499.00, reorder_point: 0, is_active: true, created_at: '2026-01-15T00:00:00Z', updated_at: '2026-01-15T00:00:00Z' },
+    { id: crypto.randomUUID(), company_id: companyId, name: 'Brand Guidelines Package', sku: 'BGP-001', category: 'Digital Products', quantity: 25, unit_cost: 125.00, sale_price: 299.00, reorder_point: 5, is_active: true, created_at: '2026-02-01T00:00:00Z', updated_at: '2026-02-01T00:00:00Z' },
+    { id: crypto.randomUUID(), company_id: companyId, name: 'UI Component Kit', sku: 'UCK-001', category: 'Digital Products', quantity: 8, unit_cost: 75.00, sale_price: 149.00, reorder_point: 10, is_active: true, created_at: '2026-02-10T00:00:00Z', updated_at: '2026-02-10T00:00:00Z' },
+    { id: crypto.randomUUID(), company_id: companyId, name: 'Marketing Consultation (1hr)', sku: 'MC-001', category: 'Services', quantity: 40, unit_cost: 50.00, sale_price: 150.00, reorder_point: 5, is_active: true, created_at: '2026-03-01T00:00:00Z', updated_at: '2026-03-01T00:00:00Z' },
   ];
   for (const item of items) {
     await addToStore('inventory', item);
@@ -40,29 +41,36 @@ function enrichItem(item: Record<string, any>) {
 }
 
 export async function GET() {
-  const { unauthorized } = await requireAuth();
+  const { unauthorized, session } = await requireAuth();
   if (unauthorized) return unauthorized;
+  const companyId = (session?.user as any)?.companyId;
 
   if (pool) {
-    const result = await query('SELECT * FROM inventory ORDER BY created_at DESC');
+    const result = await query(
+      'SELECT * FROM inventory WHERE company_id = $1 ORDER BY created_at DESC',
+      [companyId]
+    );
     return NextResponse.json(result.rows.map(enrichItem));
   }
 
-  await ensureMockSeeded();
-  const items = await listFromStore('inventory');
+  await ensureMockSeeded(companyId);
+  const all = await listFromStore('inventory');
+  const items = all.filter((i: any) => i.company_id === companyId);
   return NextResponse.json(items.map(enrichItem));
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const body = await request.json();
     const { name, sku, category, quantity, unit_cost, sale_price, reorder_point } = body;
     if (!name || !sku) return NextResponse.json({ error: 'Name and SKU are required' }, { status: 400 });
 
     const item = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       sku,
       category: category || 'General',
@@ -77,9 +85,9 @@ export async function POST(request: NextRequest) {
 
     if (pool) {
       await query(
-        `INSERT INTO inventory (id, name, sku, category, quantity, unit_cost, sale_price, reorder_point, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)`,
-        [item.id, item.name, item.sku, item.category, item.quantity, item.unit_cost, item.sale_price, item.reorder_point, item.is_active, item.created_at]
+        `INSERT INTO inventory (id, company_id, name, sku, category, quantity, unit_cost, sale_price, reorder_point, is_active, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11)`,
+        [item.id, item.company_id, item.name, item.sku, item.category, item.quantity, item.unit_cost, item.sale_price, item.reorder_point, item.is_active, item.created_at]
       );
     } else {
       await addToStore('inventory', item);

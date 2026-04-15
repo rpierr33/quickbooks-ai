@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { addToStore, listFromStore } from '@/lib/db';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
@@ -8,10 +8,12 @@ const BILLING_TYPES = ['fixed', 'hourly', 'milestone'] as const;
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
-    const projects = await listFromStore('projects');
+    const allProjects = await listFromStore('projects');
+    const projects = allProjects.filter(p => p.company_id === companyId);
     projects.sort((a, b) => new Date(b.updated_at ?? b.created_at).getTime() - new Date(a.updated_at ?? a.created_at).getTime());
 
     const activeProjects = projects.filter(p => p.status === 'active');
@@ -37,8 +39,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const name = getString(body, 'name', { required: true, max: 200 })!;
@@ -54,6 +57,7 @@ export async function POST(request: NextRequest) {
 
     const project = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       client_name: client_name ?? null,
       client_id: client_id ?? null,

@@ -1,36 +1,50 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    // Fetch all data sources
-    const [txResult, accountsResult, recurringResult, invoicesResult] = await Promise.all([
-      query('SELECT * FROM transactions ORDER BY date DESC'),
-      query('SELECT * FROM accounts'),
-      query('SELECT * FROM recurring_transactions'),
-      query('SELECT * FROM invoices'),
-    ]);
+    const companyId = (session?.user as any)?.companyId;
 
-    const transactions = txResult.rows;
-    const accounts = accountsResult.rows;
-    const recurring = recurringResult.rows;
-    const invoices = invoicesResult.rows;
+    let transactions: Record<string, any>[];
+    let accounts: Record<string, any>[];
+    let recurring: Record<string, any>[];
+    let invoices: Record<string, any>[];
 
-    // ── Current cash balance ──
+    if (pool) {
+      const [txRes, accRes, recRes, invRes] = await Promise.all([
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC', [companyId]),
+        query('SELECT * FROM accounts WHERE company_id = $1', [companyId]),
+        query('SELECT * FROM recurring_transactions WHERE company_id = $1', [companyId]),
+        query('SELECT * FROM invoices WHERE company_id = $1', [companyId]),
+      ]);
+      transactions = txRes.rows;
+      accounts = accRes.rows;
+      recurring = recRes.rows;
+      invoices = invRes.rows;
+    } else {
+      const [allTx, allAcc, allRec, allInv] = await Promise.all([
+        listFromStore('transactions'),
+        listFromStore('accounts'),
+        listFromStore('recurring_transactions'),
+        listFromStore('invoices'),
+      ]);
+      transactions = allTx.filter(t => t.company_id === companyId);
+      accounts = allAcc.filter(a => a.company_id === companyId);
+      recurring = allRec.filter(r => r.company_id === companyId);
+      invoices = allInv.filter(i => i.company_id === companyId);
+    }
+
     const currentBalance = accounts
       .filter(a => a.type === 'asset')
       .reduce((sum, a) => sum + parseFloat(a.balance), 0);
 
-    // ── Historical monthly averages (last 6 months) ──
     const now = new Date();
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-
     const recentTx = transactions.filter(t => new Date(t.date) >= sixMonthsAgo);
 
-    // Group by month
     const monthlyBuckets: Record<string, { income: number; expenses: number }> = {};
     for (let i = 5; i >= 0; i--) {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -59,9 +73,7 @@ export async function GET() {
 
     const avgMonthlyIncome = totalHistoricalIncome / monthCount;
     const avgMonthlyExpenses = totalHistoricalExpenses / monthCount;
-    const monthlyBurnRate = avgMonthlyExpenses - avgMonthlyIncome; // positive = burning cash
 
-    // ── Recurring transactions (known future costs) ──
     const activeRecurring = recurring.filter(r => r.is_active);
     let recurringMonthlyCost = 0;
     let recurringMonthlyIncome = 0;
@@ -70,7 +82,6 @@ export async function GET() {
       const amount = parseFloat(r.amount);
       let monthlyAmount = amount;
 
-      // Normalize to monthly
       switch (r.frequency) {
         case 'daily': monthlyAmount = amount * 30; break;
         case 'weekly': monthlyAmount = amount * 4.33; break;
@@ -85,7 +96,6 @@ export async function GET() {
       }
     }
 
-    // ── Outstanding invoices (expected incoming payments) ──
     const outstandingInvoices = invoices.filter(
       (inv) => inv.status === 'sent' || inv.status === 'overdue'
     );
@@ -94,15 +104,10 @@ export async function GET() {
       0
     );
 
-    // ── Project cash position ──
-    // Use a blended approach: weight recurring costs heavily, fill gaps with historical averages
-    // Monthly net = avg income + recurring income - max(recurring cost, avg expenses)
-    // We use the higher of recurring or historical expenses as a conservative estimate
     const effectiveMonthlyExpenses = Math.max(recurringMonthlyCost, avgMonthlyExpenses);
     const effectiveMonthlyIncome = avgMonthlyIncome + recurringMonthlyIncome;
     const netMonthlyFlow = effectiveMonthlyIncome - effectiveMonthlyExpenses;
 
-    // For 30-day forecast: include outstanding invoices due within 30 days
     const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     const in60Days = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
     const in90Days = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
@@ -123,14 +128,11 @@ export async function GET() {
     const forecast60d = parseFloat((currentBalance + netMonthlyFlow * 2 + invoicesDue60).toFixed(2));
     const forecast90d = parseFloat((currentBalance + netMonthlyFlow * 3 + invoicesDue90).toFixed(2));
 
-    // ── Runway calculation ──
-    // If burning cash (net negative), how many months until $0?
     const effectiveBurnRate = netMonthlyFlow < 0 ? Math.abs(netMonthlyFlow) : 0;
     const monthsOfRunway = effectiveBurnRate > 0
       ? parseFloat((currentBalance / effectiveBurnRate).toFixed(1))
-      : 999; // effectively infinite if not burning
+      : 999;
 
-    // ── Generate insights ──
     const insights: string[] = [];
 
     if (effectiveBurnRate > 0) {

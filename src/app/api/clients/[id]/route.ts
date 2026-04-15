@@ -29,12 +29,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    // Clients are stored in the mock store (not SQL table in current schema)
-    // Try to find via the query mechanism
-    const result = await query('SELECT * FROM clients WHERE id = $1', [id]);
+    const result = await query(
+      'SELECT * FROM clients WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
@@ -50,9 +52,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
+
+    // Verify ownership
+    const existing = await query(
+      'SELECT * FROM clients WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if (existing.rows.length === 0) {
+      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+    }
 
     const body = asRecord(await request.json());
     const allowed = pickAllowed(body, CLIENT_WRITE_FIELDS);
@@ -86,10 +98,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireDelete();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    await query('DELETE FROM clients WHERE id = $1', [id]);
+    const result = await query(
+      'DELETE FROM clients WHERE id = $1 AND company_id = $2',
+      [id, companyId]
+    );
+    if ((result as any).rowCount === 0) {
+      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('clients[id].DELETE failed', error);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, updateInStore } from '@/lib/db';
+import { query, updateInStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 /**
@@ -13,12 +13,25 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
-    const result = await query('SELECT * FROM journal_entries WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
+    // Verify ownership
+    let existing: Record<string, any> | null = null;
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM journal_entries WHERE id = $1 AND company_id = $2',
+        [id, companyId]
+      );
+      existing = result.rows[0] ?? null;
+    } else {
+      const all = await listFromStore('journal_entries');
+      existing = all.find(r => r.id === id && r.company_id === companyId) ?? null;
+    }
+
+    if (!existing) {
       return NextResponse.json({ error: 'Journal entry not found' }, { status: 404 });
     }
 

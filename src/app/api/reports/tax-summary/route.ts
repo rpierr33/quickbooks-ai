@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 const ESTIMATED_TAX_RATE = 0.25;
@@ -25,28 +25,45 @@ function rangeToStartDate(range: string): Date {
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || 'ytd';
 
-    const txResult = await query('SELECT * FROM transactions ORDER BY date DESC');
-    const catResult = await query('SELECT * FROM categories');
+    let txRows: Record<string, any>[];
+    let catRows: Record<string, any>[];
+
+    if (pool) {
+      const [txRes, catRes] = await Promise.all([
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC', [companyId]),
+        query('SELECT * FROM categories WHERE company_id = $1 OR is_system = true', [companyId]),
+      ]);
+      txRows = txRes.rows;
+      catRows = catRes.rows;
+    } else {
+      const [allTx, allCat] = await Promise.all([
+        listFromStore('transactions'),
+        listFromStore('categories'),
+      ]);
+      txRows = allTx.filter(t => t.company_id === companyId);
+      catRows = allCat.filter(c => c.company_id === companyId || c.is_system === true);
+    }
+
     const categoryMap: Record<string, string> = {};
-    for (const c of catResult.rows) {
+    for (const c of catRows) {
       categoryMap[c.id] = c.name;
     }
 
     const now = new Date();
     const yearStart = rangeToStartDate(range);
-
-    const ytdTransactions = txResult.rows.filter(t => new Date(t.date) >= yearStart);
+    const ytdTransactions = txRows.filter(t => new Date(t.date) >= yearStart);
 
     const totalIncome = ytdTransactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-    // Group expenses by category
     const expensesByCategory = new Map<string, number>();
     for (const tx of ytdTransactions) {
       if (tx.type === 'expense') {
@@ -68,7 +85,6 @@ export async function GET(request: NextRequest) {
     const taxableIncome = Math.max(0, totalIncome - totalDeductions);
     const estimatedTax = taxableIncome * ESTIMATED_TAX_RATE;
 
-    // Quarterly breakdown
     const quarters = [
       { quarter: 'Q1', start: new Date(now.getFullYear(), 0, 1), end: new Date(now.getFullYear(), 3, 0) },
       { quarter: 'Q2', start: new Date(now.getFullYear(), 3, 1), end: new Date(now.getFullYear(), 6, 0) },

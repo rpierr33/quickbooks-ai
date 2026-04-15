@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, updateInStore } from '@/lib/db';
+import { query, updateInStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 import {
   asRecord,
@@ -22,8 +22,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const body = asRecord(await request.json());
@@ -35,17 +36,28 @@ export async function PUT(
     if ('monthly_amount' in allowed) patch.monthly_amount = getNumber(body, 'monthly_amount', { required: true, min: 0 });
     if ('period' in allowed) patch.period = getString(body, 'period', { required: true, max: 10 });
 
-    const result = await query('SELECT * FROM budgets WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
+    // Verify ownership
+    let existing: Record<string, any> | null = null;
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM budgets WHERE id = $1 AND company_id = $2',
+        [id, companyId]
+      );
+      existing = result.rows[0] ?? null;
+    } else {
+      const all = await listFromStore('budgets');
+      existing = all.find(r => r.id === id && r.company_id === companyId) ?? null;
+    }
+    if (!existing) {
       return NextResponse.json({ error: 'Budget not found' }, { status: 404 });
     }
 
     const updates = { ...patch, updated_at: new Date().toISOString() };
     await updateInStore('budgets', id, updates);
     const updated = {
-      ...result.rows[0],
+      ...existing,
       ...updates,
-      monthly_amount: parseFloat(String(patch.monthly_amount ?? result.rows[0].monthly_amount)),
+      monthly_amount: parseFloat(String(patch.monthly_amount ?? existing.monthly_amount)),
     };
     return NextResponse.json(updated);
   } catch (error) {
@@ -62,10 +74,28 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
-    await query('DELETE FROM budgets WHERE id = $1', [id]);
+
+    if (pool) {
+      const result = await query(
+        'DELETE FROM budgets WHERE id = $1 AND company_id = $2',
+        [id, companyId]
+      );
+      if ((result as any).rowCount === 0) {
+        return NextResponse.json({ error: 'Budget not found' }, { status: 404 });
+      }
+    } else {
+      const all = await listFromStore('budgets');
+      const existing = all.find(r => r.id === id && r.company_id === companyId);
+      if (!existing) {
+        return NextResponse.json({ error: 'Budget not found' }, { status: 404 });
+      }
+      await query('DELETE FROM budgets WHERE id = $1', [id]);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('budgets[id].DELETE failed', error);

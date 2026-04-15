@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addToStore, listFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
 
 const PURPOSE_TYPES = ['business', 'personal', 'medical', 'charity'] as const;
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { searchParams } = new URL(request.url);
     const purpose = searchParams.get('purpose');
     const dateFrom = searchParams.get('date_from');
     const dateTo = searchParams.get('date_to');
 
-    let rows = await listFromStore('mileage');
+    const all = await listFromStore('mileage');
+    let rows = all.filter(r => r.company_id === companyId);
 
     if (purpose && purpose !== 'all') {
       rows = rows.filter(r => r.purpose === purpose);
@@ -46,8 +48,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const date = getString(body, 'date', { required: true, max: 40 })!;
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const record = {
       id,
+      company_id: companyId,
       date,
       from_location,
       to_location,

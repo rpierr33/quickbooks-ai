@@ -1,17 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, addToStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { query, addToStore, listFromStore, pool } from '@/lib/db';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM rules ORDER BY priority DESC');
-    const rows = result.rows.map(r => ({
+    const companyId = (session?.user as any)?.companyId;
+
+    let rows: Record<string, any>[];
+    if (pool) {
+      const result = await query(
+        'SELECT * FROM rules WHERE company_id = $1 ORDER BY priority DESC',
+        [companyId]
+      );
+      rows = result.rows;
+    } else {
+      const all = await listFromStore('rules');
+      rows = all.filter(r => r.company_id === companyId);
+      rows.sort((a, b) => (Number(b.priority) || 0) - (Number(a.priority) || 0));
+    }
+
+    rows = rows.map(r => ({
       ...r,
       conditions: typeof r.conditions === 'string' ? JSON.parse(r.conditions) : r.conditions,
       actions: typeof r.actions === 'string' ? JSON.parse(r.actions) : r.actions,
     }));
+
     return NextResponse.json(rows);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch rules' }, { status: 500 });
@@ -20,8 +35,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth } = await requireAuth();
-    if (unauth) return unauth;
+    const { unauthorized, session } = await requireWrite();
+    if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
+
     const body = await request.json();
     const { name, conditions, actions } = body;
 
@@ -31,6 +48,7 @@ export async function POST(request: NextRequest) {
 
     const newRule = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       conditions,
       actions,

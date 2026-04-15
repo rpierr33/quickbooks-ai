@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addToStore, listFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, ValidationError } from '@/lib/validate';
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { searchParams } = new URL(request.url);
     const client = searchParams.get('client');
@@ -15,7 +16,8 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('date_from');
     const dateTo = searchParams.get('date_to');
 
-    let rows = await listFromStore('time_entries');
+    const all = await listFromStore('time_entries');
+    let rows = all.filter(r => r.company_id === companyId);
 
     if (client && client !== 'all') {
       rows = rows.filter(r => r.client_name === client);
@@ -54,8 +56,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const date = getString(body, 'date', { required: true, max: 40 })!;
@@ -74,6 +77,7 @@ export async function POST(request: NextRequest) {
     const id = crypto.randomUUID();
     const record = {
       id,
+      company_id: companyId,
       date,
       client_name,
       project_name,

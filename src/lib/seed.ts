@@ -820,5 +820,6 @@ export function seedMockStore() {
     projects,
     bills,
     invite_tokens: [],
+    subscriptions: [],
   };
 }

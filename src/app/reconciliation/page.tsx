@@ -770,34 +770,62 @@ export default function ReconciliationPage() {
                 </p>
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  style={{
-                    width: "100%",
-                    fontSize: 13,
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
-                      <th style={{ ...thStyle, width: 44, padding: "12px 12px 12px 16px" }} />
-                      <th style={{ ...thStyle, width: 100 }}>Date</th>
-                      <th style={thStyle}>Description</th>
-                      <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {clearedTransactions.map((tx, i) => (
-                      <TransactionRow
+              <>
+                {/* Mobile cleared list */}
+                <div className="md:hidden">
+                  {clearedTransactions.map((tx, i) => {
+                    const amt = typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount;
+                    const isIncome = tx.type === "income";
+                    return (
+                      <div
                         key={tx.id}
-                        tx={tx}
-                        showCheckbox
-                        index={i}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        onClick={() => toggleCleared(tx.id)}
+                        style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: i < clearedTransactions.length - 1 ? "1px solid #F1F5F9" : "none", cursor: "pointer" }}
+                      >
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: "2px solid #7C3AED", background: "#7C3AED", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Check style={{ width: 12, height: 12, color: "#FFFFFF" }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.description}</p>
+                          <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>{formatDate(tx.date)}</p>
+                        </div>
+                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#059669" : "#EF4444", flexShrink: 0 }}>
+                          {isIncome ? "+" : "-"}{formatCurrency(amt)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Desktop cleared table */}
+                <div className="hidden md:block" style={{ overflowX: "auto" }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      fontSize: 13,
+                      borderCollapse: "collapse",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
+                        <th style={{ ...thStyle, width: 44, padding: "12px 12px 12px 16px" }} />
+                        <th style={{ ...thStyle, width: 100 }}>Date</th>
+                        <th style={thStyle}>Description</th>
+                        <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clearedTransactions.map((tx, i) => (
+                        <TransactionRow
+                          key={tx.id}
+                          tx={tx}
+                          showCheckbox
+                          index={i}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
 
             {/* Cleared Footer */}
@@ -918,34 +946,63 @@ export default function ReconciliationPage() {
                 </p>
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  style={{
-                    width: "100%",
-                    fontSize: 13,
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
-                      <th style={{ ...thStyle, width: 44, padding: "12px 12px 12px 16px" }} />
-                      <th style={{ ...thStyle, width: 100 }}>Date</th>
-                      <th style={thStyle}>Description</th>
-                      <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {unclearedTransactions.map((tx, i) => (
-                      <TransactionRow
+              <>
+                {/* Mobile uncleared list */}
+                <div className="md:hidden">
+                  {unclearedTransactions.map((tx, i) => {
+                    const amt = typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount;
+                    const isIncome = tx.type === "income";
+                    const isChecked = clearedIds.has(tx.id);
+                    return (
+                      <div
                         key={tx.id}
-                        tx={tx}
-                        showCheckbox
-                        index={i}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        onClick={() => toggleCleared(tx.id)}
+                        style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: i < unclearedTransactions.length - 1 ? "1px solid #F1F5F9" : "none", cursor: "pointer" }}
+                      >
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: isChecked ? "2px solid #7C3AED" : "2px solid #CBD5E1", background: isChecked ? "#7C3AED" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                          {isChecked && <Check style={{ width: 12, height: 12, color: "#FFFFFF" }} />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.description}</p>
+                          <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>{formatDate(tx.date)}</p>
+                        </div>
+                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#059669" : "#EF4444", flexShrink: 0 }}>
+                          {isIncome ? "+" : "-"}{formatCurrency(amt)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Desktop uncleared table */}
+                <div className="hidden md:block" style={{ overflowX: "auto" }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      fontSize: 13,
+                      borderCollapse: "collapse",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
+                        <th style={{ ...thStyle, width: 44, padding: "12px 12px 12px 16px" }} />
+                        <th style={{ ...thStyle, width: 100 }}>Date</th>
+                        <th style={thStyle}>Description</th>
+                        <th style={{ ...thStyle, textAlign: "right" }}>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {unclearedTransactions.map((tx, i) => (
+                        <TransactionRow
+                          key={tx.id}
+                          tx={tx}
+                          showCheckbox
+                          index={i}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>

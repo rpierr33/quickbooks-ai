@@ -11,9 +11,13 @@ import {
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    const result = await query('SELECT * FROM invoices ORDER BY created_at DESC');
+    const companyId = (session?.user as any)?.companyId;
+    const result = await query(
+      'SELECT * FROM invoices WHERE company_id = $1 ORDER BY created_at DESC',
+      [companyId]
+    );
     const rows = result.rows.map(r => ({
       ...r,
       subtotal: parseFloat(r.subtotal),
@@ -40,8 +44,9 @@ interface InvoiceItem {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const client_name = getString(body, 'client_name', { required: true, max: 200 });
@@ -75,14 +80,18 @@ export async function POST(request: NextRequest) {
     const taxAmount = subtotal * (tax_rate / 100);
     const total = subtotal + taxAmount;
 
-    // Generate invoice number
-    const existing = await query('SELECT * FROM invoices');
+    // Generate invoice number scoped to this company
+    const existing = await query(
+      'SELECT * FROM invoices WHERE company_id = $1',
+      [companyId]
+    );
     const num = (existing.rows.length + 1).toString().padStart(4, '0');
 
     const base_amount = parseFloat((total * exchange_rate).toFixed(2));
 
     const newInvoice = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       invoice_number: `INV-${num}`,
       client_name,
       client_email: client_email ?? null,

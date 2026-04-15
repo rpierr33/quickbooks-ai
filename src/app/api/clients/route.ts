@@ -7,11 +7,19 @@ const CLIENT_TYPES = ['client', 'vendor', 'both'] as const;
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    // Build client data from invoices + estimates
-    const invoicesResult = await query('SELECT * FROM invoices ORDER BY created_at DESC');
-    const estimatesResult = await query('SELECT * FROM estimates ORDER BY created_at DESC');
+    const companyId = (session?.user as any)?.companyId;
+
+    // Build client data from invoices + estimates scoped to company
+    const invoicesResult = await query(
+      'SELECT * FROM invoices WHERE company_id = $1 ORDER BY created_at DESC',
+      [companyId]
+    );
+    const estimatesResult = await query(
+      'SELECT * FROM estimates WHERE company_id = $1 ORDER BY created_at DESC',
+      [companyId]
+    );
 
     const clientMap = new Map<string, {
       name: string;
@@ -68,16 +76,18 @@ export async function GET() {
       }
     }
 
-    // Build vendor data from expense transactions
-    const txResult = await query('SELECT * FROM transactions ORDER BY date DESC');
-    const vendorDescriptions = new Set<string>();
+    // Build vendor data from expense transactions scoped to company
+    const txResult = await query(
+      'SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC',
+      [companyId]
+    );
     for (const tx of txResult.rows) {
       if (tx.type === 'expense' && tx.description) {
         // Extract vendor name from description (before ' - ')
         const parts = tx.description.split(' - ');
         const vendor = parts[0].replace(/^(Payment to|Paid|Bill from)\s+/i, '').trim();
         if (vendor && !clientMap.has(vendor)) {
-          vendorDescriptions.add(vendor);
+          // vendorDescriptions tracking not strictly needed here — omit unused
         }
       }
     }
@@ -104,8 +114,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireWrite();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const body = asRecord(await request.json());
     const name = getString(body, 'name', { required: true, max: 200 })!;
     const email = getString(body, 'email', { max: 255 });
@@ -118,6 +129,7 @@ export async function POST(request: NextRequest) {
 
     const newClient = {
       id: crypto.randomUUID(),
+      company_id: companyId,
       name,
       email: email ?? null,
       phone: phone ?? null,

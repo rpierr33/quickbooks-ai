@@ -1,21 +1,51 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, listFromStore, pool } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
-    // Current period (last 30 days)
+    const companyId = (session?.user as any)?.companyId;
+
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
-    // Get all transactions
-    const allTx = await query('SELECT * FROM transactions ORDER BY date DESC');
-    const transactions = allTx.rows;
+    let transactions: Record<string, any>[];
+    let accounts: Record<string, any>[];
+    let insights: Record<string, any>[];
+    let invoices: Record<string, any>[];
 
-    // Calculate totals for current period
+    if (pool) {
+      const [txRes, accRes, insRes, invRes] = await Promise.all([
+        query('SELECT * FROM transactions WHERE company_id = $1 ORDER BY date DESC', [companyId]),
+        query('SELECT * FROM accounts WHERE company_id = $1', [companyId]),
+        query('SELECT * FROM insights WHERE company_id = $1 ORDER BY created_at DESC LIMIT 5', [companyId]),
+        query('SELECT * FROM invoices WHERE company_id = $1', [companyId]),
+      ]);
+      transactions = txRes.rows;
+      accounts = accRes.rows;
+      insights = insRes.rows;
+      invoices = invRes.rows;
+    } else {
+      const [allTx, allAcc, allIns, allInv] = await Promise.all([
+        listFromStore('transactions'),
+        listFromStore('accounts'),
+        listFromStore('insights'),
+        listFromStore('invoices'),
+      ]);
+      transactions = allTx.filter(t => t.company_id === companyId);
+      transactions.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      accounts = allAcc.filter(a => a.company_id === companyId);
+      insights = allIns
+        .filter(i => i.company_id === companyId)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 5);
+      invoices = allInv.filter(i => i.company_id === companyId);
+    }
+
+    // Current period (last 30 days)
     const currentPeriod = transactions.filter(t => new Date(t.date) >= thirtyDaysAgo);
     const prevPeriod = transactions.filter(t => new Date(t.date) >= sixtyDaysAgo && new Date(t.date) < thirtyDaysAgo);
 
@@ -36,27 +66,19 @@ export async function GET() {
     const incomeChange = prevIncome === 0 ? 0 : parseFloat((((totalIncome - prevIncome) / prevIncome) * 100).toFixed(1));
     const expenseChange = prevExpenses === 0 ? 0 : parseFloat((((totalExpenses - prevExpenses) / prevExpenses) * 100).toFixed(1));
 
-    // Cash balance
-    const accountsResult = await query('SELECT * FROM accounts');
-    const cashBalance = accountsResult.rows
+    const cashBalance = accounts
       .filter(a => a.type === 'asset')
       .reduce((sum, a) => sum + parseFloat(a.balance), 0);
 
-    // Recent transactions — parseFloat amounts for PostgreSQL DECIMAL columns
     const recentTx = transactions.slice(0, 5).map(t => ({
       ...t,
       amount: parseFloat(t.amount),
     }));
 
-    // Insights
-    const insightsResult = await query('SELECT * FROM insights ORDER BY created_at DESC LIMIT 5');
-
-    // Invoice totals
-    const invoicesResult = await query('SELECT * FROM invoices');
-    const invoiceOverdue = invoicesResult.rows
+    const invoiceOverdue = invoices
       .filter(inv => inv.status === 'overdue')
       .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
-    const invoicePaid30d = invoicesResult.rows
+    const invoicePaid30d = invoices
       .filter(inv => inv.status === 'paid' && inv.paid_date && new Date(inv.paid_date) >= thirtyDaysAgo)
       .reduce((sum, inv) => sum + parseFloat(inv.total), 0);
 
@@ -91,7 +113,7 @@ export async function GET() {
       income_change: incomeChange,
       expense_change: expenseChange,
       recent_transactions: recentTx,
-      insights: insightsResult.rows,
+      insights,
       monthly_data: monthlyData,
       invoice_overdue: parseFloat(invoiceOverdue.toFixed(2)),
       invoice_paid_30d: parseFloat(invoicePaid30d.toFixed(2)),

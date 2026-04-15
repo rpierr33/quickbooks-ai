@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Repeat, Calendar, DollarSign, TrendingUp, TrendingDown, Plus, Pencil, Play, Pause, Clock } from "lucide-react";
+import { Repeat, Calendar, DollarSign, TrendingUp, TrendingDown, Plus, Pencil, Play, Pause, Clock, Zap } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 
 interface RecurringTransaction {
@@ -83,6 +83,7 @@ export default function RecurringPage() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [isRunning, setIsRunning] = useState(false);
 
   const { data: recurring, isLoading } = useQuery<RecurringTransaction[]>({
     queryKey: ["recurring"],
@@ -148,6 +149,29 @@ export default function RecurringPage() {
 
   function toggleActive(tx: RecurringTransaction) {
     updateMutation.mutate({ id: tx.id, is_active: !tx.is_active });
+  }
+
+  async function handleRunDue() {
+    setIsRunning(true);
+    try {
+      const res = await fetch("/api/recurring/execute");
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error ?? "Failed to run due transactions", "error");
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: ["recurring"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      if (data.executed === 0) {
+        toast("No due transactions to run");
+      } else {
+        toast(`${data.executed} transaction${data.executed !== 1 ? "s" : ""} created`);
+      }
+    } catch {
+      toast("Failed to run due transactions", "error");
+    } finally {
+      setIsRunning(false);
+    }
   }
 
   // Filter and sort
@@ -270,9 +294,22 @@ export default function RecurringPage() {
             </button>
           ))}
         </div>
-        <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer shrink-0 whitespace-nowrap" style={{ padding: '0 16px' }}>
-          <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Recurring
-        </Button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button
+            variant="outline"
+            onClick={handleRunDue}
+            disabled={isRunning}
+            className="cursor-pointer shrink-0 whitespace-nowrap"
+            style={{ padding: '0 14px' }}
+            title="Execute all recurring transactions that are due today or earlier"
+          >
+            <Zap style={{ width: 15, height: 15, marginRight: 6 }} />
+            {isRunning ? "Running..." : "Run Due"}
+          </Button>
+          <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer shrink-0 whitespace-nowrap" style={{ padding: '0 16px' }}>
+            <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Recurring
+          </Button>
+        </div>
       </div>
 
       {/* Recurring List */}

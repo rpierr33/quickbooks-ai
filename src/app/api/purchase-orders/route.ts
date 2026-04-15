@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addToStore, listFromStore } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, getEnum, getArray, ValidationError } from '@/lib/validate';
 
 const PO_STATUSES = ['draft', 'sent', 'received', 'partial', 'closed'] as const;
@@ -19,13 +19,15 @@ function nextPoNumber(existing: Record<string, any>[]): string {
 
 export async function GET(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
-    let rows = await listFromStore('purchase_orders');
+    const all = await listFromStore('purchase_orders');
+    let rows = all.filter(r => r.company_id === companyId);
 
     if (status && status !== 'all') {
       rows = rows.filter(r => r.status === status);
@@ -53,8 +55,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
 
     const body = asRecord(await request.json());
     const vendor_name = getString(body, 'vendor_name', { required: true, max: 300 })!;
@@ -83,12 +86,14 @@ export async function POST(request: NextRequest) {
     const tax_amount = parseFloat((subtotal * (tax_rate / 100)).toFixed(2));
     const total = parseFloat((subtotal + tax_amount).toFixed(2));
 
-    const existingPOs = await listFromStore('purchase_orders');
-    const po_number = nextPoNumber(existingPOs);
+    const all = await listFromStore('purchase_orders');
+    const companyPOs = all.filter(r => r.company_id === companyId);
+    const po_number = nextPoNumber(companyPOs);
 
     const id = crypto.randomUUID();
     const record = {
       id,
+      company_id: companyId,
       po_number,
       vendor_name,
       vendor_email: vendor_email ?? null,

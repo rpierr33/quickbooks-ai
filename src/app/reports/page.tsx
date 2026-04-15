@@ -564,7 +564,8 @@ export default function ReportsPage() {
               </div>
             )}
             <div style={{ ...card }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 480 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                     <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Account</th>
@@ -589,6 +590,7 @@ export default function ReportsPage() {
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )
@@ -684,7 +686,8 @@ export default function ReportsPage() {
                     <p style={{ fontSize: 16, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(account.closing_balance)}</p>
                   </div>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 520 }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
                       <th style={{ textAlign: 'left', padding: '8px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Date</th>
@@ -713,6 +716,7 @@ export default function ReportsPage() {
                     )}
                   </tbody>
                 </table>
+                </div>
               </div>
             ))}
           </div>

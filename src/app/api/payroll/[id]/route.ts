@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireWrite, requireDelete } from '@/lib/auth-guard';
 import { listFromStore, updateInStore, deleteFromStore } from '@/lib/db';
 import { asRecord, getString, getNumber, getEnum, pickAllowed, ValidationError } from '@/lib/validate';
 
@@ -15,12 +15,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
 
     const employees = await listFromStore('employees');
-    const existing = employees.find(e => e.id === id);
+    const existing = employees.find(e => e.id === id && e.company_id === companyId);
     if (!existing) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
@@ -54,9 +55,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { unauthorized } = await requireAuth();
+    const { unauthorized, session } = await requireDelete();
     if (unauthorized) return unauthorized;
+    const companyId = (session?.user as any)?.companyId;
     const { id } = await params;
+
+    const employees = await listFromStore('employees');
+    const existing = employees.find(e => e.id === id && e.company_id === companyId);
+    if (!existing) {
+      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
 
     const deleted = await deleteFromStore('employees', id);
     if (!deleted) {
