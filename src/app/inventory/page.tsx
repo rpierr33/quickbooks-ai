@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Package, AlertTriangle, Search } from "lucide-react";
+import { Plus, Package, AlertTriangle, Search, Pencil } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
@@ -20,8 +20,11 @@ export default function InventoryPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', sku: '', category: '', quantity: '', unit_cost: '', sale_price: '', reorder_point: '' });
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const emptyForm = { name: '', sku: '', category: '', quantity: '', unit_cost: '', sale_price: '', reorder_point: '' };
+  const [form, setForm] = useState(emptyForm);
 
   const { data: items, isLoading } = useQuery<InventoryItem[]>({
     queryKey: ["inventory"],
@@ -30,11 +33,41 @@ export default function InventoryPage() {
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => fetch("/api/inventory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["inventory"] }); setShowAdd(false); setForm({ name: '', sku: '', category: '', quantity: '', unit_cost: '', sale_price: '', reorder_point: '' }); toast("Item added to inventory"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["inventory"] }); setShowAdd(false); setForm(emptyForm); toast("Item added to inventory"); },
     onError: () => { toast("Failed to add item", "error"); },
   });
 
-  const filtered = items?.filter(i => !search || i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase())) ?? [];
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & typeof form) =>
+      fetch(`/api/inventory/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(r => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["inventory"] }); setEditingItem(null); setShowAdd(false); setForm(emptyForm); toast("Item updated"); },
+    onError: () => { toast("Failed to update item", "error"); },
+  });
+
+  function openEdit(item: InventoryItem) {
+    setForm({
+      name: item.name,
+      sku: item.sku ?? '',
+      category: item.category ?? '',
+      quantity: String(item.quantity),
+      unit_cost: String(item.unit_cost),
+      sale_price: String(item.sale_price),
+      reorder_point: String(item.reorder_point),
+    });
+    setEditingItem(item);
+    setShowAdd(true);
+  }
+
+  const categories = useMemo(() => {
+    if (!items) return [];
+    return [...new Set(items.map(i => i.category).filter(Boolean))].sort();
+  }, [items]);
+
+  const filtered = items?.filter(i => {
+    const matchSearch = !search || i.name.toLowerCase().includes(search.toLowerCase()) || i.sku.toLowerCase().includes(search.toLowerCase());
+    const matchCat = !categoryFilter || i.category === categoryFilter;
+    return matchSearch && matchCat;
+  }) ?? [];
   const totalValue = filtered.reduce((s, i) => s + i.total_value, 0);
   const totalRevenue = filtered.reduce((s, i) => s + i.potential_revenue, 0);
   const lowStockCount = filtered.filter(i => i.low_stock).length;
@@ -63,7 +96,18 @@ export default function InventoryPage() {
           <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8', pointerEvents: 'none' }} />
           <Input placeholder="Search items..." value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
         </div>
-        <Button onClick={() => setShowAdd(true)} className="cursor-pointer">
+        {categories.length > 0 && (
+          <select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="cursor-pointer"
+            style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #E2E8F0', fontSize: 13, color: '#475569', background: '#FFFFFF', outline: 'none' }}
+          >
+            <option value="">All categories</option>
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
+        <Button onClick={() => { setEditingItem(null); setForm(emptyForm); setShowAdd(true); }} className="cursor-pointer">
           <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Item
         </Button>
       </div>
@@ -93,11 +137,16 @@ export default function InventoryPage() {
                         {item.low_stock && <AlertTriangle style={{ width: 13, height: 13, color: '#EF4444', flexShrink: 0 }} />}
                         <p style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
                       </div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{item.category}{item.sku ? ` · ${item.sku}` : ''}</p>
+                      <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                        <button onClick={() => setCategoryFilter(item.category)} className="cursor-pointer" style={{ background: 'none', border: 'none', fontSize: 11, color: '#7C3AED', padding: 0, fontWeight: 500 }}>{item.category}</button>
+                        {item.sku ? ` · ${item.sku}` : ''}
+                      </p>
                     </div>
-                    <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                       <p style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(item.total_value)}</p>
-                      <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>stock value</p>
+                      <button onClick={() => openEdit(item)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                        <Pencil style={{ width: 12, height: 12 }} />
+                      </button>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
@@ -119,20 +168,28 @@ export default function InventoryPage() {
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 700 }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #E2E8F0' }}>
-                  {['Item', 'SKU', 'Qty', 'Unit Cost', 'Sale Price', 'Margin', 'Value', 'Status'].map(h => (
+                  {['Item', 'SKU', 'Qty', 'Unit Cost', 'Sale Price', 'Margin', 'Value', 'Status', ''].map(h => (
                     <th key={h} style={{ textAlign: h === 'Qty' || h === 'Margin' ? 'center' : h === 'Unit Cost' || h === 'Sale Price' || h === 'Value' ? 'right' : 'left', padding: '12px 14px', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((item, i) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #F1F5F9', background: i % 2 === 1 ? '#FAFBFC' : 'transparent' }}>
+                  <tr
+                    key={item.id}
+                    style={{ borderBottom: '1px solid #F1F5F9', background: i % 2 === 1 ? '#FAFBFC' : 'transparent', cursor: 'pointer' }}
+                    onClick={() => openEdit(item)}
+                  >
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         {item.low_stock && <AlertTriangle style={{ width: 14, height: 14, color: '#EF4444', flexShrink: 0 }} />}
                         <div>
                           <p style={{ fontWeight: 500, color: '#0F172A' }}>{item.name}</p>
-                          <p style={{ fontSize: 11, color: '#94A3B8' }}>{item.category}</p>
+                          <button
+                            onClick={e => { e.stopPropagation(); setCategoryFilter(item.category); }}
+                            className="cursor-pointer"
+                            style={{ fontSize: 11, color: '#7C3AED', background: 'none', border: 'none', padding: 0, fontWeight: 500 }}
+                          >{item.category}</button>
                         </div>
                       </div>
                     </td>
@@ -151,6 +208,11 @@ export default function InventoryPage() {
                         <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#ECFDF5', color: '#059669' }}>In Stock</span>
                       )}
                     </td>
+                    <td style={{ padding: '12px 14px' }} onClick={e => e.stopPropagation()}>
+                      <button onClick={() => openEdit(item)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                        <Pencil style={{ width: 13, height: 13 }} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -160,9 +222,9 @@ export default function InventoryPage() {
         )}
       </div>
 
-      {/* Add dialog */}
-      <Dialog open={showAdd} onClose={() => setShowAdd(false)}>
-        <DialogHeader><DialogTitle>Add Inventory Item</DialogTitle></DialogHeader>
+      {/* Add/Edit dialog */}
+      <Dialog open={showAdd} onClose={() => { setShowAdd(false); setEditingItem(null); setForm(emptyForm); }}>
+        <DialogHeader><DialogTitle>{editingItem ? 'Edit Inventory Item' : 'Add Inventory Item'}</DialogTitle></DialogHeader>
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="grid grid-cols-2" style={{ gap: 12 }}>
@@ -181,8 +243,20 @@ export default function InventoryPage() {
           </div>
         </DialogContent>
         <DialogFooter className="flex gap-3">
-          <Button variant="outline" onClick={() => setShowAdd(false)} className="flex-1 w-full cursor-pointer">Cancel</Button>
-          <Button onClick={() => createMutation.mutate(form)} disabled={createMutation.isPending} className="flex-1 w-full cursor-pointer">{createMutation.isPending ? 'Adding...' : 'Add Item'}</Button>
+          <Button variant="outline" onClick={() => { setShowAdd(false); setEditingItem(null); setForm(emptyForm); }} className="flex-1 w-full cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => {
+              if (editingItem) {
+                updateMutation.mutate({ id: editingItem.id, ...form });
+              } else {
+                createMutation.mutate(form);
+              }
+            }}
+            disabled={createMutation.isPending || updateMutation.isPending}
+            className="flex-1 w-full cursor-pointer"
+          >
+            {(createMutation.isPending || updateMutation.isPending) ? 'Saving...' : editingItem ? 'Save Changes' : 'Add Item'}
+          </Button>
         </DialogFooter>
       </Dialog>
     </div>

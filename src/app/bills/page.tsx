@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils";
 import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { useToast } from "@/components/ui/toast";
+import Link from "next/link";
 import { Plus, Receipt, Trash2, CheckCircle2, Clock, AlertCircle, Search, X, Calendar, Building2 } from "lucide-react";
 import type { Bill, BillItem } from "@/types";
 
@@ -335,7 +336,9 @@ export default function BillsPage() {
                             <Building2 style={{ width: 14, height: 14, color: "#7C3AED" }} />
                           </div>
                           <div>
-                            <p style={{ fontWeight: 500, color: "#0F172A" }}>{bill.vendor_name}</p>
+                            <Link href="/clients" onClick={e => e.stopPropagation()} style={{ fontWeight: 500, color: "#2563EB", textDecoration: "none" }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>{bill.vendor_name}</Link>
                             {bill.vendor_email && <p style={{ fontSize: 11, color: "#94A3B8" }}>{bill.vendor_email}</p>}
                           </div>
                         </div>
@@ -423,7 +426,9 @@ export default function BillsPage() {
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: "#0F172A" }}>{bill.vendor_name}</p>
+                        <Link href="/clients" style={{ fontSize: 13, fontWeight: 600, color: "#2563EB", textDecoration: "none" }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>{bill.vendor_name}</Link>
                         <span style={{ fontSize: 10, color: "#94A3B8", fontFamily: "monospace" }}>{bill.bill_number}</span>
                       </div>
                       <p style={{ fontSize: 11, color: isOD ? "#DC2626" : "#64748B" }}>

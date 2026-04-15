@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Plus, Search, Users, Building2, Mail, Phone, MapPin, FileText, DollarSign, AlertCircle, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Users, Building2, Mail, Phone, MapPin, FileText, DollarSign, AlertCircle, Pencil, Trash2, ExternalLink } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 import type { Client, Invoice } from "@/types";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
@@ -15,6 +16,7 @@ const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E
 export default function ClientsPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [showCreate, setShowCreate] = useState(false);
@@ -309,13 +311,21 @@ export default function ClientsPage() {
                     {selectedClient.email && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Mail style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.email}</span>
+                        <a href={`mailto:${selectedClient.email}`} style={{ fontSize: 13, color: '#2563EB', textDecoration: 'none' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
+                          {selectedClient.email}
+                        </a>
                       </div>
                     )}
                     {selectedClient.phone && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <Phone style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.phone}</span>
+                        <a href={`tel:${selectedClient.phone}`} style={{ fontSize: 13, color: '#2563EB', textDecoration: 'none' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
+                          {selectedClient.phone}
+                        </a>
                       </div>
                     )}
                     {selectedClient.company && (
@@ -388,8 +398,16 @@ export default function ClientsPage() {
               );
             })()}
           </DialogContent>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedClient(null)} className="w-full cursor-pointer">Close</Button>
+          <DialogFooter className="flex gap-3">
+            <Button variant="outline" onClick={() => setSelectedClient(null)} className="flex-1 cursor-pointer">Close</Button>
+            {selectedClient.outstanding_balance > 0 && (
+              <Button
+                onClick={() => { router.push(`/invoices?client=${encodeURIComponent(selectedClient.name)}`); setSelectedClient(null); }}
+                className="flex-1 cursor-pointer"
+              >
+                <ExternalLink style={{ width: 14, height: 14, marginRight: 6 }} /> View Invoices
+              </Button>
+            )}
           </DialogFooter>
         </Dialog>
       )}

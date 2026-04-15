@@ -8,6 +8,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Plus, Trash2, BookOpen, ArrowRight, Ban } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import Link from "next/link";
 import type { Account } from "@/types";
 
 const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
@@ -151,7 +152,13 @@ export default function JournalPage() {
                   <tbody>
                     {entry.lines.map((line, li) => (
                       <tr key={li} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                        <td style={{ padding: '8px', color: '#0F172A', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>{line.accountName}</td>
+                        <td style={{ padding: '8px', color: '#0F172A', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>
+                          <Link href="/accounts" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 500 }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
+                            {line.accountName}
+                          </Link>
+                        </td>
                         <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.debit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.debit > 0 ? 600 : 400 }}>{line.debit > 0 ? formatCurrency(line.debit) : '—'}</td>
                         <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.credit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.credit > 0 ? 600 : 400 }}>{line.credit > 0 ? formatCurrency(line.credit) : '—'}</td>
                       </tr>

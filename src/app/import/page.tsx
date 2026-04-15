@@ -12,7 +12,9 @@ import {
   FileText,
   Building2,
   CreditCard,
+  ExternalLink,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const card: React.CSSProperties = {
   background: "#FFFFFF",
@@ -276,6 +278,7 @@ const FORMAT_GUIDES: Record<ImportTab, { title: string; steps: string[] }> = {
 };
 
 export default function ImportPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<ImportTab>("csv");
   const [step, setStep] = useState<Step>("upload");
   const [fileName, setFileName] = useState("");
@@ -760,10 +763,14 @@ export default function ImportPage() {
                 )}
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <button onClick={reset} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "#7C3AED", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              <button onClick={reset} style={{ padding: "10px 24px", borderRadius: 10, border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                 <RotateCcw style={{ width: 14, height: 14 }} />
                 Import Another File
+              </button>
+              <button onClick={() => router.push("/transactions")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "#7C3AED", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+                <ExternalLink style={{ width: 14, height: 14 }} />
+                View Imported Transactions
               </button>
             </div>
           </>

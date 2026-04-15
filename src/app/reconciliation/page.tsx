@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -66,6 +67,7 @@ export default function ReconciliationPage() {
   const [clearedIds, setClearedIds] = useState<Set<string>>(new Set());
   const [reconciled, setReconciled] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   /* ─── Data Fetching ─── */
   const { data: accounts, isLoading: accountsLoading } = useQuery<Account[]>({
@@ -660,7 +662,7 @@ export default function ReconciliationPage() {
             )}
           </p>
           <Button
-            onClick={handleCompleteReconciliation}
+            onClick={() => setShowConfirm(true)}
             disabled={!isDifferenceZero || isCompleting}
             className="cursor-pointer"
             style={{ gap: 8 }}
@@ -1041,6 +1043,29 @@ export default function ReconciliationPage() {
           </p>
         </div>
       )}
+
+      {/* Confirm Complete Dialog */}
+      <Dialog open={showConfirm} onClose={() => setShowConfirm(false)}>
+        <DialogHeader>
+          <DialogTitle>Complete Reconciliation</DialogTitle>
+        </DialogHeader>
+        <DialogContent>
+          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+            You are about to mark <strong>{clearedIds.size}</strong> transaction{clearedIds.size !== 1 ? 's' : ''} as reconciled for the statement ending <strong>{statementDate}</strong>. This action marks each transaction with a reconciliation note.
+          </p>
+          <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 8 }}>This can be reviewed in the transaction history at any time.</p>
+        </DialogContent>
+        <DialogFooter className="flex gap-3">
+          <Button variant="outline" onClick={() => setShowConfirm(false)} className="flex-1 cursor-pointer">Cancel</Button>
+          <Button
+            onClick={() => { setShowConfirm(false); handleCompleteReconciliation(); }}
+            disabled={isCompleting}
+            className="flex-1 cursor-pointer"
+          >
+            {isCompleting ? 'Completing...' : 'Confirm & Complete'}
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 }

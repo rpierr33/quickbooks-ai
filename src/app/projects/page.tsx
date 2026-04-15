@@ -8,6 +8,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
+import Link from "next/link";
 import {
   Briefcase, Plus, Pencil, Trash2, ChevronDown, ChevronUp,
   DollarSign, TrendingUp, CheckCircle2, Clock, Search,
@@ -264,7 +265,13 @@ export default function ProjectsPage() {
                       </span>
                     </div>
                     {p.client_name && (
-                      <p style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>{p.client_name} &middot; {billingLabels[p.billing_type] ?? p.billing_type}</p>
+                      <p style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
+                        <Link href="/clients" style={{ color: '#7C3AED', fontWeight: 500, textDecoration: 'none' }}
+                          onClick={e => e.stopPropagation()}
+                          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
+                          {p.client_name}
+                        </Link> &middot; {billingLabels[p.billing_type] ?? p.billing_type}</p>
                     )}
                   </div>
 

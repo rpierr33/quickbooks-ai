@@ -13,6 +13,7 @@ import {
   ArrowRight, Pencil, ScanLine, History, ZoomIn,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 import type { ScannedReceipt, ReceiptExtraction } from "@/types";
 
 const card: React.CSSProperties = {
@@ -28,6 +29,7 @@ type ViewMode = 'upload' | 'scanning' | 'preview' | 'history';
 export default function ScannerPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -94,6 +96,8 @@ export default function ScannerPage() {
       queryClient.invalidateQueries({ queryKey: ["scanned-receipts"] });
       toast("Expense saved — transaction created from receipt", "success");
       resetScanner();
+      // Navigate to transactions after a short delay so the toast is visible
+      setTimeout(() => router.push("/transactions"), 1200);
     },
     onError: () => {
       toast("Failed to save transaction", "error");

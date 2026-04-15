@@ -13,6 +13,7 @@ import {
   Filter,
   ShieldCheck,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { AuditAction } from "@/lib/audit";
 import type { Transaction, Invoice, Account } from "@/types";
 
@@ -245,7 +246,14 @@ interface AuditEntry {
   created_at: string;
 }
 
+const typeToRoute: Record<ActivityType, string> = {
+  transaction: "/transactions",
+  invoice: "/invoices",
+  account: "/accounts",
+};
+
 export default function ActivityPage() {
+  const router = useRouter();
   const [mainTab, setMainTab] = useState<MainTab>("activity");
   const [activeTab, setActiveTab] = useState<"all" | ActivityType>("all");
   const [search, setSearch] = useState("");
@@ -510,6 +518,8 @@ export default function ActivityPage() {
                   return (
                     <div
                       key={entry.id}
+                      onClick={() => router.push(typeToRoute[entry.type])}
+                      className="cursor-pointer"
                       style={{
                         display: "flex",
                         gap: 14,

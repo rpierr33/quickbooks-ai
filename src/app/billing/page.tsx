@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Check, Zap, Building2, Rocket, CreditCard, Star, Briefcase } from "lucide-react";
+import { Check, Zap, Building2, Rocket, CreditCard, Star, Briefcase, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
@@ -145,6 +145,7 @@ export default function BillingPage() {
   const [annual, setAnnual] = useState(false);
   const [stripeAvailable, setStripeAvailable] = useState<boolean | null>(null);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   // Current user plan — fetched from /api/subscription
   const [currentPlan, setCurrentPlan] = useState<string>('free_trial');
   const [planLoading, setPlanLoading] = useState(true);
@@ -516,9 +517,18 @@ export default function BillingPage() {
           { q: 'Can I cancel at any time?', a: 'Absolutely. Cancel anytime from your billing settings. Your data remains accessible on the free tier.' },
           { q: 'Does annual billing save money?', a: 'Yes — annual billing gives you a 20% discount vs paying month-to-month. You pay once per year.' },
         ].map((faq, i) => (
-          <div key={i} style={{ padding: '14px 0', borderBottom: i < 4 ? '1px solid #F1F5F9' : 'none' }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>{faq.q}</p>
-            <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>{faq.a}</p>
+          <div key={i} style={{ borderBottom: i < 4 ? '1px solid #F1F5F9' : 'none' }}>
+            <button
+              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              className="cursor-pointer"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', background: 'none', border: 'none', textAlign: 'left' }}
+            >
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{faq.q}</p>
+              <ChevronDown style={{ width: 16, height: 16, color: '#94A3B8', flexShrink: 0, marginLeft: 12, transform: openFaq === i ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            </button>
+            {openFaq === i && (
+              <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, paddingBottom: 14, margin: 0 }}>{faq.a}</p>
+            )}
           </div>
         ))}
       </div>
