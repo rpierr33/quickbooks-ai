@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -281,12 +282,18 @@ export default function AccountsPage() {
                     borderBottom: i < accts.length - 1 ? '1px solid #F1F5F9' : 'none',
                     background: i % 2 === 1 ? '#FAFBFC' : 'transparent',
                     transition: 'background 0.15s',
-                    cursor: 'default',
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = i % 2 === 1 ? '#FAFBFC' : 'transparent')}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                  <Link
+                    href="/transactions"
+                    title={`View transactions for ${account.name}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1,
+                      textDecoration: 'none', color: 'inherit', cursor: 'pointer',
+                    }}
+                  >
                     {/* Active indicator */}
                     <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                       {account.is_active ? (
@@ -329,17 +336,20 @@ export default function AccountsPage() {
                         <span style={{ fontSize: 11, color: '#94A3B8', marginTop: 1, display: 'block' }}>Inactive</span>
                       )}
                     </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                     <span style={{
                       fontSize: 15,
                       fontWeight: 600,
                       fontVariantNumeric: 'tabular-nums',
                       color: account.is_active ? '#0F172A' : '#94A3B8',
+                      marginLeft: 'auto',
+                      flexShrink: 0,
                     }}>
                       {formatCurrency(typeof account.balance === 'string' ? parseFloat(account.balance as unknown as string) : account.balance)}
                     </span>
+                  </Link>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 12 }}>
                     <button onClick={() => openEdit(account)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', transition: 'all 0.15s' }}>
                       <Pencil style={{ width: 13, height: 13 }} />
                     </button>

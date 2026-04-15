@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -571,15 +572,21 @@ export default function BudgetsPage() {
                       marginBottom: 10,
                     }}
                   >
-                    <span
+                    <Link
+                      href={`/transactions?category=${encodeURIComponent(row.category_name)}&type=expense`}
+                      title={`View ${row.category_name} transactions`}
                       style={{
                         fontSize: 14,
                         fontWeight: 600,
                         color: "#0F172A",
+                        textDecoration: 'none',
+                        transition: 'color 120ms ease',
                       }}
+                      onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#7C3AED'}
+                      onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#0F172A'}
                     >
                       {row.category_name}
-                    </span>
+                    </Link>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <span
                         style={{
@@ -666,16 +673,26 @@ export default function BudgetsPage() {
                       >
                         Actual
                       </p>
-                      <p
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 600,
-                          fontVariantNumeric: "tabular-nums",
-                          color: "#0F172A",
-                        }}
+                      <Link
+                        href={`/transactions?category=${encodeURIComponent(row.category_name)}&type=expense`}
+                        title="View actual transactions"
+                        style={{ textDecoration: 'none' }}
                       >
-                        {formatCurrency(row.actual)}
-                      </p>
+                        <p
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            fontVariantNumeric: "tabular-nums",
+                            color: isOver ? "#EF4444" : "#0F172A",
+                            cursor: 'pointer',
+                            transition: 'opacity 120ms ease',
+                          }}
+                          onMouseEnter={e => (e.currentTarget as HTMLParagraphElement).style.opacity = '0.7'}
+                          onMouseLeave={e => (e.currentTarget as HTMLParagraphElement).style.opacity = '1'}
+                        >
+                          {formatCurrency(row.actual)}
+                        </p>
+                      </Link>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       <p

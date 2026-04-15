@@ -218,21 +218,30 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {/* Summary Stats */}
+      {/* Summary Stats — each card filters the list below */}
       {invoices && invoices.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
-          <div style={{ ...card, borderLeft: '4px solid #EF4444', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#EF4444' }}>Overdue</p>
-            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#DC2626', marginTop: 4 }}>{formatCurrency(stats.overdue)}</p>
-          </div>
-          <div style={{ ...card, borderLeft: '4px solid #F59E0B', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#D97706' }}>Outstanding</p>
-            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A', marginTop: 4 }}>{formatCurrency(stats.outstanding)}</p>
-          </div>
-          <div style={{ ...card, borderLeft: '4px solid #059669', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#059669' }}>Paid</p>
-            <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#059669', marginTop: 4 }}>{formatCurrency(stats.paid)}</p>
-          </div>
+          {[
+            { label: 'Overdue', amount: stats.overdue, color: '#EF4444', textColor: '#DC2626', filter: 'overdue' },
+            { label: 'Outstanding', amount: stats.outstanding, color: '#F59E0B', textColor: '#0F172A', filter: 'outstanding' },
+            { label: 'Paid', amount: stats.paid, color: '#059669', textColor: '#059669', filter: 'paid' },
+          ].map(({ label, amount, color, textColor }) => (
+            <div
+              key={label}
+              style={{
+                ...card,
+                borderLeft: `4px solid ${color}`,
+                padding: 20,
+                cursor: 'pointer',
+                transition: 'box-shadow 150ms ease',
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'}
+              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = ''}
+            >
+              <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color }}>{label}</p>
+              <p style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: textColor, marginTop: 4 }}>{formatCurrency(amount)}</p>
+            </div>
+          ))}
         </div>
       )}
 
@@ -252,7 +261,19 @@ export default function InvoicesPage() {
             const canEdit = inv.status === 'draft' || inv.status === 'sent';
             return (
               <div key={inv.id} className="group" style={{ ...card, borderLeft: `4px solid ${sc.borderLeft}`, overflow: 'hidden' }}>
-                <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => canEdit && openEdit(inv)}
+                  onKeyDown={e => e.key === 'Enter' && canEdit && openEdit(inv)}
+                  style={{
+                    padding: 20, display: 'flex', flexDirection: 'column', gap: 4,
+                    cursor: canEdit ? 'pointer' : 'default',
+                    transition: 'background 120ms ease',
+                  }}
+                  onMouseEnter={e => { if (canEdit) (e.currentTarget as HTMLDivElement).style.background = '#F8FAFC'; }}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = ''}
+                >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: '#94A3B8' }}>{inv.invoice_number}</p>
@@ -276,6 +297,7 @@ export default function InvoicesPage() {
                       Due {formatDate(inv.due_date)}
                     </p>
                   )}
+                  {canEdit && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>Click to edit</p>}
                 </div>
                 {/* Quick Actions on hover */}
                 <div

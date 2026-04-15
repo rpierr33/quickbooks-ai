@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatCurrency } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
@@ -380,7 +381,19 @@ export default function ReportsPage() {
                         {categoryData.map((cat, i) => {
                           const pct = catTotal > 0 ? ((cat.amount / catTotal) * 100).toFixed(1) : '0';
                           return (
-                            <div key={cat.category} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                            <Link
+                              key={cat.category}
+                              href={`/transactions?category=${encodeURIComponent(cat.category)}&type=expense`}
+                              title={`View ${cat.category} transactions`}
+                              style={{
+                                display: 'flex', alignItems: 'flex-start', gap: 8,
+                                textDecoration: 'none', color: 'inherit',
+                                padding: '4px 6px', borderRadius: 6,
+                                transition: 'background 120ms ease',
+                              }}
+                              onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'}
+                              onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+                            >
                               <span style={{ width: 10, height: 10, borderRadius: 2, background: COLORS[i % COLORS.length], flexShrink: 0, marginTop: 3 }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <p style={{ fontSize: 12, color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat.category}</p>
@@ -389,7 +402,7 @@ export default function ReportsPage() {
                                 <p style={{ fontSize: 12, fontWeight: 700, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>{pct}%</p>
                                 <p style={{ fontSize: 11, color: '#94A3B8', fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(cat.amount)}</p>
                               </div>
-                            </div>
+                            </Link>
                           );
                         })}
                       </div>
@@ -430,10 +443,24 @@ export default function ReportsPage() {
                 <div key={group.type} style={{ ...card, padding: 24 }}>
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', textTransform: 'capitalize', marginBottom: 12 }}>{group.type}s</h3>
                   {group.accounts.map((acc, i) => (
-                    <div key={acc.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: 13, borderBottom: i < group.accounts.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                    <Link
+                      key={acc.name}
+                      href={`/accounts`}
+                      title={`View ${acc.name} account`}
+                      style={{
+                        display: 'flex', justifyContent: 'space-between',
+                        padding: '10px 6px', fontSize: 13,
+                        borderBottom: i < group.accounts.length - 1 ? '1px solid #F1F5F9' : 'none',
+                        textDecoration: 'none', color: 'inherit',
+                        borderRadius: 4,
+                        transition: 'background 120ms ease',
+                      }}
+                      onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'}
+                      onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+                    >
                       <span style={{ color: '#64748B' }}>{acc.name}</span>
                       <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0F172A' }}>{formatCurrency(acc.balance)}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ))}

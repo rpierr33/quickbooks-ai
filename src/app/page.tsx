@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -81,16 +82,27 @@ interface KpiCardProps {
   iconColor: string;
   accentLeft?: string;
   footer?: React.ReactNode;
+  href?: string;
 }
 
-function KpiCard({ label, value, subtext, icon: Icon, iconBg, iconColor, accentLeft, footer }: KpiCardProps) {
-  return (
+function KpiCard({ label, value, subtext, icon: Icon, iconBg, iconColor, accentLeft, footer, href }: KpiCardProps) {
+  const inner = (
     <div
       className="card"
       style={{
         padding: '18px 20px 16px',
         borderLeft: accentLeft ? `3px solid ${accentLeft}` : undefined,
+        cursor: href ? 'pointer' : 'default',
+        transition: 'box-shadow 150ms ease, transform 150ms ease',
       }}
+      onMouseEnter={href ? (e) => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.10)';
+        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
+      } : undefined}
+      onMouseLeave={href ? (e) => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow = '';
+        (e.currentTarget as HTMLDivElement).style.transform = '';
+      } : undefined}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <div
@@ -117,6 +129,11 @@ function KpiCard({ label, value, subtext, icon: Icon, iconBg, iconColor, accentL
         }}>
           {label}
         </span>
+        {href && (
+          <span style={{ marginLeft: 'auto', fontSize: 10, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 2 }}>
+            View <ChevronRight style={{ width: 10, height: 10 }} />
+          </span>
+        )}
       </div>
 
       <p className="tabular-nums" style={{
@@ -137,6 +154,15 @@ function KpiCard({ label, value, subtext, icon: Icon, iconBg, iconColor, accentL
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+        {inner}
+      </Link>
+    );
+  }
+  return inner;
 }
 
 // ── Trend badge ───────────────────────────────────────────────────────────────
@@ -263,6 +289,7 @@ function NeedsAttention({ data }: { data: DashboardStats & { bills_due_soon?: nu
 
 // ── Recent activity ───────────────────────────────────────────────────────────
 function RecentActivity({ data }: { data: DashboardStats }) {
+  const router = useRouter();
   const txs = data.recent_transactions?.slice(0, 6) ?? [];
 
   return (
@@ -297,14 +324,23 @@ function RecentActivity({ data }: { data: DashboardStats }) {
           {txs.map((tx, i) => (
             <div
               key={tx.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push('/transactions')}
+              onKeyDown={e => e.key === 'Enter' && router.push('/transactions')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: 8,
-                padding: '9px 0',
+                padding: '9px 6px',
                 borderBottom: i < txs.length - 1 ? '1px solid #F1F5F9' : 'none',
+                cursor: 'pointer',
+                borderRadius: 6,
+                transition: 'background 120ms ease',
               }}
+              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = '#F8FAFC'}
+              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'transparent'}
             >
               <div style={{ minWidth: 0, flex: 1 }}>
                 <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -312,20 +348,123 @@ function RecentActivity({ data }: { data: DashboardStats }) {
                 </p>
                 <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{formatDate(tx.date)}</p>
               </div>
-              <span
-                className="tabular-nums"
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  flexShrink: 0,
-                  color: tx.type === 'income' ? '#059669' : '#EF4444',
-                }}
-              >
-                {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <span
+                  className="tabular-nums"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: tx.type === 'income' ? '#059669' : '#EF4444',
+                  }}
+                >
+                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                </span>
+                <ChevronRight style={{ width: 12, height: 12, color: '#CBD5E1' }} />
+              </div>
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ── Monthly Overview chart ────────────────────────────────────────────────────
+function MonthlyOverviewChart({ data }: { data: DashboardStats }) {
+  const router = useRouter();
+
+  const handleBarClick = (barData: { period?: string } | null) => {
+    if (!barData?.period) return;
+    // period is like "Jan 2026" or "2026-01" — convert to YYYY-MM
+    // Try to detect format
+    const raw = barData.period;
+    let month = '';
+    if (/^\d{4}-\d{2}$/.test(raw)) {
+      month = raw;
+    } else {
+      // "Jan 2026" style
+      const parsed = new Date(`${raw} 1`);
+      if (!isNaN(parsed.getTime())) {
+        const y = parsed.getFullYear();
+        const m = String(parsed.getMonth() + 1).padStart(2, '0');
+        month = `${y}-${m}`;
+      }
+    }
+    if (month) {
+      router.push(`/transactions?month=${month}`);
+    } else {
+      router.push('/transactions');
+    }
+  };
+
+  return (
+    <div className="card lg:col-span-2" style={{ padding: '20px 20px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Monthly Overview</h3>
+          <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>Revenue vs expenses — click a bar to drill down</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 11, color: '#64748B' }}>
+          <LegendDot color="#059669" label="Revenue" />
+          <LegendDot color="#EF4444" label="Expenses" />
+          <Link
+            href="/reports"
+            style={{ fontSize: 11, fontWeight: 500, color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 6 }}
+          >
+            Full report <ChevronRight style={{ width: 11, height: 11 }} />
+          </Link>
+        </div>
+      </div>
+      {data.monthly_data?.length > 0 ? (
+        <div style={{ height: 220 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data.monthly_data}
+              barCategoryGap="28%"
+              barGap={3}
+              margin={{ left: 0, right: 0, top: 4, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+              <XAxis
+                dataKey="period"
+                tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
+                axisLine={false}
+                tickLine={false}
+                width={52}
+                tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={value => [formatCurrency(Number(value)), '']}
+                contentStyle={tooltipStyle}
+                cursor={{ fill: '#F8FAFC' }}
+              />
+              <Bar
+                dataKey="income"
+                name="Revenue"
+                fill="#059669"
+                radius={[4, 4, 0, 0]}
+                style={{ cursor: 'pointer' }}
+                onClick={(barData) => handleBarClick(barData as { period?: string })}
+              />
+              <Bar
+                dataKey="expenses"
+                name="Expenses"
+                fill="#EF4444"
+                radius={[4, 4, 0, 0]}
+                opacity={0.75}
+                style={{ cursor: 'pointer' }}
+                onClick={(barData) => handleBarClick(barData as { period?: string })}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <ChartEmptyState label="Add transactions to see monthly trends" />
       )}
     </div>
   );
@@ -389,49 +528,73 @@ function AiInsights({ data }: { data: DashboardStats }) {
       {insights.length === 0 ? (
         <div style={{ textAlign: 'center' as const, padding: '24px 0' }}>
           <Sparkles style={{ width: 24, height: 24, color: '#CBD5E1', margin: '0 auto 8px' }} />
-          <p style={{ fontSize: 12, color: '#94A3B8' }}>Add transactions to get AI-powered insights</p>
+          <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12 }}>Add transactions to get AI-powered insights</p>
+          <Link
+            href="/transactions"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              fontSize: 12, fontWeight: 600, color: '#2563EB',
+              background: '#EFF6FF', padding: '6px 14px', borderRadius: 8,
+              textDecoration: 'none',
+            }}
+          >
+            <Plus style={{ width: 12, height: 12 }} /> Add Transaction
+          </Link>
         </div>
       ) : (
         <div>
-          {insights.map((insight, i) => (
-            <div
-              key={insight.id || i}
-              style={{
-                display: 'flex',
-                gap: 10,
-                padding: '10px 0',
-                borderBottom: i < insights.length - 1 ? '1px solid #F8FAFC' : 'none',
-                cursor: 'default',
-              }}
-            >
-              <div style={{ marginTop: 1, flexShrink: 0 }}>{insightIcon(insight.type)}</div>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: '#0F172A',
-                  lineHeight: 1.4,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {insight.title}
-                </p>
-                <p style={{
-                  fontSize: 11,
-                  marginTop: 2,
-                  lineHeight: 1.5,
-                  color: '#64748B',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical' as const,
-                  overflow: 'hidden',
-                }}>
-                  {insight.description}
-                </p>
-              </div>
-            </div>
-          ))}
+          {insights.map((insight, i) => {
+            const insightHref = insight.type === 'anomaly'
+              ? '/transactions'
+              : insight.type === 'suggestion'
+                ? '/ai'
+                : '/reports';
+            return (
+              <Link
+                key={insight.id || i}
+                href={insightHref}
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  padding: '10px 8px',
+                  borderBottom: i < insights.length - 1 ? '1px solid #F8FAFC' : 'none',
+                  textDecoration: 'none',
+                  borderRadius: 6,
+                  transition: 'background 150ms ease',
+                }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
+              >
+                <div style={{ marginTop: 1, flexShrink: 0 }}>{insightIcon(insight.type)}</div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#0F172A',
+                    lineHeight: 1.4,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {insight.title}
+                  </p>
+                  <p style={{
+                    fontSize: 11,
+                    marginTop: 2,
+                    lineHeight: 1.5,
+                    color: '#64748B',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical' as const,
+                    overflow: 'hidden',
+                  }}>
+                    {insight.description}
+                  </p>
+                </div>
+                <ChevronRight style={{ width: 12, height: 12, color: '#94A3B8', flexShrink: 0, marginTop: 4 }} />
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -478,7 +641,9 @@ function CashFlowForecastCard({ forecast }: { forecast: CashFlowForecast }) {
             <Zap style={{ width: 13, height: 13, color: '#2563EB' }} />
           </div>
           <div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', display: 'block' }}>Cash Flow Forecast</span>
+            <Link href="/reports" style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', display: 'block', textDecoration: 'none' }}>
+              Cash Flow Forecast <ChevronRight style={{ width: 11, height: 11, display: 'inline-block', verticalAlign: 'middle', marginLeft: 2 }} />
+            </Link>
             <span style={{ fontSize: 10, color: '#94A3B8' }}>AI projection based on your history</span>
           </div>
         </div>
@@ -487,15 +652,22 @@ function CashFlowForecastCard({ forecast }: { forecast: CashFlowForecast }) {
 
       <div className="grid grid-cols-3" style={{ gap: 10, marginBottom: 16 }}>
         {periods.map(p => (
-          <div
+          <Link
             key={p.label}
+            href="/reports"
             style={{
+              display: 'block',
               background: '#F8FAFC',
               border: '1px solid #E2E8F0',
               borderTop: `3px solid ${p.accent}`,
               borderRadius: 10,
               padding: '12px 14px',
+              textDecoration: 'none',
+              color: 'inherit',
+              transition: 'box-shadow 150ms ease',
             }}
+            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'}
+            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.boxShadow = ''}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
               <Clock style={{ width: 11, height: 11, color: p.accent, flexShrink: 0 }} />
@@ -514,7 +686,7 @@ function CashFlowForecastCard({ forecast }: { forecast: CashFlowForecast }) {
             <p style={{ fontSize: 10, color: '#94A3B8', marginTop: 3 }}>
               {p.value >= forecast.current_balance ? '+' : ''}{formatCurrency(p.value - forecast.current_balance)} from now
             </p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -563,28 +735,50 @@ function InvoiceSummary({ data }: { data: DashboardStats }) {
         </Link>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div style={{
-          background: '#FEF2F2',
-          border: '1px solid #FECACA',
-          borderRadius: 10,
-          padding: '12px 14px',
-        }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#EF4444' }}>Overdue</p>
-          <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#DC2626', marginTop: 4 }}>
-            {formatCurrency(data.invoice_overdue ?? 0)}
-          </p>
-        </div>
-        <div style={{
-          background: '#F0FDF4',
-          border: '1px solid #BBF7D0',
-          borderRadius: 10,
-          padding: '12px 14px',
-        }}>
-          <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#059669' }}>Paid (30d)</p>
-          <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#059669', marginTop: 4 }}>
-            {formatCurrency(data.invoice_paid_30d ?? 0)}
-          </p>
-        </div>
+        <Link
+          href="/invoices"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div
+            style={{
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: 10,
+              padding: '12px 14px',
+              cursor: 'pointer',
+              transition: 'box-shadow 150ms ease',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(239,68,68,0.12)'}
+            onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = ''}
+          >
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#EF4444' }}>Overdue</p>
+            <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#DC2626', marginTop: 4 }}>
+              {formatCurrency(data.invoice_overdue ?? 0)}
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="/invoices"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div
+            style={{
+              background: '#F0FDF4',
+              border: '1px solid #BBF7D0',
+              borderRadius: 10,
+              padding: '12px 14px',
+              cursor: 'pointer',
+              transition: 'box-shadow 150ms ease',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(5,150,105,0.12)'}
+            onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = ''}
+          >
+            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#059669' }}>Paid (30d)</p>
+            <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#059669', marginTop: 4 }}>
+              {formatCurrency(data.invoice_paid_30d ?? 0)}
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -700,6 +894,7 @@ export default function DashboardPage() {
           icon={DollarSign}
           iconBg="#EFF6FF"
           iconColor="#2563EB"
+          href="/accounts"
         />
         <KpiCard
           label="Revenue"
@@ -708,6 +903,7 @@ export default function DashboardPage() {
           icon={ArrowUpRight}
           iconBg="#F0FDF4"
           iconColor="#059669"
+          href="/transactions?type=income"
         />
         <KpiCard
           label="Expenses"
@@ -716,6 +912,7 @@ export default function DashboardPage() {
           icon={ArrowDownRight}
           iconBg="#FEF2F2"
           iconColor="#EF4444"
+          href="/transactions?type=expense"
         />
         <KpiCard
           label="Net Profit"
@@ -724,6 +921,7 @@ export default function DashboardPage() {
           iconBg={data.net_profit >= 0 ? '#F0FDF4' : '#FEF2F2'}
           iconColor={data.net_profit >= 0 ? '#059669' : '#EF4444'}
           accentLeft={data.net_profit >= 0 ? '#059669' : '#EF4444'}
+          href="/reports"
           footer={
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 500, color: '#94A3B8', marginBottom: 4 }}>
@@ -743,54 +941,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 14 }}>
 
         {/* Monthly bar chart */}
-        <div className="card lg:col-span-2" style={{ padding: '20px 20px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
-              <h3 style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Monthly Overview</h3>
-              <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>Revenue vs expenses over 6 months</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 11, color: '#64748B' }}>
-              <LegendDot color="#059669" label="Revenue" />
-              <LegendDot color="#EF4444" label="Expenses" />
-            </div>
-          </div>
-          {data.monthly_data?.length > 0 ? (
-            <div style={{ height: 220 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={data.monthly_data}
-                  barCategoryGap="28%"
-                  barGap={3}
-                  margin={{ left: 0, right: 0, top: 4, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                  <XAxis
-                    dataKey="period"
-                    tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={52}
-                    tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    formatter={value => [formatCurrency(Number(value)), '']}
-                    contentStyle={tooltipStyle}
-                    cursor={{ fill: '#F8FAFC' }}
-                  />
-                  <Bar dataKey="income"   name="Revenue"  fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expenses" name="Expenses" fill="#EF4444" radius={[4, 4, 0, 0]} opacity={0.75} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <ChartEmptyState label="Add transactions to see monthly trends" />
-          )}
-        </div>
+        <MonthlyOverviewChart data={data} />
 
         {/* AI Insights */}
         <AiInsights data={data} />

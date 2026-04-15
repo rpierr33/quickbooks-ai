@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,13 +26,22 @@ const card: React.CSSProperties = {
   overflow: 'hidden',
 };
 
-export default function TransactionsPage() {
+function TransactionsPageInner() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [typeFilter, setTypeFilter] = useState("all");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Read URL params for deep-linking from dashboard/reports/budgets
+  const urlType = searchParams.get("type") ?? "all";
+  const urlMonth = searchParams.get("month") ?? "";
+  const urlCategory = searchParams.get("category") ?? "";
+
+  const [typeFilter, setTypeFilter] = useState(urlType !== "all" ? urlType : "all");
   const [dateRangeFilter, setDateRangeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [search, setSearch] = useState("");
-  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(searchParams.get("action") === "new");
   const [step, setStep] = useState(1);
   const [page, setPage] = useState(1);
   const [sortCol, setSortCol] = useState<'date' | 'description' | 'amount' | 'type'>('date');
@@ -58,7 +68,7 @@ export default function TransactionsPage() {
     },
   });
 
-  React.useEffect(() => { setPage(1); }, [typeFilter, search, dateRangeFilter]);
+  React.useEffect(() => { setPage(1); }, [typeFilter, search, dateRangeFilter, categoryFilter]);
 
   // Client-side date range filtering
   const getDateRangeStart = (range: string): Date | null => {
@@ -82,9 +92,17 @@ export default function TransactionsPage() {
   const sortedTransactions = useMemo(() => {
     if (!transactions) return [];
     const rangeStart = getDateRangeStart(dateRangeFilter);
-    const filtered = rangeStart
+    let filtered = rangeStart
       ? transactions.filter((t) => new Date(t.date) >= rangeStart)
       : transactions;
+    // Filter by month from URL param (e.g. ?month=2026-01)
+    if (urlMonth) {
+      filtered = filtered.filter(t => t.date.startsWith(urlMonth));
+    }
+    // Filter by category if set
+    if (categoryFilter) {
+      filtered = filtered.filter(t => (t.category_name ?? '') === categoryFilter);
+    }
     return [...filtered].sort((a, b) => {
       let cmp = 0;
       switch (sortCol) {
@@ -259,10 +277,56 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* AI legend */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#94A3B8' }}>
-        <Sparkles style={{ width: 12, height: 12, color: '#7C3AED' }} />
-        <span>= AI auto-categorized</span>
+      {/* AI legend + active filters */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#94A3B8' }}>
+          <Sparkles style={{ width: 12, height: 12, color: '#7C3AED' }} />
+          <span>= AI auto-categorized</span>
+        </div>
+        {categoryFilter && (
+          <button
+            onClick={() => { setCategoryFilter(""); router.replace('/transactions'); }}
+            className="cursor-pointer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
+              background: '#EDE9FE', color: '#7C3AED', border: '1px solid #C4B5FD',
+            }}
+          >
+            Category: {categoryFilter}
+            <X style={{ width: 11, height: 11 }} />
+          </button>
+        )}
+        {urlMonth && (
+          <button
+            onClick={() => router.replace('/transactions')}
+            className="cursor-pointer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
+              background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE',
+            }}
+          >
+            Month: {urlMonth}
+            <X style={{ width: 11, height: 11 }} />
+          </button>
+        )}
+        {urlType !== "all" && (
+          <button
+            onClick={() => { setTypeFilter("all"); router.replace('/transactions'); }}
+            className="cursor-pointer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
+              background: urlType === 'income' ? '#ECFDF5' : '#FEF2F2',
+              color: urlType === 'income' ? '#059669' : '#EF4444',
+              border: `1px solid ${urlType === 'income' ? '#BBF7D0' : '#FECACA'}`,
+            }}
+          >
+            Type: {urlType}
+            <X style={{ width: 11, height: 11 }} />
+          </button>
+        )}
       </div>
 
       {/* Transaction List */}
@@ -368,7 +432,30 @@ export default function TransactionsPage() {
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '14px 16px', color: '#64748B', fontSize: 13 }}>{tx.category_name || "—"}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 13 }}>
+                        {tx.category_name ? (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCategoryFilter(categoryFilter === tx.category_name ? "" : (tx.category_name ?? ""));
+                            }}
+                            title={categoryFilter === tx.category_name ? "Clear category filter" : `Filter by ${tx.category_name}`}
+                            className="cursor-pointer"
+                            style={{
+                              display: 'inline-flex', alignItems: 'center',
+                              fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 99,
+                              background: categoryFilter === tx.category_name ? '#EDE9FE' : '#F1F5F9',
+                              color: categoryFilter === tx.category_name ? '#7C3AED' : '#64748B',
+                              border: categoryFilter === tx.category_name ? '1px solid #C4B5FD' : '1px solid transparent',
+                              transition: 'all 120ms ease',
+                            }}
+                          >
+                            {tx.category_name}
+                          </button>
+                        ) : (
+                          <span style={{ color: '#94A3B8' }}>—</span>
+                        )}
+                      </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: tx.type === 'income' ? '#059669' : '#EF4444' }}>
                           {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
@@ -614,5 +701,13 @@ export default function TransactionsPage() {
         </DialogFooter>
       </Dialog>
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>{[...Array(8)].map((_, i) => <div key={i} className="h-12 rounded-lg animate-shimmer" />)}</div>}>
+      <TransactionsPageInner />
+    </Suspense>
   );
 }
