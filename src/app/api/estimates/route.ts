@@ -119,6 +119,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newEstimate, { status: 201 });
   } catch (error) {
     console.error('estimates.POST failed:', error);
-    return NextResponse.json({ error: 'Failed to create estimate', detail: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create estimate' }, { status: 500 });
   }
 }
