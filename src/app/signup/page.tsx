@@ -4,7 +4,7 @@ import React, { useState, useEffect, useId, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2, UserCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2, UserCheck, Mail } from "lucide-react";
 
 // ─── Logo (shared pattern) ────────────────────────────────────────────────────
 function LedgrLogo() {
@@ -295,6 +295,7 @@ function SignupForm() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   // Invite state
   const [inviteLoading, setInviteLoading] = useState(!!inviteToken);
@@ -378,6 +379,15 @@ function SignupForm() {
           setLoading(false);
           return;
         }
+
+        // If email service is configured, show "check your email" message
+        if (data.emailVerificationSent) {
+          setEmailSent(true);
+          setLoading(false);
+          return;
+        }
+
+        // Email service not configured — auto-verified, proceed to sign in
         const signed = await signIn("credentials", { email, password, redirect: false });
         if (signed?.error) {
           router.push("/login");
@@ -390,6 +400,42 @@ function SignupForm() {
       setError(err instanceof Error ? err.message : "Network error. Please try again.");
       setLoading(false);
     }
+  }
+
+  // Email verification sent — show check-your-email screen
+  if (emailSent) {
+    return (
+      <div style={{ padding: "32px 0", textAlign: "center" }}>
+        <div
+          style={{
+            width: 56, height: 56, borderRadius: "50%",
+            background: "#EDE9FE",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 20px",
+          }}
+        >
+          <Mail style={{ width: 24, height: 24, color: "#7C3AED" }} aria-hidden="true" />
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: "#111827", marginBottom: 10, letterSpacing: "-0.02em" }}>
+          Check your email
+        </h2>
+        <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.6, marginBottom: 24, maxWidth: 320, margin: "0 auto 24px" }}>
+          We sent a verification link to <strong style={{ color: "#111827" }}>{email}</strong>.
+          Click the link to activate your account.
+        </p>
+        <p style={{ fontSize: 12, color: "#9CA3AF", lineHeight: 1.5 }}>
+          Didn&apos;t receive it? Check your spam folder or{" "}
+          <button
+            type="button"
+            onClick={() => setEmailSent(false)}
+            style={{ color: "#7C3AED", fontWeight: 600, background: "none", border: "none", cursor: "pointer", fontSize: 12, padding: 0 }}
+          >
+            try again
+          </button>
+          .
+        </p>
+      </div>
+    );
   }
 
   if (inviteToken && inviteLoading) {

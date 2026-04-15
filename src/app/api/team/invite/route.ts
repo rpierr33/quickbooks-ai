@@ -5,6 +5,7 @@ import { canManageUsers, assignableRoles } from "@/lib/roles";
 import type { UserRole } from "@/lib/roles";
 import { asRecord, getString, getEnum } from "@/lib/validate";
 import { ValidationError } from "@/lib/validate";
+import { logAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,16 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXTAUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "";
     const inviteUrl = `${baseUrl}/signup?invite=${inviteToken}`;
+
+    logAudit({
+      companyId: companyId,
+      userId: (session.user as any)?.id ?? '',
+      userEmail: session.user?.email ?? '',
+      action: 'create',
+      entityType: 'invite',
+      entityId: invited.id,
+      details: { invited_email: email, role },
+    });
 
     return NextResponse.json(
       {

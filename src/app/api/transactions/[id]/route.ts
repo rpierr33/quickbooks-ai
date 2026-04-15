@@ -9,6 +9,7 @@ import {
   pickAllowed,
   ValidationError,
 } from '@/lib/validate';
+import { logAudit } from '@/lib/audit';
 
 // Allowlist. Anything not in this list is silently dropped (mass-assignment
 // defense — see CLAUDE.md §Hard rules).
@@ -77,6 +78,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const updates = { ...patch, updated_at: new Date().toISOString() };
     await updateInStore('transactions', id, updates);
     const updated = { ...result.rows[0], ...updates };
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'update',
+      entityType: 'transaction',
+      entityId: id,
+      details: patch as Record<string, unknown>,
+    });
     return NextResponse.json(updated);
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -100,6 +110,14 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     if ((result as any).rowCount === 0) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'delete',
+      entityType: 'transaction',
+      entityId: id,
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('transactions[id].DELETE failed', error);

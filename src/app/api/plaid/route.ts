@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, pool, addToStore, updateInStore, listFromStore } from '@/lib/db';
 import {
   isConfigured,
   createLinkToken,
@@ -107,22 +107,97 @@ async function createTransactionFromPlaid(
   return newTransaction;
 }
 
-// ── In-memory store for Plaid connection state ──
-// In production, store this in your database (encrypted).
-interface PlaidConnection {
+// ── DB helpers for plaid_connections ──
+
+interface PlaidConnectionRow {
+  id: string;
+  company_id: string | null;
+  institution_name: string | null;
+  institution_id: string | null;
+  // NOTE: access_token stored as plaintext for MVP.
+  // TODO: encrypt at rest before production — use AES-256-GCM with a KMS-managed key.
   access_token: string;
-  item_id: string;
+  item_id: string | null;
   cursor: string | null;
-  connected_at: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
 }
 
-const plaidConnections: Map<string, PlaidConnection> = new Map();
+async function dbInsertConnection(row: Omit<PlaidConnectionRow, 'created_at' | 'updated_at'>): Promise<PlaidConnectionRow> {
+  const now = new Date().toISOString();
+  if (pool) {
+    const res = await pool.query(
+      `INSERT INTO plaid_connections (id, company_id, institution_name, institution_id, access_token, item_id, cursor, status, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
+       RETURNING *`,
+      [row.id, row.company_id, row.institution_name, row.institution_id, row.access_token, row.item_id, row.cursor, row.status, now]
+    );
+    return res.rows[0] as PlaidConnectionRow;
+  }
+  const record = { ...row, created_at: now, updated_at: now };
+  await addToStore('plaid_connections', record);
+  return record;
+}
+
+async function dbGetConnectionById(id: string, companyId: string | null): Promise<PlaidConnectionRow | null> {
+  if (pool) {
+    const res = await pool.query(
+      `SELECT * FROM plaid_connections WHERE id = $1 AND status = 'active'`,
+      [id]
+    );
+    return (res.rows[0] as PlaidConnectionRow) ?? null;
+  }
+  const rows = await listFromStore('plaid_connections') as PlaidConnectionRow[];
+  return rows.find((r) => r.id === id && r.status === 'active') ?? null;
+}
+
+async function dbListConnections(companyId: string | null): Promise<PlaidConnectionRow[]> {
+  if (pool) {
+    if (companyId) {
+      const res = await pool.query(
+        `SELECT * FROM plaid_connections WHERE company_id = $1 AND status = 'active' ORDER BY created_at DESC`,
+        [companyId]
+      );
+      return res.rows as PlaidConnectionRow[];
+    }
+    const res = await pool.query(`SELECT * FROM plaid_connections WHERE status = 'active' ORDER BY created_at DESC`);
+    return res.rows as PlaidConnectionRow[];
+  }
+  const rows = await listFromStore('plaid_connections') as PlaidConnectionRow[];
+  return rows.filter((r) => r.status === 'active' && (!companyId || r.company_id === companyId));
+}
+
+async function dbUpdateCursor(id: string, cursor: string): Promise<void> {
+  const now = new Date().toISOString();
+  if (pool) {
+    await pool.query(
+      `UPDATE plaid_connections SET cursor = $1, updated_at = $2 WHERE id = $3`,
+      [cursor, now, id]
+    );
+    return;
+  }
+  await updateInStore('plaid_connections', id, { cursor, updated_at: now });
+}
+
+async function dbDisconnect(id: string, companyId: string | null): Promise<void> {
+  const now = new Date().toISOString();
+  if (pool) {
+    await pool.query(
+      `UPDATE plaid_connections SET status = 'disconnected', updated_at = $1 WHERE id = $2`,
+      [now, id]
+    );
+    return;
+  }
+  await updateInStore('plaid_connections', id, { status: 'disconnected', updated_at: now });
+}
 
 // ── Route handlers ──
 
 export async function POST(request: NextRequest) {
-  const { unauthorized } = await requireAuth();
+  const { session, unauthorized } = await requireAuth();
   if (unauthorized) return unauthorized;
+
   // Gate: Plaid must be configured
   if (!isConfigured()) {
     return NextResponse.json(
@@ -135,6 +210,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Extract company_id from session (may be absent on old JWT tokens)
+  const companyId = (session?.user as { companyId?: string })?.companyId ?? null;
+
   try {
     const body = await request.json();
     const { action } = body;
@@ -142,7 +220,7 @@ export async function POST(request: NextRequest) {
     switch (action) {
       // ── Create Link Token ──
       case 'create_link_token': {
-        const userId = body.user_id || 'default-user';
+        const userId = body.user_id || (session?.user as { id?: string })?.id || 'default-user';
         const result = await createLinkToken(userId);
         return NextResponse.json({
           link_token: result.link_token,
@@ -152,7 +230,7 @@ export async function POST(request: NextRequest) {
 
       // ── Exchange Public Token ──
       case 'exchange_token': {
-        const { public_token } = body;
+        const { public_token, institution_name, institution_id } = body;
         if (!public_token) {
           return NextResponse.json(
             { error: 'Missing public_token' },
@@ -162,19 +240,21 @@ export async function POST(request: NextRequest) {
 
         const exchangeResult = await exchangePublicToken(public_token);
 
-        // Store connection (in production, encrypt and persist to DB)
+        // Persist connection to database
         const connectionId = crypto.randomUUID();
-        plaidConnections.set(connectionId, {
+        await dbInsertConnection({
+          id: connectionId,
+          company_id: companyId,
+          institution_name: institution_name ?? null,
+          institution_id: institution_id ?? null,
           access_token: exchangeResult.access_token,
           item_id: exchangeResult.item_id,
           cursor: null,
-          connected_at: new Date().toISOString(),
+          status: 'active',
         });
 
         // Fetch linked accounts
-        const accountsResult = await getAccounts(
-          exchangeResult.access_token
-        );
+        const accountsResult = await getAccounts(exchangeResult.access_token);
 
         return NextResponse.json({
           connection_id: connectionId,
@@ -193,7 +273,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const connection = plaidConnections.get(connection_id);
+        const connection = await dbGetConnectionById(connection_id, companyId);
         if (!connection) {
           return NextResponse.json(
             { error: 'Unknown connection_id. Re-link your bank account.' },
@@ -203,11 +283,11 @@ export async function POST(request: NextRequest) {
 
         const syncResult = await syncTransactions(
           connection.access_token,
-          connection.cursor || undefined
+          connection.cursor ?? undefined
         );
 
-        // Update cursor for next incremental sync
-        connection.cursor = syncResult.next_cursor;
+        // Update cursor in DB for next incremental sync
+        await dbUpdateCursor(connection_id, syncResult.next_cursor);
 
         // Create Ledgr transactions for each new Plaid transaction
         const created: Record<string, unknown>[] = [];
@@ -225,17 +305,28 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // ── Disconnect ──
+      case 'disconnect': {
+        const { connection_id } = body;
+        if (!connection_id) {
+          return NextResponse.json({ error: 'Missing connection_id' }, { status: 400 });
+        }
+        await dbDisconnect(connection_id, companyId);
+        return NextResponse.json({ success: true });
+      }
+
       // ── List Connections ──
       case 'list_connections': {
-        const connections = Array.from(plaidConnections.entries()).map(
-          ([id, conn]) => ({
-            connection_id: id,
+        const connections = await dbListConnections(companyId);
+        return NextResponse.json({
+          connections: connections.map((conn) => ({
+            connection_id: conn.id,
             item_id: conn.item_id,
-            connected_at: conn.connected_at,
+            institution_name: conn.institution_name,
+            connected_at: conn.created_at,
             has_cursor: Boolean(conn.cursor),
-          })
-        );
-        return NextResponse.json({ connections });
+          })),
+        });
       }
 
       default:
@@ -246,6 +337,7 @@ export async function POST(request: NextRequest) {
               'create_link_token',
               'exchange_token',
               'sync',
+              'disconnect',
               'list_connections',
             ],
           },
@@ -260,13 +352,17 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  const { unauthorized: unauth } = await requireAuth();
+export async function GET(req: NextRequest) {
+  const { session, unauthorized: unauth } = await requireAuth();
   if (unauth) return unauth;
+
+  const companyId = (session?.user as { companyId?: string })?.companyId ?? null;
+  const connections = await dbListConnections(companyId);
+
   return NextResponse.json({
     configured: isConfigured(),
     environment:
       process.env.NODE_ENV === 'production' ? 'production' : 'sandbox',
-    connections: plaidConnections.size,
+    connections: connections.length,
   });
 }

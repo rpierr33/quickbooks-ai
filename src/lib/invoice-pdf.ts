@@ -171,10 +171,13 @@ export function downloadInvoicePDF(
   }, 500);
 }
 
-/** localStorage key for white-label settings */
+/** localStorage key for white-label settings (kept for backwards-compat during migration) */
 export const WHITE_LABEL_SETTINGS_KEY = "ledgr_white_label_settings";
 
-/** Load white-label settings from localStorage */
+/**
+ * @deprecated Use /api/settings instead of localStorage.
+ * Kept for backward compatibility during migration — reads localStorage as fallback only.
+ */
 export function loadWhiteLabelSettings(): WhiteLabelSettings {
   if (typeof window === "undefined")
     return { enabled: false, customLogo: null, customFooter: null };
@@ -187,7 +190,26 @@ export function loadWhiteLabelSettings(): WhiteLabelSettings {
   }
 }
 
-/** Save white-label settings to localStorage */
+/**
+ * @deprecated Use /api/settings instead of localStorage.
+ * Kept for backward compatibility during migration.
+ */
 export function saveWhiteLabelSettings(settings: WhiteLabelSettings): void {
   localStorage.setItem(WHITE_LABEL_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+/**
+ * Build WhiteLabelSettings from the /api/settings response shape.
+ * Call this on the client after fetching /api/settings, then pass to downloadInvoicePDF.
+ */
+export function settingsToWhiteLabel(apiSettings: {
+  white_label_enabled?: boolean;
+  white_label_logo?: string | null;
+  white_label_footer?: string | null;
+}): WhiteLabelSettings {
+  return {
+    enabled: apiSettings.white_label_enabled ?? false,
+    customLogo: apiSettings.white_label_logo ?? null,
+    customFooter: apiSettings.white_label_footer ?? null,
+  };
 }

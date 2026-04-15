@@ -11,6 +11,8 @@ export default auth((req) => {
   const publicPaths = [
     "/login",
     "/signup",
+    "/forgot-password",
+    "/reset-password",
     "/billing",
     "/api/auth",
     "/api/public",

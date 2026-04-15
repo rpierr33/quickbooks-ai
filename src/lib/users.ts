@@ -25,6 +25,11 @@ export interface UserRow {
   status: "active" | "pending";
   invite_token?: string | null;
   is_demo?: boolean;
+  email_verified?: boolean;
+  verification_token?: string | null;
+  verification_expires?: string | null;
+  reset_token?: string | null;
+  reset_expires?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +70,11 @@ function normalizeUserRow(row: Record<string, unknown>): UserRow {
       | "active"
       | "pending",
     invite_token: (row.invite_token as string | null) ?? null,
+    email_verified: (row.email_verified as boolean) ?? false,
+    verification_token: (row.verification_token as string | null) ?? null,
+    verification_expires: (row.verification_expires as string | null) ?? null,
+    reset_token: (row.reset_token as string | null) ?? null,
+    reset_expires: (row.reset_expires as string | null) ?? null,
   };
 }
 
@@ -72,7 +82,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
   const normalized = email.trim().toLowerCase();
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, created_at FROM users WHERE lower(email) = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE lower(email) = $1 LIMIT 1",
       [normalized]
     );
     const row = res.rows[0];
@@ -89,7 +99,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
 export async function findUserById(id: string): Promise<UserRow | null> {
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at FROM users WHERE id = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE id = $1 LIMIT 1",
       [id]
     );
     const row = res.rows[0];
@@ -105,7 +115,7 @@ export async function findUserByInviteToken(
 ): Promise<UserRow | null> {
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at FROM users WHERE invite_token = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE invite_token = $1 LIMIT 1",
       [token]
     );
     const row = res.rows[0];
@@ -122,7 +132,7 @@ export async function listUsersByCompany(
 ): Promise<UserRow[]> {
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at FROM users WHERE company_id = $1 ORDER BY created_at ASC",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, created_at FROM users WHERE company_id = $1 ORDER BY created_at ASC",
       [companyId]
     );
     return res.rows.map(normalizeUserRow);
@@ -140,8 +150,8 @@ export async function updateUserRole(
   const now = new Date().toISOString();
   if (pool) {
     const res = await query(
-      "UPDATE users SET role = $1, updated_at = $2 WHERE id = $3 RETURNING id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at",
-      [role, now, userId]
+      "UPDATE users SET role = $1 WHERE id = $2 RETURNING id, email, name, password_hash, company_id, role, status, invite_token, email_verified, created_at",
+      [role, userId]
     );
     const row = res.rows[0];
     return row ? normalizeUserRow(row) : null;
@@ -186,7 +196,9 @@ export interface CreateUserInput {
   inviteToken?: string | null;
 }
 
-export async function createUser(input: CreateUserInput): Promise<UserRow> {
+export async function createUser(
+  input: CreateUserInput
+): Promise<UserRow & { _verificationToken?: string }> {
   const email = input.email.trim().toLowerCase();
   const name = input.name.trim();
 
@@ -206,6 +218,12 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
   const user_id = uuidv4();
   const status = input.status ?? "active";
   const invite_token = input.inviteToken ?? null;
+
+  // Generate email verification token (expires in 24 hours)
+  const verification_token = crypto.randomBytes(32).toString("hex");
+  const verification_expires = new Date(
+    Date.now() + 24 * 60 * 60 * 1000
+  ).toISOString();
 
   let company_id: string;
   let role: UserRole;
@@ -246,9 +264,21 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
 
   if (pool) {
     await query(
-      `INSERT INTO users (id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $9)`,
-      [user_id, email, name, password_hash, company_id, role, status, invite_token, now]
+      `INSERT INTO users (id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, $11)`,
+      [
+        user_id,
+        email,
+        name,
+        password_hash,
+        company_id,
+        role,
+        status,
+        invite_token,
+        verification_token,
+        verification_expires,
+        now,
+      ]
     );
   } else {
     await addToStore("users", {
@@ -261,6 +291,9 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
       status,
       invite_token,
       is_demo: false,
+      email_verified: false,
+      verification_token,
+      verification_expires,
       created_at: now,
       updated_at: now,
     });
@@ -268,7 +301,130 @@ export async function createUser(input: CreateUserInput): Promise<UserRow> {
 
   const created = await findUserById(user_id);
   if (!created) throw new Error("failed to read back created user");
-  return created;
+  // Attach the token so the signup route can email it without a second DB read
+  return { ...created, _verificationToken: verification_token };
+}
+
+/**
+ * Mark a user's email as verified by consuming the token.
+ * Returns the updated user row, or null if token is invalid/expired.
+ */
+export async function verifyEmail(token: string): Promise<UserRow | null> {
+  if (!token) return null;
+  const now = new Date();
+
+  if (pool) {
+    const res = await query(
+      `SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at
+       FROM users WHERE verification_token = $1 LIMIT 1`,
+      [token]
+    );
+    const row = res.rows[0];
+    if (!row) return null;
+    if (row.verification_expires && new Date(row.verification_expires) < now) {
+      return null; // expired
+    }
+    const updated = await query(
+      `UPDATE users SET email_verified = true, verification_token = NULL, verification_expires = NULL
+       WHERE id = $1
+       RETURNING id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at`,
+      [row.id]
+    );
+    const updatedRow = updated.rows[0];
+    return updatedRow ? normalizeUserRow(updatedRow) : null;
+  }
+
+  // Mock store path
+  const rows = await listFromStore("users");
+  const row = rows.find((u) => u.verification_token === token);
+  if (!row) return null;
+  if (row.verification_expires && new Date(row.verification_expires) < now) {
+    return null;
+  }
+  const updatedRow = await updateInStore("users", row.id as string, {
+    email_verified: true,
+    verification_token: null,
+    verification_expires: null,
+    updated_at: now.toISOString(),
+  });
+  return updatedRow ? normalizeUserRow(updatedRow) : null;
+}
+
+/**
+ * Generate and store a password reset token for the given email.
+ * Returns the token string, or null if no user with that email exists.
+ * Never throws — callers should treat null as "silently no-op".
+ */
+export async function createPasswordResetToken(
+  email: string
+): Promise<string | null> {
+  const user = await findUserByEmail(email);
+  if (!user) return null;
+
+  const reset_token = crypto.randomBytes(32).toString("hex");
+  const reset_expires = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+  const now = new Date().toISOString();
+
+  if (pool) {
+    await query(
+      `UPDATE users SET reset_token = $1, reset_expires = $2, updated_at = $3 WHERE id = $4`,
+      [reset_token, reset_expires, now, user.id]
+    );
+  } else {
+    await updateInStore("users", user.id, {
+      reset_token,
+      reset_expires,
+      updated_at: now,
+    });
+  }
+  return reset_token;
+}
+
+/**
+ * Reset a user's password by consuming the reset token.
+ * Returns true on success, false if token is invalid/expired.
+ */
+export async function resetPassword(
+  token: string,
+  newPassword: string
+): Promise<boolean> {
+  if (!token || !newPassword) return false;
+  if (newPassword.length < 8) return false;
+
+  const now = new Date();
+
+  if (pool) {
+    const res = await query(
+      `SELECT id, reset_expires FROM users WHERE reset_token = $1 LIMIT 1`,
+      [token]
+    );
+    const row = res.rows[0];
+    if (!row) return false;
+    if (row.reset_expires && new Date(row.reset_expires) < now) return false;
+
+    const password_hash = hashPassword(newPassword);
+    await query(
+      `UPDATE users SET password_hash = $1, reset_token = NULL, reset_expires = NULL, updated_at = $2 WHERE id = $3`,
+      [password_hash, now.toISOString(), row.id]
+    );
+    return true;
+  }
+
+  // Mock store path
+  const rows = await listFromStore("users");
+  const row = rows.find((u) => u.reset_token === token);
+  if (!row) return false;
+  if (row.reset_expires && new Date(row.reset_expires as string) < now) {
+    return false;
+  }
+  const password_hash = hashPassword(newPassword);
+  await updateInStore("users", row.id as string, {
+    password_hash,
+    reset_token: null,
+    reset_expires: null,
+    updated_at: now.toISOString(),
+  });
+  return true;
 }
 
 /**
@@ -294,8 +450,8 @@ export async function createInvitedUser(opts: {
 
   if (pool) {
     await query(
-      `INSERT INTO users (id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at)
-       VALUES ($1, $2, $3, '', $4, $5, 'pending', $6, false, $7, $7)`,
+      `INSERT INTO users (id, email, name, password_hash, company_id, role, status, invite_token, email_verified, created_at)
+       VALUES ($1, $2, $3, '', $4, $5, 'pending', $6, false, $7)`,
       [user_id, email, name, opts.companyId, opts.role, opts.inviteToken, now]
     );
   } else {
@@ -334,10 +490,10 @@ export async function acceptInvite(opts: {
 
   if (pool) {
     const res = await query(
-      `UPDATE users SET name = $1, password_hash = $2, status = 'active', invite_token = NULL, updated_at = $3
-       WHERE id = $4
-       RETURNING id, email, name, password_hash, company_id, role, status, invite_token, is_demo, created_at, updated_at`,
-      [opts.name.trim(), password_hash, now, opts.userId]
+      `UPDATE users SET name = $1, password_hash = $2, status = 'active', invite_token = NULL
+       WHERE id = $3
+       RETURNING id, email, name, password_hash, company_id, role, status, invite_token, email_verified, created_at`,
+      [opts.name.trim(), password_hash, opts.userId]
     );
     const row = res.rows[0];
     return row ? normalizeUserRow(row) : null;

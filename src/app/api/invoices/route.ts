@@ -8,6 +8,7 @@ import {
   getArray,
   ValidationError,
 } from '@/lib/validate';
+import { logAudit } from '@/lib/audit';
 
 export async function GET() {
   try {
@@ -112,6 +113,15 @@ export async function POST(request: NextRequest) {
     };
 
     await addToStore('invoices', newInvoice);
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'create',
+      entityType: 'invoice',
+      entityId: newInvoice.id,
+      details: { invoice_number: newInvoice.invoice_number, client_name, total: newInvoice.total },
+    });
     return NextResponse.json(newInvoice, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {

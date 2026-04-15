@@ -11,7 +11,9 @@ import {
   ChevronDown,
   Clock,
   Filter,
+  ShieldCheck,
 } from "lucide-react";
+import type { AuditAction } from "@/lib/audit";
 import type { Transaction, Invoice, Account } from "@/types";
 
 const ITEMS_PER_PAGE = 30;
@@ -202,6 +204,17 @@ function groupByDate(entries: ActivityEntry[]): { label: string; entries: Activi
   return Array.from(groups.entries()).map(([label, entries]) => ({ label, entries }));
 }
 
+type MainTab = "activity" | "system_log";
+const AUDIT_ACTIONS: { key: "all" | AuditAction; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "create", label: "Create" },
+  { key: "update", label: "Update" },
+  { key: "delete", label: "Delete" },
+  { key: "login", label: "Login" },
+  { key: "export", label: "Export" },
+  { key: "import", label: "Import" },
+];
+
 const filterTabs: { key: "all" | ActivityType; label: string }[] = [
   { key: "all", label: "All" },
   { key: "transaction", label: "Transactions" },
@@ -209,10 +222,37 @@ const filterTabs: { key: "all" | ActivityType; label: string }[] = [
   { key: "account", label: "Accounts" },
 ];
 
+const ACTION_COLORS: Record<string, { bg: string; color: string }> = {
+  create: { bg: "#ECFDF5", color: "#059669" },
+  update: { bg: "#EFF6FF", color: "#2563EB" },
+  delete: { bg: "#FEF2F2", color: "#DC2626" },
+  login: { bg: "#EDE9FE", color: "#7C3AED" },
+  logout: { bg: "#F1F5F9", color: "#64748B" },
+  export: { bg: "#FFF7ED", color: "#C2410C" },
+  import: { bg: "#ECFDF5", color: "#065F46" },
+};
+
+interface AuditEntry {
+  id: string;
+  company_id: string | null;
+  user_id: string | null;
+  user_email: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  details: Record<string, unknown> | null;
+  ip_address: string | null;
+  created_at: string;
+}
+
 export default function ActivityPage() {
+  const [mainTab, setMainTab] = useState<MainTab>("activity");
   const [activeTab, setActiveTab] = useState<"all" | ActivityType>("all");
   const [search, setSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [auditAction, setAuditAction] = useState<"all" | AuditAction>("all");
+  const [auditOffset, setAuditOffset] = useState(0);
+  const AUDIT_LIMIT = 50;
 
   const { data: transactions, isLoading: txLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions"],
@@ -227,6 +267,14 @@ export default function ActivityPage() {
   const { data: accounts, isLoading: accLoading } = useQuery<Account[]>({
     queryKey: ["accounts"],
     queryFn: () => fetch("/api/accounts").then((r) => r.json()),
+  });
+
+  const { data: auditData, isLoading: auditLoading } = useQuery<{ entries: AuditEntry[]; total: number }>({
+    queryKey: ["audit", auditAction, auditOffset],
+    queryFn: () =>
+      fetch(`/api/audit?action=${auditAction}&limit=${AUDIT_LIMIT}&offset=${auditOffset}`)
+        .then((r) => r.json()),
+    enabled: mainTab === "system_log",
   });
 
   const isLoading = txLoading || invLoading || accLoading;
@@ -262,6 +310,11 @@ export default function ActivityPage() {
     setVisibleCount(ITEMS_PER_PAGE);
   }, [activeTab, search]);
 
+  // Reset audit pagination when action filter changes
+  React.useEffect(() => {
+    setAuditOffset(0);
+  }, [auditAction]);
+
   // Stats
   const stats = useMemo(() => {
     const today = new Date();
@@ -284,18 +337,50 @@ export default function ActivityPage() {
       className="animate-fade-in"
     >
       {/* Page Header */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-          <Clock style={{ width: 20, height: 20, color: "#7C3AED" }} />
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em" }}>
-            Activity Log
-          </h1>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+            <Clock style={{ width: 20, height: 20, color: "#7C3AED" }} />
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em" }}>
+              Activity Log
+            </h1>
+          </div>
+          <p style={{ fontSize: 14, color: "#64748B" }}>
+            Complete audit trail of all transactions, invoices, and accounts.
+          </p>
         </div>
-        <p style={{ fontSize: 14, color: "#64748B" }}>
-          Complete audit trail of all transactions, invoices, and accounts.
-        </p>
+        {/* Main Tab Toggle */}
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "#F1F5F9", borderRadius: 12 }}>
+          {([
+            { key: "activity", label: "Activity", icon: Clock },
+            { key: "system_log", label: "System Log", icon: ShieldCheck },
+          ] as { key: MainTab; label: string; icon: typeof Clock }[]).map((t) => {
+            const isActive = mainTab === t.key;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setMainTab(t.key)}
+                className="cursor-pointer"
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "8px 16px", borderRadius: 8, fontSize: 13,
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? "#FFFFFF" : "#64748B",
+                  background: isActive ? "#7C3AED" : "transparent",
+                  border: "none", transition: "all 0.15s", whiteSpace: "nowrap",
+                }}
+              >
+                <Icon style={{ width: 13, height: 13 }} />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
+      {mainTab === "activity" && (
+      <>
       {/* Stats Row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
         {[
@@ -605,6 +690,153 @@ export default function ActivityPage() {
           </div>
         )}
       </div>
+      </>
+      )}
+
+      {/* System Log Tab */}
+      {mainTab === "system_log" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Action filter */}
+          <div style={{ display: "flex", gap: 4, padding: 4, background: "#F1F5F9", borderRadius: 12, width: "fit-content", flexWrap: "wrap" }}>
+            {AUDIT_ACTIONS.map((a) => {
+              const isActive = auditAction === a.key;
+              return (
+                <button
+                  key={a.key}
+                  onClick={() => setAuditAction(a.key as "all" | AuditAction)}
+                  className="cursor-pointer"
+                  style={{
+                    padding: "7px 14px", borderRadius: 8, fontSize: 12,
+                    fontWeight: isActive ? 600 : 400,
+                    color: isActive ? "#FFFFFF" : "#64748B",
+                    background: isActive ? "#7C3AED" : "transparent",
+                    border: "none", transition: "all 0.15s", whiteSpace: "nowrap",
+                  }}
+                >
+                  {a.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Log table */}
+          <div style={card}>
+            {auditLoading ? (
+              <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 12 }}>
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="animate-shimmer" style={{ height: 40, borderRadius: 8 }} />
+                ))}
+              </div>
+            ) : !auditData?.entries?.length ? (
+              <div style={{ padding: "48px 24px", textAlign: "center" }}>
+                <ShieldCheck style={{ width: 32, height: 32, color: "#CBD5E1", margin: "0 auto 12px" }} />
+                <p style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 4 }}>
+                  No audit entries yet
+                </p>
+                <p style={{ fontSize: 13, color: "#94A3B8" }}>
+                  System events will appear here as you create and modify data.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Header row */}
+                <div style={{
+                  display: "grid", gridTemplateColumns: "160px 100px 100px 1fr 120px",
+                  padding: "10px 20px", background: "#F8FAFC",
+                  borderBottom: "1px solid #E2E8F0",
+                  fontSize: 10, fontWeight: 700, textTransform: "uppercase",
+                  letterSpacing: "0.08em", color: "#94A3B8", gap: 12,
+                }}>
+                  <span>Timestamp</span>
+                  <span>Action</span>
+                  <span>Entity</span>
+                  <span>User</span>
+                  <span>Entity ID</span>
+                </div>
+                {auditData.entries.map((entry, i) => {
+                  const colors = ACTION_COLORS[entry.action] ?? { bg: "#F1F5F9", color: "#64748B" };
+                  const isLast = i === auditData.entries.length - 1;
+                  return (
+                    <div
+                      key={entry.id}
+                      style={{
+                        display: "grid", gridTemplateColumns: "160px 100px 100px 1fr 120px",
+                        padding: "12px 20px", gap: 12, alignItems: "center",
+                        borderBottom: isLast ? "none" : "1px solid #F1F5F9",
+                        transition: "background 0.1s",
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#FAFBFC"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <span style={{ fontSize: 12, color: "#64748B", whiteSpace: "nowrap" }}>
+                        {new Date(entry.created_at).toLocaleString("en-US", {
+                          month: "short", day: "numeric",
+                          hour: "numeric", minute: "2-digit", hour12: true,
+                        })}
+                      </span>
+                      <span style={{
+                        display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 10, fontWeight: 700, textTransform: "uppercase",
+                        letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 99,
+                        background: colors.bg, color: colors.color, whiteSpace: "nowrap",
+                      }}>
+                        {entry.action}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#475569", fontWeight: 500 }}>
+                        {entry.entity_type}
+                      </span>
+                      <span style={{ fontSize: 12, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {entry.user_email ?? "—"}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#94A3B8", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {entry.entity_id ? entry.entity_id.slice(0, 8) + "..." : "—"}
+                      </span>
+                    </div>
+                  );
+                })}
+
+                {/* Pagination footer */}
+                <div style={{
+                  padding: "12px 20px", borderTop: "1px solid #E2E8F0",
+                  background: "#F8FAFC", display: "flex", alignItems: "center",
+                  justifyContent: "space-between",
+                }}>
+                  <p style={{ fontSize: 12, color: "#94A3B8" }}>
+                    Showing {auditOffset + 1}–{Math.min(auditOffset + AUDIT_LIMIT, auditData.total ?? 0)} of {auditData.total ?? 0} entries
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => setAuditOffset((o) => Math.max(0, o - AUDIT_LIMIT))}
+                      disabled={auditOffset === 0}
+                      className="cursor-pointer"
+                      style={{
+                        padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                        border: "1px solid #E2E8F0", background: "#fff", color: auditOffset === 0 ? "#CBD5E1" : "#475569",
+                        cursor: auditOffset === 0 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setAuditOffset((o) => o + AUDIT_LIMIT)}
+                      disabled={auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0)}
+                      className="cursor-pointer"
+                      style={{
+                        padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
+                        border: "1px solid #E2E8F0", background: "#fff",
+                        color: auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0) ? "#CBD5E1" : "#475569",
+                        cursor: auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0) ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

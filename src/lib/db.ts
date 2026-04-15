@@ -40,6 +40,9 @@ interface MockStore {
   bills: Record<string, any>[];
   invite_tokens: Record<string, any>[];
   subscriptions: Record<string, any>[];
+  audit_log: Record<string, any>[];
+  company_settings: Record<string, any>[];
+  plaid_connections: Record<string, any>[];
 }
 
 let mockStore: MockStore | null = null;

@@ -11,11 +11,6 @@ import type { UserRole } from "@/lib/roles";
 import { ROLE_LABELS, ALL_ROLES } from "@/lib/roles";
 import { useSession } from "next-auth/react";
 import { SUPPORTED_CURRENCIES } from "@/lib/currency";
-import {
-  loadWhiteLabelSettings,
-  saveWhiteLabelSettings,
-  type WhiteLabelSettings,
-} from "@/lib/invoice-pdf";
 
 const card: React.CSSProperties = {
   background: '#FFFFFF',
@@ -72,7 +67,7 @@ const FISCAL_MONTHS = [
   { label: 'October', value: 'october' },
 ];
 
-const TAX_SETTINGS_KEY = 'ledgr_tax_settings';
+// TAX_SETTINGS_KEY kept as constant for any lingering localStorage reads — settings now server-side
 
 const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
   owner: { bg: '#FEF2F2', color: '#DC2626' },
@@ -155,7 +150,8 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    async function loadCompany() {
+    async function loadAll() {
+      // Load company info
       try {
         const res = await fetch('/api/onboarding');
         if (res.ok) {
@@ -172,26 +168,29 @@ export default function SettingsPage() {
       } finally {
         setLoadingCompany(false);
       }
+
+      // Load tax + white-label settings from API
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.tax_name) setTaxName(data.tax_name);
+          if (data.tax_rate !== undefined && data.tax_rate !== null) {
+            setDefaultTaxRate(String(data.tax_rate));
+            // If tax_rate > 0, treat tax as enabled
+            if (parseFloat(String(data.tax_rate)) > 0) setTaxEnabled(true);
+          }
+          setWlEnabled(data.white_label_enabled ?? false);
+          setWlLogo(data.white_label_logo ?? null);
+          setWlFooter(data.white_label_footer ?? '');
+        }
+      } catch {
+        // non-critical — UI keeps defaults
+      }
     }
-    loadCompany();
+    loadAll();
     loadPlaidStatus();
     loadTeam();
-
-    const stored = localStorage.getItem(TAX_SETTINGS_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (typeof parsed.taxEnabled === 'boolean') setTaxEnabled(parsed.taxEnabled);
-        if (parsed.defaultTaxRate) setDefaultTaxRate(parsed.defaultTaxRate);
-        if (parsed.taxName) setTaxName(parsed.taxName);
-      } catch { /* ignore */ }
-    }
-
-    // Load white-label settings
-    const wl = loadWhiteLabelSettings();
-    setWlEnabled(wl.enabled);
-    setWlLogo(wl.customLogo ?? null);
-    setWlFooter(wl.customFooter ?? '');
   }, [loadPlaidStatus, loadTeam]);
 
   const saveCompanySettings = async () => {
@@ -210,13 +209,24 @@ export default function SettingsPage() {
     } finally { setSavingCompany(false); }
   };
 
-  const saveTaxSettings = () => {
+  const saveTaxSettings = async () => {
     setSavingTax(true);
     try {
-      localStorage.setItem(TAX_SETTINGS_KEY, JSON.stringify({ taxEnabled, defaultTaxRate, taxName }));
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tax_name: taxName,
+          tax_rate: taxEnabled ? parseFloat(defaultTaxRate) || 0 : 0,
+        }),
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to save'); }
       toast('Tax settings saved');
-    } catch { toast('Failed to save tax settings', 'error'); }
-    finally { setSavingTax(false); }
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Failed to save tax settings', 'error');
+    } finally {
+      setSavingTax(false);
+    }
   };
 
   const handleWlLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,14 +239,25 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  const saveWhiteLabel = () => {
+  const saveWhiteLabel = async () => {
     setSavingWl(true);
     try {
-      const settings: WhiteLabelSettings = { enabled: wlEnabled, customLogo: wlLogo, customFooter: wlFooter.trim() || null };
-      saveWhiteLabelSettings(settings);
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          white_label_enabled: wlEnabled,
+          white_label_logo: wlLogo,
+          white_label_footer: wlFooter.trim() || null,
+        }),
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to save'); }
       toast('White-label settings saved');
-    } catch { toast('Failed to save white-label settings', 'error'); }
-    finally { setSavingWl(false); }
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Failed to save white-label settings', 'error');
+    } finally {
+      setSavingWl(false);
+    }
   };
 
   const handleInvite = async () => {

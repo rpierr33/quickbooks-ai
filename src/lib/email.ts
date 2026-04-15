@@ -224,7 +224,85 @@ function paymentConfirmationTemplate(data: PaymentConfirmationData): string {
 </html>`;
 }
 
+// ── Auth Email Templates ───────────────────────────────────────
+
+function verificationEmailTemplate(verifyUrl: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family:Inter,-apple-system,sans-serif;background:#F8FAFC;padding:40px 20px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#7C3AED,#9333EA);padding:24px 32px;">
+      <h1 style="color:#fff;font-size:20px;margin:0;font-weight:800;letter-spacing:-0.02em;">Ledgr</h1>
+    </div>
+    <div style="padding:32px;">
+      <h2 style="color:#0F172A;font-size:18px;font-weight:700;margin:0 0 12px;">Verify your email address</h2>
+      <p style="color:#475569;font-size:14px;line-height:1.6;margin:0 0 24px;">
+        Click the button below to verify your email and activate your Ledgr account. This link expires in 24 hours.
+      </p>
+      <a href="${verifyUrl}" style="display:inline-block;padding:13px 28px;background:linear-gradient(135deg,#7C3AED,#9333EA);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
+        Verify Email Address
+      </a>
+      <p style="color:#94A3B8;font-size:12px;margin-top:24px;line-height:1.5;">
+        If you didn't create a Ledgr account, you can safely ignore this email.
+      </p>
+      <p style="color:#94A3B8;font-size:11px;margin-top:8px;">
+        Or copy this link: ${verifyUrl}
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function passwordResetEmailTemplate(resetUrl: string): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="font-family:Inter,-apple-system,sans-serif;background:#F8FAFC;padding:40px 20px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#7C3AED,#9333EA);padding:24px 32px;">
+      <h1 style="color:#fff;font-size:20px;margin:0;font-weight:800;letter-spacing:-0.02em;">Ledgr</h1>
+    </div>
+    <div style="padding:32px;">
+      <h2 style="color:#0F172A;font-size:18px;font-weight:700;margin:0 0 12px;">Reset your password</h2>
+      <p style="color:#475569;font-size:14px;line-height:1.6;margin:0 0 24px;">
+        We received a request to reset your Ledgr password. Click the button below to choose a new one. This link expires in 1 hour.
+      </p>
+      <a href="${resetUrl}" style="display:inline-block;padding:13px 28px;background:linear-gradient(135deg,#7C3AED,#9333EA);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;">
+        Reset Password
+      </a>
+      <p style="color:#94A3B8;font-size:12px;margin-top:24px;line-height:1.5;">
+        If you didn't request a password reset, you can safely ignore this email. Your password won't change.
+      </p>
+      <p style="color:#94A3B8;font-size:11px;margin-top:8px;">
+        Or copy this link: ${resetUrl}
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 // ── Public API ─────────────────────────────────────────────────
+
+export async function sendVerificationEmail(to: string, verifyUrl: string) {
+  return sendEmail({
+    to,
+    subject: 'Verify your Ledgr email address',
+    html: verificationEmailTemplate(verifyUrl),
+  });
+}
+
+export async function sendPasswordResetEmail(to: string, resetUrl: string) {
+  return sendEmail({
+    to,
+    subject: 'Reset your Ledgr password',
+    html: passwordResetEmailTemplate(resetUrl),
+  });
+}
 
 export async function sendInvoiceReminder(data: InvoiceReminderData) {
   return sendEmail({

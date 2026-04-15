@@ -5,7 +5,15 @@ import { AuthLayout } from "@/components/layout/auth-layout";
 
 export const metadata: Metadata = {
   title: "Ledgr — Smart Accounting",
-  description: "AI-powered accounting platform for modern businesses",
+  description:
+    "AI-powered accounting for small businesses. Track expenses, send invoices, and get financial insights.",
+  keywords:
+    "accounting software, bookkeeping, invoicing, small business, AI accounting",
+  openGraph: {
+    title: "Ledgr — Smart Accounting",
+    description: "AI-powered accounting for small businesses",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

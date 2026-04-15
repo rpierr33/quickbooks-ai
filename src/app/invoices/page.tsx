@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { Plus, FileText, Trash2, Mail, CheckCircle2, Download, CreditCard, Send, Loader2, Pencil } from "lucide-react";
 import { exportInvoices } from "@/lib/export";
-import { downloadInvoicePDF } from "@/lib/invoice-pdf";
+import { downloadInvoicePDF, settingsToWhiteLabel } from "@/lib/invoice-pdf";
 import { useToast } from "@/components/ui/toast";
 import type { Invoice, InvoiceItem } from "@/types";
 
@@ -60,6 +60,12 @@ export default function InvoicesPage() {
   const { data: invoices, isLoading } = useQuery<Invoice[]>({
     queryKey: ["invoices"],
     queryFn: () => fetch("/api/invoices").then(r => r.json()),
+  });
+
+  const { data: companySettings } = useQuery<Record<string, unknown>>({
+    queryKey: ["company-settings"],
+    queryFn: () => fetch("/api/settings").then(r => r.json()),
+    staleTime: 5 * 60 * 1000,
   });
 
   const createMutation = useMutation({
@@ -324,7 +330,7 @@ export default function InvoicesPage() {
                       <CheckCircle2 style={{ width: 12, height: 12 }} /> Mark Paid
                     </button>
                   )}
-                  <button onClick={() => downloadInvoicePDF(inv)} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}>
+                  <button onClick={() => downloadInvoicePDF(inv, undefined, companySettings ? settingsToWhiteLabel(companySettings as any) : undefined)} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}>
                     <Download style={{ width: 12, height: 12 }} /> PDF
                   </button>
                 </div>

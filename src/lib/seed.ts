@@ -821,5 +821,8 @@ export function seedMockStore() {
     bills,
     invite_tokens: [],
     subscriptions: [],
+    audit_log: [],
+    company_settings: [],
+    plaid_connections: [],
   };
 }

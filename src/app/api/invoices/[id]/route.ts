@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query, updateInStore } from '@/lib/db';
 import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { asRecord, getEnum, getString, getNumber, ValidationError, pickAllowed } from '@/lib/validate';
+import { logAudit } from '@/lib/audit';
 
 const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue', 'void'] as const;
 // Fields a client may legally PATCH on an invoice. Anything not in this
@@ -118,7 +119,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const updated = { ...result.rows[0], ...updates };
     await updateInStore('invoices', id, updates);
-
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'update',
+      entityType: 'invoice',
+      entityId: id,
+      details: patch as Record<string, unknown>,
+    });
     return NextResponse.json(updated);
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -142,6 +151,14 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     if ((result as any).rowCount === 0) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
     }
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'delete',
+      entityType: 'invoice',
+      entityId: id,
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('invoices[id].DELETE failed', error);

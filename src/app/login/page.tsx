@@ -197,6 +197,9 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const verifiedParam = searchParams.get("verified");
+  const resetParam = searchParams.get("reset");
+  const errorParam = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -302,6 +305,84 @@ function LoginForm() {
                 Sign in to your accounting dashboard
               </p>
             </div>
+
+            {/* Email verified success banner */}
+            {verifiedParam === "true" && (
+              <div
+                role="status"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  background: "#F0FDF4",
+                  border: "1px solid #BBF7D0",
+                  color: "#15803D",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  marginBottom: 20,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="7.5" stroke="#15803D" />
+                  <path d="M5 8l2 2 4-4" stroke="#15803D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Email verified! You can now sign in.
+              </div>
+            )}
+
+            {/* Password reset success banner */}
+            {resetParam === "true" && (
+              <div
+                role="status"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  background: "#F0FDF4",
+                  border: "1px solid #BBF7D0",
+                  color: "#15803D",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  marginBottom: 20,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="7.5" stroke="#15803D" />
+                  <path d="M5 8l2 2 4-4" stroke="#15803D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Password updated! Sign in with your new password.
+              </div>
+            )}
+
+            {/* Invalid token error banner */}
+            {errorParam === "invalid_token" && (
+              <div
+                role="alert"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  background: "#FEF2F2",
+                  border: "1px solid #FECACA",
+                  color: "#DC2626",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  marginBottom: 20,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="7.5" stroke="#DC2626" />
+                  <path d="M8 5v4M8 11v.5" stroke="#DC2626" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                This link is invalid or has expired. Request a new one below.
+              </div>
+            )}
 
             {/* Demo button */}
             <button

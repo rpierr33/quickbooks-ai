@@ -4,6 +4,7 @@ import { categorizeTransaction } from '@/lib/ai';
 import { applyRules } from '@/lib/rules-engine';
 import { requireAuth, requireWrite } from '@/lib/auth-guard';
 import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/validate';
+import { logAudit } from '@/lib/audit';
 
 const TX_TYPES = ['income', 'expense', 'transfer'] as const;
 
@@ -128,6 +129,15 @@ export async function POST(request: NextRequest) {
     };
 
     await addToStore('transactions', newTransaction);
+    logAudit({
+      companyId: companyId ?? '',
+      userId: (session?.user as any)?.id ?? '',
+      userEmail: session?.user?.email ?? '',
+      action: 'create',
+      entityType: 'transaction',
+      entityId: id,
+      details: { description, amount, type },
+    });
     return NextResponse.json(newTransaction, { status: 201 });
   } catch (error) {
     if (error instanceof ValidationError) {
