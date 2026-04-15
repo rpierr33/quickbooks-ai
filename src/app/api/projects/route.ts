@@ -6,7 +6,7 @@ import { asRecord, getString, getNumber, getEnum, ValidationError } from '@/lib/
 const PROJECT_STATUSES = ['active', 'completed', 'on-hold'] as const;
 const BILLING_TYPES = ['fixed', 'hourly', 'milestone'] as const;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
@@ -20,6 +20,28 @@ export async function GET() {
     const totalBudget = projects.filter(p => p.status !== 'completed').reduce((sum: number, p: any) => sum + parseFloat(p.budget ?? 0), 0);
     const totalSpent = projects.filter(p => p.status !== 'completed').reduce((sum: number, p: any) => sum + parseFloat(p.spent ?? 0), 0);
     const totalProfit = totalBudget - totalSpent;
+
+    const { searchParams } = new URL(request.url);
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+
+    if (pageParam !== null) {
+      const page = Math.max(1, parseInt(pageParam, 10));
+      const limit = Math.min(Math.max(1, parseInt(limitParam || '50', 10)), 200);
+      const total = projects.length;
+      const offset = (page - 1) * limit;
+      return NextResponse.json({
+        data: projects.slice(offset, offset + limit),
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        stats: {
+          active_projects: activeProjects.length,
+          total_projects: projects.length,
+          total_budget: totalBudget,
+          total_spent: totalSpent,
+          total_profit: totalProfit,
+        },
+      });
+    }
 
     return NextResponse.json({
       projects,

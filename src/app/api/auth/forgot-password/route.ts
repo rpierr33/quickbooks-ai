@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     "unknown";
 
   // 5 reset requests per IP per hour
-  const { allowed } = rateLimit(`forgot-pw:${ip}`, 5, 60 * 60 * 1000);
+  const { allowed } = await rateLimit(`forgot-pw:${ip}`, 5, 60 * 60 * 1000);
   if (!allowed) {
     // Still return 200 to avoid timing-based email enumeration
     return NextResponse.json(

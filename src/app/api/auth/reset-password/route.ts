@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     "unknown";
 
   // 10 attempts per IP per hour to prevent brute-forcing tokens
-  const { allowed } = rateLimit(`reset-pw:${ip}`, 10, 60 * 60 * 1000);
+  const { allowed } = await rateLimit(`reset-pw:${ip}`, 10, 60 * 60 * 1000);
   if (!allowed) {
     return NextResponse.json(
       { error: "Too many attempts. Please try again later." },

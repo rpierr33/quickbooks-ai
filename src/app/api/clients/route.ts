@@ -5,11 +5,18 @@ import { asRecord, getString, getEnum, ValidationError } from '@/lib/validate';
 
 const CLIENT_TYPES = ['client', 'vendor', 'both'] as const;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
+
+    const url = new URL(request.url);
+    const pageParam = url.searchParams.get('page');
+    const limitParam = url.searchParams.get('limit');
+    const usePagination = pageParam !== null;
+    const page = Math.max(1, parseInt(pageParam || '1', 10));
+    const limit = Math.min(Math.max(1, parseInt(limitParam || '50', 10)), 200);
 
     // Build client data from invoices + estimates scoped to company
     const invoicesResult = await query(
@@ -92,7 +99,7 @@ export async function GET() {
       }
     }
 
-    const clients = Array.from(clientMap.values()).map((c, i) => ({
+    const allClients = Array.from(clientMap.values()).map((c, i) => ({
       id: `client-${i + 1}`,
       ...c,
       phone: null,
@@ -105,7 +112,17 @@ export async function GET() {
       updated_at: c.last_activity,
     }));
 
-    return NextResponse.json(clients);
+    if (usePagination) {
+      const total = allClients.length;
+      const offset = (page - 1) * limit;
+      const data = allClients.slice(offset, offset + limit);
+      return NextResponse.json({
+        data,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    }
+
+    return NextResponse.json(allClients);
   } catch (error) {
     console.error('Clients error:', error);
     return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 });

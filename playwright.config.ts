@@ -6,10 +6,10 @@ export default defineConfig({
   testIgnore: ['**/unit/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  timeout: 60000,
+  timeout: 30000,
   expect: { timeout: 15000 },
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3001',

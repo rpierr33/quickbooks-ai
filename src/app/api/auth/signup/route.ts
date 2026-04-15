@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
     req.headers.get("x-real-ip") ??
     "unknown";
-  const { allowed } = rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
+  const { allowed } = await rateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
   if (!allowed) {
     return NextResponse.json(
       { error: "Too many signup attempts. Please try again later." },

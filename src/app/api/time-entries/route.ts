@@ -47,6 +47,19 @@ export async function GET(request: NextRequest) {
       total_amount: parseFloat(r.total_amount ?? 0),
     }));
 
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+    if (pageParam !== null) {
+      const page = Math.max(1, parseInt(pageParam, 10));
+      const limit = Math.min(Math.max(1, parseInt(limitParam || '50', 10)), 200);
+      const total = rows.length;
+      const offset = (page - 1) * limit;
+      return NextResponse.json({
+        data: rows.slice(offset, offset + limit),
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    }
+
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Time entries GET error:', error);

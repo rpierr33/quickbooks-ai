@@ -5,11 +5,41 @@ import { asRecord, getString, getEnum, ValidationError } from '@/lib/validate';
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
+
+    const url = new URL(request.url);
+    const pageParam = url.searchParams.get('page');
+    const limitParam = url.searchParams.get('limit');
+    const usePagination = pageParam !== null;
+    const page = Math.max(1, parseInt(pageParam || '1', 10));
+    const limit = Math.min(Math.max(1, parseInt(limitParam || '50', 10)), 200);
+    const offset = (page - 1) * limit;
+
+    const { pool: dbPool } = await import('@/lib/db');
+
+    if (dbPool && usePagination) {
+      const countResult = await query(
+        'SELECT COUNT(*) FROM accounts WHERE company_id = $1',
+        [companyId]
+      );
+      const total = parseInt(countResult.rows[0]?.count ?? '0', 10);
+
+      const result = await query(
+        'SELECT * FROM accounts WHERE company_id = $1 ORDER BY name LIMIT $2 OFFSET $3',
+        [companyId, limit, offset]
+      );
+      const rows = result.rows.map(r => ({ ...r, balance: parseFloat(r.balance) }));
+
+      return NextResponse.json({
+        data: rows,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    }
+
     const result = await query(
       'SELECT * FROM accounts WHERE company_id = $1 ORDER BY name',
       [companyId]

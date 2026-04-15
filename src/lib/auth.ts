@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !password) return null;
 
         // Rate-limit by email: 10 attempts per 15-minute window
-        const { allowed } = rateLimit(`login:${email}`, 10, 15 * 60 * 1000);
+        const { allowed } = await rateLimit(`login:${email}`, 10, 15 * 60 * 1000);
         if (!allowed) return null;
 
         const user = await findUserByEmail(email);

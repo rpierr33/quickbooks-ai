@@ -24,6 +24,28 @@ export async function GET(request: NextRequest) {
     const totalPaidYtd = contractors.reduce((sum: number, c: any) => sum + parseFloat(c.total_paid_ytd ?? 0), 0);
     const overThreshold = contractors.filter(c => parseFloat(c.total_paid_ytd ?? 0) >= threshold);
 
+    const pageParam = searchParams.get('page');
+    const limitParam = searchParams.get('limit');
+
+    if (pageParam !== null) {
+      const page = Math.max(1, parseInt(pageParam, 10));
+      const limit = Math.min(Math.max(1, parseInt(limitParam || '50', 10)), 200);
+      const total = contractors.length;
+      const offset = (page - 1) * limit;
+      return NextResponse.json({
+        data: contractors.slice(offset, offset + limit),
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+        stats: {
+          total_contractors: contractors.length,
+          active_contractors: activeContractors.length,
+          total_paid_ytd: totalPaidYtd,
+          over_threshold_count: overThreshold.length,
+          threshold,
+          year,
+        },
+      });
+    }
+
     return NextResponse.json({
       contractors,
       stats: {
