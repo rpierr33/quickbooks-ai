@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const RECURRING_WRITE_FIELDS = ['description', 'amount', 'type', 'frequency', 'next_date', 'next_run', 'category', 'account_id', 'category_id', 'is_active', 'notes'] as const;
 
 export async function GET() {
   try {
@@ -33,11 +36,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth, session } = await requireAuth();
+    const { unauthorized: unauth, session } = await requireWrite();
     if (unauth) return unauth;
     const companyId = (session?.user as any)?.companyId;
-    const body = await request.json();
-    const { description, amount, type, account_id, category_id, frequency, next_run } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, RECURRING_WRITE_FIELDS) as Record<string, unknown>;
+    const { description, amount, type, account_id, category_id, frequency, next_run } = body as {
+      description?: unknown;
+      amount?: unknown;
+      type?: unknown;
+      account_id?: unknown;
+      category_id?: unknown;
+      frequency?: unknown;
+      next_run?: unknown;
+    };
 
     if (!description || !amount || !type || !frequency || !next_run) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -47,7 +59,7 @@ export async function POST(request: NextRequest) {
       id: crypto.randomUUID(),
       company_id: companyId,
       description,
-      amount: parseFloat(amount),
+      amount: parseFloat(String(amount)),
       type,
       account_id: account_id || null,
       category_id: category_id || null,

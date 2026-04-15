@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth, requireWrite } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const RULE_WRITE_FIELDS = ['name', 'conditions', 'category_id', 'category_name', 'is_active'] as const;
 
 export async function GET() {
   try {
@@ -39,20 +42,21 @@ export async function POST(request: NextRequest) {
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
 
-    const body = await request.json();
-    const { name, conditions, actions } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, RULE_WRITE_FIELDS) as Record<string, unknown>;
+    const { name, conditions } = body as { name?: unknown; conditions?: unknown };
 
-    if (!name || !conditions || !actions) {
-      return NextResponse.json({ error: 'Name, conditions, and actions are required' }, { status: 400 });
+    if (!name || !conditions) {
+      return NextResponse.json({ error: 'Name and conditions are required' }, { status: 400 });
     }
 
     const newRule = {
       id: crypto.randomUUID(),
       company_id: companyId,
-      name,
+      name: String(name),
       conditions,
-      actions,
-      is_active: true,
+      actions: [],
+      is_active: body.is_active != null ? Boolean(body.is_active) : true,
       priority: 0,
       created_at: new Date().toISOString(),
     };

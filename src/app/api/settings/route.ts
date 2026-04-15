@@ -97,8 +97,17 @@ export async function PUT(request: NextRequest) {
       patch.white_label_enabled = body.white_label_enabled === true || body.white_label_enabled === 'true';
     }
 
-    const wlLogo = getString(body, 'white_label_logo', { max: 2_000_000 }); // base64 can be large
-    if (wlLogo !== undefined) patch.white_label_logo = wlLogo;
+    const wlLogo = getString(body, 'white_label_logo', { max: 300_000 }); // ~225KB binary after base64
+    if (wlLogo !== undefined) {
+      // Enforce a hard server-side limit: reject base64 strings larger than ~200KB binary
+      if (wlLogo !== null && wlLogo.length > 300_000) {
+        return NextResponse.json(
+          { error: 'Logo must be under 150KB. Try a smaller image or use SVG format.' },
+          { status: 413 }
+        );
+      }
+      patch.white_label_logo = wlLogo;
+    }
 
     const wlFooter = getString(body, 'white_label_footer', { max: 500 });
     if (wlFooter !== undefined) patch.white_label_footer = wlFooter;

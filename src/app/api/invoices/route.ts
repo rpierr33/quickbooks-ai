@@ -10,16 +10,82 @@ import {
 } from '@/lib/validate';
 import { logAudit } from '@/lib/audit';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search') || '';
+    const pageParam = url.searchParams.get('page');
+    const limitParam = url.searchParams.get('limit');
+    const statusFilter = url.searchParams.get('status') || '';
+
+    const usePagination = pageParam !== null;
+    const page = parseInt(pageParam || '1', 10);
+    const limit = Math.min(parseInt(limitParam || '50', 10), 100);
+    const offset = (page - 1) * limit;
+
+    const { pool: dbPool } = await import('@/lib/db');
+
+    if (dbPool && usePagination) {
+      const params: unknown[] = [companyId];
+      let whereClauses = 'company_id = $1';
+
+      if (statusFilter) {
+        params.push(statusFilter);
+        whereClauses += ` AND status = $${params.length}`;
+      }
+      if (search) {
+        params.push(`%${search}%`);
+        whereClauses += ` AND (client_name ILIKE $${params.length} OR invoice_number ILIKE $${params.length})`;
+      }
+
+      const countResult = await query(
+        `SELECT COUNT(*) FROM invoices WHERE ${whereClauses}`,
+        params as any[]
+      );
+      const total = parseInt(countResult.rows[0]?.count ?? '0', 10);
+
+      const dataParams = [...params, limit, offset];
+      const result = await query(
+        `SELECT * FROM invoices WHERE ${whereClauses} ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+        dataParams as any[]
+      );
+
+      const rows = result.rows.map(r => ({
+        ...r,
+        subtotal: parseFloat(r.subtotal),
+        tax_rate: parseFloat(r.tax_rate),
+        tax_amount: parseFloat(r.tax_amount),
+        total: parseFloat(r.total),
+        currency: r.currency ?? 'USD',
+        exchange_rate: parseFloat(r.exchange_rate ?? 1) || 1,
+        base_amount: parseFloat(r.base_amount ?? r.total) || parseFloat(r.total),
+        items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
+      }));
+
+      return NextResponse.json({
+        data: rows,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    }
+
+    // Non-paginated fallback (mock store path, client handles pagination)
     const result = await query(
       'SELECT * FROM invoices WHERE company_id = $1 ORDER BY created_at DESC',
       [companyId]
     );
-    const rows = result.rows.map(r => ({
+    let rows = result.rows;
+
+    if (search) {
+      const s = search.toLowerCase();
+      rows = rows.filter(r =>
+        r.client_name?.toLowerCase().includes(s) || r.invoice_number?.toLowerCase().includes(s)
+      );
+    }
+
+    const mapped = rows.map(r => ({
       ...r,
       subtotal: parseFloat(r.subtotal),
       tax_rate: parseFloat(r.tax_rate),
@@ -30,7 +96,7 @@ export async function GET() {
       base_amount: parseFloat(r.base_amount ?? r.total) || parseFloat(r.total),
       items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
     }));
-    return NextResponse.json(rows);
+    return NextResponse.json(mapped);
   } catch (error) {
     console.error('invoices.GET failed', error);
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth, requireWrite } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const INVENTORY_WRITE_FIELDS = ['name', 'sku', 'description', 'quantity', 'unit_price', 'cost_price', 'unit_cost', 'sale_price', 'reorder_point', 'category'] as const;
 
 // Seed default inventory items once into the shared mock store when first accessed
 let mockSeeded = false;
@@ -64,8 +67,17 @@ export async function POST(request: NextRequest) {
     const { unauthorized, session } = await requireWrite();
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
-    const body = await request.json();
-    const { name, sku, category, quantity, unit_cost, sale_price, reorder_point } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, INVENTORY_WRITE_FIELDS) as Record<string, unknown>;
+    const { name, sku, category, quantity, unit_cost, sale_price, reorder_point } = body as {
+      name?: unknown;
+      sku?: unknown;
+      category?: unknown;
+      quantity?: unknown;
+      unit_cost?: unknown;
+      sale_price?: unknown;
+      reorder_point?: unknown;
+    };
     if (!name || !sku) return NextResponse.json({ error: 'Name and SKU are required' }, { status: 400 });
 
     const item = {
@@ -74,10 +86,10 @@ export async function POST(request: NextRequest) {
       name,
       sku,
       category: category || 'General',
-      quantity: parseInt(quantity) || 0,
-      unit_cost: parseFloat(unit_cost) || 0,
-      sale_price: parseFloat(sale_price) || 0,
-      reorder_point: parseInt(reorder_point) || 0,
+      quantity: parseInt(String(quantity)) || 0,
+      unit_cost: parseFloat(String(unit_cost)) || 0,
+      sale_price: parseFloat(String(sale_price)) || 0,
+      reorder_point: parseInt(String(reorder_point)) || 0,
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

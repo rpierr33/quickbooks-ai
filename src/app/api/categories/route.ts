@@ -1,6 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth, requireWrite } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const CATEGORY_WRITE_FIELDS = ['name', 'type', 'parent_id', 'icon', 'color'] as const;
 
 export async function GET() {
   try {
@@ -33,8 +36,9 @@ export async function POST(request: NextRequest) {
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
 
-    const body = await request.json();
-    const { name, type } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, CATEGORY_WRITE_FIELDS) as Record<string, unknown>;
+    const { name, type } = body as { name?: unknown; type?: unknown };
 
     if (!name || !type) {
       return NextResponse.json({ error: 'Name and type are required' }, { status: 400 });
@@ -43,11 +47,11 @@ export async function POST(request: NextRequest) {
     const newCategory = {
       id: crypto.randomUUID(),
       company_id: companyId,
-      name,
-      type,
-      parent_id: null,
-      icon: null,
-      color: null,
+      name: String(name),
+      type: String(type),
+      parent_id: body.parent_id != null ? String(body.parent_id) : null,
+      icon: body.icon != null ? String(body.icon) : null,
+      color: body.color != null ? String(body.color) : null,
       is_system: false,
       created_at: new Date().toISOString(),
     };

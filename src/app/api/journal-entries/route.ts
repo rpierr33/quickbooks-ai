@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
 import { requireAuth, requirePermission } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const JOURNAL_WRITE_FIELDS = ['date', 'memo', 'lines'] as const;
 
 export async function GET() {
   try {
@@ -34,10 +37,13 @@ export async function POST(request: NextRequest) {
     const { unauthorized, session } = await requirePermission('write_journal_entries');
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
-    const body = await request.json();
-    const { date, memo, lines } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, JOURNAL_WRITE_FIELDS) as Record<string, unknown>;
+    const date = body.date as string | undefined;
+    const memo = body.memo as string | undefined;
+    const lines = body.lines as any[] | undefined;
 
-    if (!memo || !lines || lines.length < 2) {
+    if (!memo || !Array.isArray(lines) || lines.length < 2) {
       return NextResponse.json({ error: 'Memo and at least 2 lines are required' }, { status: 400 });
     }
 

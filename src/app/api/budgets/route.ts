@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore, listFromStore, pool } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-guard';
+import { requireAuth, requireWrite } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const BUDGET_WRITE_FIELDS = ['category_id', 'category_name', 'monthly_amount', 'period'] as const;
 
 export async function GET() {
   try {
@@ -34,11 +37,17 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { unauthorized: unauth, session } = await requireAuth();
+    const { unauthorized: unauth, session } = await requireWrite();
     if (unauth) return unauth;
     const companyId = (session?.user as any)?.companyId;
-    const body = await request.json();
-    const { category_id, category_name, monthly_amount, period } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, BUDGET_WRITE_FIELDS);
+    const { category_id, category_name, monthly_amount, period } = body as {
+      category_id?: unknown;
+      category_name?: unknown;
+      monthly_amount?: unknown;
+      period?: unknown;
+    };
 
     if (!category_id || !category_name || monthly_amount === undefined || !period) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -49,7 +58,7 @@ export async function POST(request: NextRequest) {
       company_id: companyId,
       category_id,
       category_name,
-      monthly_amount: parseFloat(monthly_amount),
+      monthly_amount: parseFloat(String(monthly_amount)),
       period,
       created_at: new Date().toISOString(),
     };

@@ -13,10 +13,62 @@ export async function GET(request: NextRequest) {
     const { unauthorized, session } = await requireAuth();
     if (unauthorized) return unauthorized;
     const companyId = (session?.user as any)?.companyId;
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    const search = searchParams.get('search');
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const search = url.searchParams.get('search') || '';
+    const pageParam = url.searchParams.get('page');
+    const limitParam = url.searchParams.get('limit');
 
+    // Only apply server-side pagination when explicitly requested via page param
+    const usePagination = pageParam !== null;
+    const page = parseInt(pageParam || '1', 10);
+    const limit = Math.min(parseInt(limitParam || '50', 10), 100);
+    const offset = (page - 1) * limit;
+
+    // Import pool to check if we're on real DB
+    const { pool: dbPool } = await import('@/lib/db');
+
+    if (dbPool && usePagination) {
+      // Real DB path with server-side pagination
+      const params: unknown[] = [companyId];
+      let whereClauses = 'company_id = $1';
+
+      if (type && type !== 'all') {
+        params.push(type);
+        whereClauses += ` AND type = $${params.length}`;
+      }
+      if (search) {
+        params.push(`%${search}%`);
+        whereClauses += ` AND description ILIKE $${params.length}`;
+      }
+
+      const countResult = await query(
+        `SELECT COUNT(*) FROM transactions WHERE ${whereClauses}`,
+        params as any[]
+      );
+      const total = parseInt(countResult.rows[0]?.count ?? '0', 10);
+
+      const dataParams = [...params, limit, offset];
+      const result = await query(
+        `SELECT * FROM transactions WHERE ${whereClauses} ORDER BY date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+        dataParams as any[]
+      );
+
+      const rows = result.rows.map(r => ({
+        ...r,
+        amount: parseFloat(r.amount),
+        currency: r.currency ?? 'USD',
+        exchange_rate: parseFloat(r.exchange_rate ?? 1) || 1,
+        base_amount: parseFloat(r.base_amount ?? r.amount) || parseFloat(r.amount),
+      }));
+
+      return NextResponse.json({
+        data: rows,
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      });
+    }
+
+    // Mock store / non-paginated path (client handles pagination)
     let result;
     if (type && type !== 'all') {
       result = await query(
@@ -37,7 +89,6 @@ export async function GET(request: NextRequest) {
       rows = rows.filter(r => r.description.toLowerCase().includes(s));
     }
 
-    // Parse amounts and currency fields
     rows = rows.map(r => ({
       ...r,
       amount: parseFloat(r.amount),

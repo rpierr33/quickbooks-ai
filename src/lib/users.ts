@@ -30,6 +30,7 @@ export interface UserRow {
   verification_expires?: string | null;
   reset_token?: string | null;
   reset_expires?: string | null;
+  session_version: number;
   created_at: string;
   updated_at: string;
 }
@@ -75,6 +76,9 @@ function normalizeUserRow(row: Record<string, unknown>): UserRow {
     verification_expires: (row.verification_expires as string | null) ?? null,
     reset_token: (row.reset_token as string | null) ?? null,
     reset_expires: (row.reset_expires as string | null) ?? null,
+    session_version: typeof row.session_version === "number"
+      ? row.session_version
+      : parseInt(String(row.session_version ?? "1"), 10) || 1,
   };
 }
 
@@ -82,7 +86,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
   const normalized = email.trim().toLowerCase();
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE lower(email) = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, session_version, created_at FROM users WHERE lower(email) = $1 LIMIT 1",
       [normalized]
     );
     const row = res.rows[0];
@@ -99,7 +103,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
 export async function findUserById(id: string): Promise<UserRow | null> {
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE id = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, session_version, created_at FROM users WHERE id = $1 LIMIT 1",
       [id]
     );
     const row = res.rows[0];
@@ -115,7 +119,7 @@ export async function findUserByInviteToken(
 ): Promise<UserRow | null> {
   if (pool) {
     const res = await query(
-      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, created_at FROM users WHERE invite_token = $1 LIMIT 1",
+      "SELECT id, email, name, password_hash, company_id, role, status, invite_token, email_verified, verification_token, verification_expires, reset_token, reset_expires, session_version, created_at FROM users WHERE invite_token = $1 LIMIT 1",
       [token]
     );
     const row = res.rows[0];
@@ -404,7 +408,8 @@ export async function resetPassword(
 
     const password_hash = hashPassword(newPassword);
     await query(
-      `UPDATE users SET password_hash = $1, reset_token = NULL, reset_expires = NULL, updated_at = $2 WHERE id = $3`,
+      `UPDATE users SET password_hash = $1, reset_token = NULL, reset_expires = NULL,
+       session_version = COALESCE(session_version, 1) + 1, updated_at = $2 WHERE id = $3`,
       [password_hash, now.toISOString(), row.id]
     );
     return true;
@@ -418,10 +423,12 @@ export async function resetPassword(
     return false;
   }
   const password_hash = hashPassword(newPassword);
+  const currentVersion = typeof row.session_version === "number" ? row.session_version : 1;
   await updateInStore("users", row.id as string, {
     password_hash,
     reset_token: null,
     reset_expires: null,
+    session_version: currentVersion + 1,
     updated_at: now.toISOString(),
   });
   return true;
@@ -515,4 +522,27 @@ export async function countUsers(): Promise<number> {
     return Number(res.rows[0]?.c ?? 0);
   }
   return (await listFromStore("users")).length;
+}
+
+/**
+ * Increment a user's session_version to invalidate all outstanding JWTs.
+ * Call this after password change or forced logout / team removal.
+ */
+export async function incrementSessionVersion(userId: string): Promise<void> {
+  const now = new Date().toISOString();
+  if (pool) {
+    await query(
+      "UPDATE users SET session_version = COALESCE(session_version, 1) + 1, updated_at = $1 WHERE id = $2",
+      [now, userId]
+    );
+    return;
+  }
+  const row = await findInStore("users", (u) => u.id === userId);
+  if (row) {
+    const current = typeof row.session_version === "number" ? row.session_version : 1;
+    await updateInStore("users", userId, {
+      session_version: current + 1,
+      updated_at: now,
+    });
+  }
 }

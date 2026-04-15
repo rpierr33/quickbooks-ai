@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, addToStore } from '@/lib/db';
 import { requireAuth, requireWrite, requireDelete } from '@/lib/auth-guard';
+import { pickAllowed } from '@/lib/validate';
+
+const ESTIMATE_WRITE_FIELDS = ['client_name', 'client_email', 'items', 'tax_rate', 'valid_until', 'notes', 'status'] as const;
 
 export async function GET() {
   try {
@@ -30,15 +33,24 @@ export async function POST(request: NextRequest) {
     const { unauthorized: unauth, session } = await requireWrite();
     if (unauth) return unauth;
     const companyId = (session?.user as any)?.companyId;
-    const body = await request.json();
-    const { client_name, client_email, items, tax_rate, valid_until, notes, status } = body;
+    const rawBody = await request.json();
+    const body = pickAllowed(rawBody, ESTIMATE_WRITE_FIELDS) as Record<string, unknown>;
+    const { client_name, client_email, items, tax_rate, valid_until, notes, status } = body as {
+      client_name?: unknown;
+      client_email?: unknown;
+      items?: unknown[];
+      tax_rate?: unknown;
+      valid_until?: unknown;
+      notes?: unknown;
+      status?: unknown;
+    };
 
-    if (!client_name || !items || items.length === 0) {
+    if (!client_name || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Client name and items are required' }, { status: 400 });
     }
 
     const subtotal = items.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
-    const parsedTaxRate = parseFloat(tax_rate) || 0;
+    const parsedTaxRate = parseFloat(String(tax_rate)) || 0;
     const taxAmount = subtotal * (parsedTaxRate / 100);
     const total = subtotal + taxAmount;
 

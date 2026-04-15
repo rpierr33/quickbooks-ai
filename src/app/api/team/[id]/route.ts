@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-guard";
-import { findUserById, updateUserRole, removeUserFromCompany } from "@/lib/users";
+import { findUserById, updateUserRole, removeUserFromCompany, incrementSessionVersion } from "@/lib/users";
 import { canManageUsers, assignableRoles } from "@/lib/roles";
 import type { UserRole } from "@/lib/roles";
 import { asRecord, getEnum } from "@/lib/validate";
@@ -123,6 +123,12 @@ export async function DELETE(_req: NextRequest, ctx: RouteCtx) {
   if (!removed) {
     return NextResponse.json({ error: "Failed to remove user" }, { status: 500 });
   }
+
+  // Increment session version to invalidate any outstanding JWTs for this user
+  await incrementSessionVersion(id).catch((err) => {
+    console.error("Failed to increment session version after team removal:", err);
+    // Non-fatal: removal succeeded, JWT will expire naturally
+  });
 
   return NextResponse.json({ success: true });
 }

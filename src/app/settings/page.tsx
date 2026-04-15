@@ -229,11 +229,18 @@ export default function SettingsPage() {
     }
   };
 
+  const MAX_LOGO_BYTES = 150 * 1024; // 150 KB
+
   const handleWlLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { toast('Please upload an image file', 'error'); return; }
-    if (file.size > 512 * 1024) { toast('Logo must be under 512 KB', 'error'); return; }
+    if (file.size > MAX_LOGO_BYTES) {
+      toast('Logo must be under 150KB. Use SVG or a compressed PNG for best results.', 'error');
+      // Reset the input so the user can try again
+      if (e.target) e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setWlLogo(reader.result as string);
     reader.readAsDataURL(file);

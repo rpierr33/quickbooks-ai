@@ -11,13 +11,15 @@ import type { PlaidTransaction } from '@/lib/plaid';
 import { categorizeTransaction } from '@/lib/ai';
 import { applyRules } from '@/lib/rules-engine';
 import { requireAuth } from '@/lib/auth-guard';
+import { encrypt, decrypt } from '@/lib/encrypt';
 
 // ── Helpers ──
 
 /** Map a Plaid transaction to the Ledgr transaction shape and persist it. */
 async function createTransactionFromPlaid(
   plaidTxn: PlaidTransaction,
-  accountId: string | null
+  accountId: string | null,
+  companyId: string | null
 ): Promise<Record<string, unknown>> {
   // Plaid amounts: positive = money leaving account (expense), negative = money entering (income)
   const amount = Math.abs(plaidTxn.amount);
@@ -64,6 +66,7 @@ async function createTransactionFromPlaid(
     amount,
     type,
     account_id: accountId,
+    company_id: companyId,
     category_id: finalCategoryId,
     is_recurring: false,
     recurring_rule_id: null,
@@ -79,9 +82,9 @@ async function createTransactionFromPlaid(
   // Persist via the mock/real DB layer
   try {
     await query(
-      `INSERT INTO transactions (id, date, description, amount, type, account_id, category_id,
+      `INSERT INTO transactions (id, date, description, amount, type, account_id, company_id, category_id,
         is_recurring, recurring_rule_id, ai_categorized, ai_confidence, notes, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
        RETURNING *`,
       [
         id,
@@ -90,6 +93,7 @@ async function createTransactionFromPlaid(
         amount,
         type,
         accountId,
+        companyId,
         finalCategoryId,
         false,
         null,
@@ -114,8 +118,8 @@ interface PlaidConnectionRow {
   company_id: string | null;
   institution_name: string | null;
   institution_id: string | null;
-  // NOTE: access_token stored as plaintext for MVP.
-  // TODO: encrypt at rest before production — use AES-256-GCM with a KMS-managed key.
+  // access_token is stored encrypted (AES-256-GCM) in the DB.
+  // The field holds the raw ciphertext; callers must decrypt before use.
   access_token: string;
   item_id: string | null;
   cursor: string | null;
@@ -126,16 +130,18 @@ interface PlaidConnectionRow {
 
 async function dbInsertConnection(row: Omit<PlaidConnectionRow, 'created_at' | 'updated_at'>): Promise<PlaidConnectionRow> {
   const now = new Date().toISOString();
+  // Encrypt the access token before writing to the DB.
+  const encryptedToken = encrypt(row.access_token);
   if (pool) {
     const res = await pool.query(
       `INSERT INTO plaid_connections (id, company_id, institution_name, institution_id, access_token, item_id, cursor, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
        RETURNING *`,
-      [row.id, row.company_id, row.institution_name, row.institution_id, row.access_token, row.item_id, row.cursor, row.status, now]
+      [row.id, row.company_id, row.institution_name, row.institution_id, encryptedToken, row.item_id, row.cursor, row.status, now]
     );
     return res.rows[0] as PlaidConnectionRow;
   }
-  const record = { ...row, created_at: now, updated_at: now };
+  const record = { ...row, access_token: encryptedToken, created_at: now, updated_at: now };
   await addToStore('plaid_connections', record);
   return record;
 }
@@ -281,8 +287,9 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        const plainAccessToken = decrypt(connection.access_token);
         const syncResult = await syncTransactions(
-          connection.access_token,
+          plainAccessToken,
           connection.cursor ?? undefined
         );
 
@@ -292,7 +299,7 @@ export async function POST(request: NextRequest) {
         // Create Ledgr transactions for each new Plaid transaction
         const created: Record<string, unknown>[] = [];
         for (const txn of syncResult.added) {
-          const ledgrTxn = await createTransactionFromPlaid(txn, null);
+          const ledgrTxn = await createTransactionFromPlaid(txn, null, companyId);
           created.push(ledgrTxn);
         }
 
