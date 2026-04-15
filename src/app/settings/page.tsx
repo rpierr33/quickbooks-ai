@@ -180,6 +180,7 @@ export default function SettingsPage() {
             // If tax_rate > 0, treat tax as enabled
             if (parseFloat(String(data.tax_rate)) > 0) setTaxEnabled(true);
           }
+          if (data.currency) setCurrency(data.currency);
           setWlEnabled(data.white_label_enabled ?? false);
           setWlLogo(data.white_label_logo ?? null);
           setWlFooter(data.white_label_footer ?? '');
@@ -197,12 +198,21 @@ export default function SettingsPage() {
     if (!companyName.trim()) { toast('Company name is required', 'error'); return; }
     setSavingCompany(true);
     try {
-      const res = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyName: companyName.trim(), email: email.trim() || undefined, fiscalYearStart }),
-      });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to save'); }
+      const [companyRes, currencyRes] = await Promise.all([
+        fetch('/api/onboarding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyName: companyName.trim(), email: email.trim() || undefined, fiscalYearStart }),
+        }),
+        fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currency }),
+        }),
+      ]);
+      if (!companyRes.ok) { const err = await companyRes.json(); throw new Error(err.error || 'Failed to save'); }
+      // Currency save is best-effort — don't fail if settings col doesn't exist yet
+      if (!currencyRes.ok) console.warn('[settings] currency save failed (non-fatal)');
       toast('Company settings saved');
     } catch (err: unknown) {
       toast(err instanceof Error ? err.message : 'Failed to save company settings', 'error');

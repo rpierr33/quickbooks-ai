@@ -12,6 +12,7 @@ function defaultSettings(companyId: string) {
     tax_name: 'Sales Tax',
     tax_rate: 0,
     tax_number: null,
+    currency: 'USD',
     white_label_enabled: false,
     white_label_logo: null,
     white_label_footer: null,
@@ -93,6 +94,12 @@ export async function PUT(request: NextRequest) {
     const taxNumber = getString(body, 'tax_number', { max: 100 });
     if (taxNumber !== undefined) patch.tax_number = taxNumber;
 
+    const currency = getString(body, 'currency', { max: 3 });
+    if (currency !== undefined && currency !== null) {
+      // Validate it's a 3-letter uppercase code
+      if (/^[A-Z]{3}$/.test(currency)) patch.currency = currency;
+    }
+
     if ('white_label_enabled' in body) {
       patch.white_label_enabled = body.white_label_enabled === true || body.white_label_enabled === 'true';
     }
@@ -136,7 +143,15 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ ...merged, tax_rate: parseFloat(String(merged.tax_rate ?? '0')) });
       }
       const settingsId = existing.rows[0].id;
-      const keys = Object.keys(patch);
+      // Only update known columns that exist in the DB schema
+      const KNOWN_COLS = new Set(['tax_name', 'tax_rate', 'tax_number', 'white_label_enabled', 'white_label_logo', 'white_label_footer', 'updated_at']);
+      const keys = Object.keys(patch).filter(k => KNOWN_COLS.has(k));
+      if (keys.length === 0) {
+        // Nothing to update (e.g. only currency was sent and column not yet in DB)
+        const current = await pool.query('SELECT * FROM company_settings WHERE id = $1', [settingsId]);
+        const row = current.rows[0];
+        return NextResponse.json({ ...row, ...patch, tax_rate: parseFloat(row?.tax_rate ?? '0') });
+      }
       const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(', ');
       const vals = [settingsId, ...keys.map((k) => patch[k])];
       const updated = await pool.query(
@@ -144,7 +159,7 @@ export async function PUT(request: NextRequest) {
         vals
       );
       const row = updated.rows[0];
-      return NextResponse.json({ ...row, tax_rate: parseFloat(row.tax_rate ?? '0') });
+      return NextResponse.json({ ...row, ...patch, tax_rate: parseFloat(row?.tax_rate ?? '0') });
     }
 
     // Mock path
