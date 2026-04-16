@@ -80,13 +80,25 @@ export function HelpPanel() {
     }
     if (!hasSeenPage(normPath)) {
       // Don't auto-open if a spotlight tour is about to run (they conflict visually)
-      const tourRunning = !hasTourBeenSeen(TOUR_IDS[normPath] || '');
-      if (tourRunning && TOUR_IDS[normPath]) return;
-      // Delay slightly so the page content renders first
-      const t = setTimeout(() => setOpen(true), 600);
+      if (TOUR_IDS[normPath] && !hasTourBeenSeen(TOUR_IDS[normPath])) return;
+      // Delay, then check if driver.js tour is active before opening
+      const t = setTimeout(() => {
+        if (document.querySelector('.driver-overlay')) return; // Tour is active
+        setOpen(true);
+      }, 1500); // Longer delay to let tour start first
       return () => clearTimeout(t);
     }
   }, [normPath, content, mounted]);
+
+  // Close help panel when a spotlight tour starts
+  useEffect(() => {
+    if (!open) return;
+    const observer = new MutationObserver(() => {
+      if (document.querySelector('.driver-overlay')) setOpen(false);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [open]);
 
   // Close on Escape
   useEffect(() => {
