@@ -57,20 +57,21 @@ interface ProductTourProps {
 }
 
 export function ProductTour({ tourId, steps, delay = 1200 }: ProductTourProps) {
-  const hasRun = useRef(false);
-
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-
+    if (typeof window === 'undefined') return;
     if (hasTourBeenSeen(tourId)) return;
 
     const timeout = setTimeout(() => {
+      console.log('[Tour] Timer fired for:', tourId);
       // Filter steps to only include those whose elements actually exist in the DOM
-      const validSteps = steps.filter(s => document.querySelector(s.element) !== null);
+      const validSteps = steps.filter(s => {
+        const el = document.querySelector(s.element);
+        console.log('[Tour] Step element', s.element, '→', el ? 'FOUND' : 'MISSING');
+        return el !== null;
+      });
 
       // Need at least 1 valid step to start
-      if (validSteps.length === 0) return;
+      if (validSteps.length === 0) { console.log('[Tour] No valid steps, aborting'); return; }
 
       const driverObj = driver({
         showProgress: true,
@@ -100,11 +101,17 @@ export function ProductTour({ tourId, steps, delay = 1200 }: ProductTourProps) {
         },
       });
 
-      driverObj.drive();
+      console.log('[ProductTour] Starting tour:', tourId, 'with', validSteps.length, 'steps');
+      try {
+        driverObj.drive();
+        console.log('[ProductTour] drive() called successfully');
+      } catch (err) {
+        console.error('[ProductTour] drive() failed:', err);
+      }
     }, delay);
 
     return () => clearTimeout(timeout);
   }, []); // empty deps — only runs once per mount
 
-  return null;
+  return <div data-product-tour={tourId} style={{ display: 'none' }} />;
 }
