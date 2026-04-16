@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { GettingStartedChecklist } from "@/components/ui/getting-started-checklist";
+import { ProductTour } from "@/components/ui/product-tour";
 import {
   Sparkles,
   AlertTriangle,
@@ -872,14 +873,14 @@ export default function DashboardPage() {
     <div className="animate-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* ── Welcome bar ───────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div data-tour="welcome-bar" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
             {greeting()}, {firstName}
           </h2>
           <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>{todayFormatted()}</p>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div data-tour="quick-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <QuickActionButton href="/transactions" icon={Plus} label="Transaction" />
           <QuickActionButton href="/invoices/new" icon={FileText} label="Invoice" />
           <QuickActionButton href="/scanner" icon={ScanLine} label="Scan Receipt" accent />
@@ -894,7 +895,7 @@ export default function DashboardPage() {
       />
 
       {/* ── KPI strip ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 14 }}>
+      <div data-tour="kpi-cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 14 }}>
         <KpiCard
           label="Cash Balance"
           value={formatCurrency(data.cash_balance)}
@@ -946,13 +947,13 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Charts row ────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 14 }}>
+      <div data-tour="chart-row" className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 14 }}>
 
         {/* Monthly bar chart */}
         <MonthlyOverviewChart data={data} />
 
         {/* AI Insights */}
-        <AiInsights data={data} />
+        <div data-tour="ai-insights"><AiInsights data={data} /></div>
       </div>
 
       {/* ── Cash Flow Forecast ─────────────────────────────────────────────── */}
@@ -961,12 +962,67 @@ export default function DashboardPage() {
       {/* ── Action items + Recent activity ────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 14 }}>
         <NeedsAttention data={data} />
-        <RecentActivity data={data} />
+        <div data-tour="recent-activity"><RecentActivity data={data} /></div>
       </div>
 
       {/* ── Invoice summary ────────────────────────────────────────────────── */}
       <InvoiceSummary data={data} />
 
+      {/* ── Dashboard product tour ─────────────────────────────────────────── */}
+      <ProductTour
+        tourId="dashboard"
+        delay={1200}
+        steps={[
+          {
+            element: '[data-tour="welcome-bar"]',
+            popover: {
+              title: 'Welcome to Ledgr',
+              description: 'This is your financial command center. You can see your greeting, today\'s date, and key stats at a glance.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="quick-actions"]',
+            popover: {
+              title: 'Quick Actions',
+              description: 'Add a transaction, create an invoice, or scan a receipt — your three most common actions, one click away.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="kpi-cards"]',
+            popover: {
+              title: 'Key Financial Metrics',
+              description: 'Your cash balance, revenue, expenses, and net profit — all updated in real time. Click any card to drill into the details.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="chart-row"]',
+            popover: {
+              title: 'Monthly Overview',
+              description: 'Revenue vs. expenses month-by-month. Click any bar to see the transactions for that period.',
+              side: 'top',
+            },
+          },
+          {
+            element: '[data-tour="ai-insights"]',
+            popover: {
+              title: 'AI Insights',
+              description: 'Ledgr\'s AI analyses your transactions and surfaces anomalies, spending trends, and money-saving suggestions automatically.',
+              side: 'left',
+            },
+          },
+          {
+            element: '[data-tour="recent-activity"]',
+            popover: {
+              title: 'Recent Activity',
+              description: 'Your latest transactions appear here. Click any row or "View all" to open the full transaction history.',
+              side: 'top',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

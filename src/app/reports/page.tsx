@@ -6,6 +6,7 @@ import { markReportsVisited } from "@/components/ui/getting-started-checklist";
 import { formatCurrency } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { Download, Sparkles, TrendingUp, AlertTriangle, RefreshCw, FileText, Calculator, Receipt, BookOpen } from "lucide-react";
+import { ProductTour } from "@/components/ui/product-tour";
 import { exportReport } from "@/lib/export";
 import type { ProfitLossReport, BalanceSheetReport, CashFlowReport, AgedReceivablesReport, TrialBalanceReport, TaxSummaryReport, GeneralLedgerReport } from "@/types";
 
@@ -142,7 +143,7 @@ export default function ReportsPage() {
       {/* Controls Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between" style={{ gap: 12 }}>
         {/* Tab bar */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F1F5F9', padding: 4, borderRadius: 12, overflowX: 'auto', maxWidth: '100%' }}>
+        <div data-tour="report-tabs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F1F5F9', padding: 4, borderRadius: 12, overflowX: 'auto', maxWidth: '100%' }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -161,7 +162,7 @@ export default function ReportsPage() {
           ))}
         </div>
         {/* Period + Export */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div data-tour="date-range-selector" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F1F5F9', padding: 4, borderRadius: 8 }}>
             {[
               { id: "3m", label: "3M" },
@@ -228,7 +229,7 @@ export default function ReportsPage() {
             <div className="h-72 rounded-2xl animate-shimmer" />
           </div>
         ) : plData && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div data-tour="report-content" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Monthly AI Summary */}
             {summaryLoading ? (
               <div className="rounded-2xl animate-shimmer" style={{ height: 160 }} />
@@ -755,6 +756,38 @@ export default function ReportsPage() {
           </div>
         )
       )}
+
+      {/* Reports product tour */}
+      <ProductTour
+        tourId="reports"
+        delay={800}
+        steps={[
+          {
+            element: '[data-tour="report-tabs"]',
+            popover: {
+              title: 'Report Types',
+              description: 'Switch between Profit & Loss, Balance Sheet, Cash Flow, Aged Receivables, Trial Balance, Tax Summary, and General Ledger.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="date-range-selector"]',
+            popover: {
+              title: 'Date Range',
+              description: 'Filter every report to 3 months, 6 months, 1 year, or all time. Changes apply instantly.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="report-content"]',
+            popover: {
+              title: 'Report Content',
+              description: 'Financial data with charts, breakdowns, and an AI-generated summary. Use the Export button to download as CSV.',
+              side: 'top',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

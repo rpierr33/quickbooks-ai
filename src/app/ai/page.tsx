@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, Sparkles, User, MessageSquare, ArrowRight, Database } from "lucide-react";
+import { ProductTour } from "@/components/ui/product-tour";
 
 interface Message {
   role: "user" | "assistant";
@@ -71,7 +72,7 @@ export default function AIPage() {
             <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94A3B8', marginTop: 28, marginBottom: 12 }}>
               Try asking
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: '100%', maxWidth: 480 }}>
+            <div data-tour="suggestion-chips" className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: '100%', maxWidth: 480 }}>
               {suggestions.map(s => (
                 <button
                   key={s}
@@ -139,9 +140,10 @@ export default function AIPage() {
       </div>
 
       {/* Chat Input */}
-      <div style={{ paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
+      <div data-tour="chat-input-area" style={{ paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
         <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', gap: 12 }}>
           <input
+            data-tour="chat-input"
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Ask about your finances..."
@@ -154,12 +156,44 @@ export default function AIPage() {
             onFocus={(e) => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)'; }}
             onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)'; }}
           />
-          <Button type="submit" disabled={loading || !input.trim()} className="cursor-pointer shrink-0" style={{ width: 44, height: 44, borderRadius: 10, padding: 0 }}>
+          <Button data-tour="send-btn" type="submit" disabled={loading || !input.trim()} className="cursor-pointer shrink-0" style={{ width: 44, height: 44, borderRadius: 10, padding: 0 }}>
             <Send style={{ width: 16, height: 16 }} />
           </Button>
         </form>
         <p style={{ fontSize: 10, color: '#CBD5E1', textAlign: 'center', marginTop: 8 }}>Press Enter to send</p>
       </div>
+
+      {/* AI Chat product tour */}
+      <ProductTour
+        tourId="ai-chat"
+        delay={800}
+        steps={[
+          {
+            element: '[data-tour="suggestion-chips"]',
+            popover: {
+              title: 'Quick Question Starters',
+              description: 'Tap any of these to instantly ask a common financial question — Ledgr will pull data from your real transactions and invoices to answer.',
+              side: 'top',
+            },
+          },
+          {
+            element: '[data-tour="chat-input"]',
+            popover: {
+              title: 'Ask Anything',
+              description: 'Type any question about your finances in plain English. "What\'s my biggest expense?", "Am I profitable this quarter?" — Ledgr understands it all.',
+              side: 'top',
+            },
+          },
+          {
+            element: '[data-tour="send-btn"]',
+            popover: {
+              title: 'Send Your Question',
+              description: 'Hit Enter or click this button to get an AI-powered answer. Responses are based on your actual financial data.',
+              side: 'left',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

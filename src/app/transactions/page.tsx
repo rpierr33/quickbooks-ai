@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { Plus, ArrowLeftRight, Sparkles, Search, ChevronLeft, ChevronRight, Download, Paperclip, X, Image, Pencil, Trash2 } from "lucide-react";
+import { ProductTour } from "@/components/ui/product-tour";
 import { exportTransactions } from "@/lib/export";
 import { useToast } from "@/components/ui/toast";
 import type { Transaction } from "@/types";
@@ -243,18 +244,18 @@ function TransactionsPageInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div style={{ position: 'relative', flex: 1, maxWidth: 384 }}>
+      <div data-tour="filter-bar" className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div data-tour="search-bar" style={{ position: 'relative', flex: 1, maxWidth: 384 }}>
           <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8', pointerEvents: 'none' }} />
           <Input placeholder="Search transactions..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
         </div>
         <div className="flex gap-2 shrink-0 flex-wrap">
-          <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-28">
+          <Select data-tour="type-filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-28">
             <option value="all">All types</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </Select>
-          <Select value={dateRangeFilter} onChange={(e) => setDateRangeFilter(e.target.value)} className="w-36">
+          <Select data-tour="date-filter" value={dateRangeFilter} onChange={(e) => setDateRangeFilter(e.target.value)} className="w-36">
             <option value="all">All time</option>
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -271,7 +272,7 @@ function TransactionsPageInner() {
               <Download style={{ width: 14, height: 14 }} /> CSV
             </button>
           )}
-          <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer shrink-0 whitespace-nowrap" style={{ padding: '0 16px' }}>
+          <Button data-tour="add-transaction-btn" onClick={() => setShowAddDialog(true)} className="cursor-pointer shrink-0 whitespace-nowrap" style={{ padding: '0 16px' }}>
             <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Transaction
           </Button>
         </div>
@@ -330,7 +331,7 @@ function TransactionsPageInner() {
       </div>
 
       {/* Transaction List */}
-      <div style={card}>
+      <div data-tour="transaction-list" style={card}>
         {isLoading ? (
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[...Array(8)].map((_, i) => <div key={i} className="h-12 rounded-lg animate-shimmer" />)}
@@ -700,6 +701,54 @@ function TransactionsPageInner() {
           </Button>
         </DialogFooter>
       </Dialog>
+
+      {/* Transactions product tour */}
+      <ProductTour
+        tourId="transactions"
+        delay={800}
+        steps={[
+          {
+            element: '[data-tour="add-transaction-btn"]',
+            popover: {
+              title: 'Add a Transaction',
+              description: 'Click here to log any income or expense. Takes about 10 seconds — just enter a description, amount, and type.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="search-bar"]',
+            popover: {
+              title: 'Search Transactions',
+              description: 'Type any keyword to instantly filter transactions by description, category, or amount.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="type-filter"]',
+            popover: {
+              title: 'Filter by Type',
+              description: 'Switch between All, Income-only, or Expense-only views to focus on what matters.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="date-filter"]',
+            popover: {
+              title: 'Date Range Filter',
+              description: 'Narrow transactions to the last 7 days, 30 days, 3 months, or a custom range.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="transaction-list"]',
+            popover: {
+              title: 'Transaction List',
+              description: 'Click any column header to sort. Use the Edit or Delete icons on hover to manage individual entries.',
+              side: 'top',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

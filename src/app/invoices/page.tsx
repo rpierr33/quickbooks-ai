@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
 import { Plus, FileText, Trash2, Mail, CheckCircle2, Download, CreditCard, Send, Loader2, Pencil } from "lucide-react";
+import { ProductTour } from "@/components/ui/product-tour";
 import { exportInvoices } from "@/lib/export";
 import { downloadInvoicePDF, settingsToWhiteLabel } from "@/lib/invoice-pdf";
 import { useToast } from "@/components/ui/toast";
@@ -212,7 +213,7 @@ export default function InvoicesPage() {
               <Download style={{ width: 14, height: 14 }} /> Export
             </button>
           )}
-          <Button onClick={() => setShowCreate(true)} className="cursor-pointer shrink-0 whitespace-nowrap">
+          <Button data-tour="create-invoice-btn" onClick={() => setShowCreate(true)} className="cursor-pointer shrink-0 whitespace-nowrap">
             <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Create Invoice
           </Button>
         </div>
@@ -220,7 +221,7 @@ export default function InvoicesPage() {
 
       {/* Summary Stats — each card filters the list below */}
       {invoices && invoices.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
+        <div data-tour="invoice-stats" className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
           {[
             { label: 'Overdue', amount: stats.overdue, color: '#EF4444', textColor: '#DC2626', filter: 'overdue' },
             { label: 'Outstanding', amount: stats.outstanding, color: '#F59E0B', textColor: '#0F172A', filter: 'outstanding' },
@@ -253,7 +254,7 @@ export default function InvoicesPage() {
         <EmptyState icon={FileText} title="No invoices yet" description="Create your first invoice to start billing."
           action={<Button size="sm" onClick={() => setShowCreate(true)} className="cursor-pointer"><Plus style={{ width: 16, height: 16, marginRight: 4 }} /> Create</Button>} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
+        <div data-tour="invoice-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
           {invoices.map((inv) => {
             const sc = statusConfig[inv.status] || statusConfig.draft;
             const isOverdue = inv.status === 'overdue';
@@ -497,6 +498,38 @@ export default function InvoicesPage() {
           </Button>
         </DialogFooter>
       </Dialog>
+
+      {/* Invoices product tour */}
+      <ProductTour
+        tourId="invoices"
+        delay={800}
+        steps={[
+          {
+            element: '[data-tour="create-invoice-btn"]',
+            popover: {
+              title: 'Create Your First Invoice',
+              description: 'Click here to build a professional invoice in seconds. Add line items, set a due date, and send it directly to your client.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="invoice-stats"]',
+            popover: {
+              title: 'Invoice Summary',
+              description: 'Track overdue, outstanding, and paid invoices at a glance. Click any card to filter the list below.',
+              side: 'bottom',
+            },
+          },
+          {
+            element: '[data-tour="invoice-grid"]',
+            popover: {
+              title: 'Your Invoices',
+              description: 'Hover over any card to reveal quick actions: edit, send a payment reminder, copy the pay link, or download as PDF.',
+              side: 'top',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

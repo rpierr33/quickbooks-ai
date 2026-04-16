@@ -2,8 +2,19 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { X, HelpCircle, Lightbulb, ChevronRight } from "lucide-react";
+import { X, HelpCircle, Lightbulb, ChevronRight, PlayCircle } from "lucide-react";
 import { HELP_CONTENT } from "@/lib/help-content";
+import { clearTourSeen, hasTourBeenSeen } from "@/components/ui/product-tour";
+
+/** Map pathname → tourId for the Restart Tour button */
+const TOUR_IDS: Record<string, string> = {
+  '/':             'dashboard',
+  '/transactions': 'transactions',
+  '/invoices':     'invoices',
+  '/reports':      'reports',
+  '/ai':           'ai-chat',
+  '/settings':     'settings',
+};
 
 const SEEN_KEY = "ledgr_help_seen";
 
@@ -44,14 +55,22 @@ export function HelpPanel() {
   const pathname = usePathname();
   const normPath = normalisePath(pathname);
   const content = HELP_CONTENT[normPath];
+  const tourId = TOUR_IDS[normPath] ?? null;
 
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [tourSeen, setTourSeen] = useState(true); // optimistic default
 
   // On mount + route change, auto-open if first visit and content exists
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Sync tour-seen state so the button label is accurate
+  useEffect(() => {
+    if (!mounted || !tourId) return;
+    setTourSeen(hasTourBeenSeen(tourId));
+  }, [mounted, tourId, normPath]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -173,9 +192,27 @@ export function HelpPanel() {
         }}
       >
         {content ? (
-          <PanelContent content={content} onClose={handleClose} />
+          <PanelContent
+            content={content}
+            onClose={handleClose}
+            tourId={tourId}
+            tourSeen={tourSeen}
+            onRestartTour={() => {
+              if (!tourId) return;
+              clearTourSeen(tourId);
+              setTourSeen(false);
+              handleClose();
+              // Reload the page so the ProductTour useEffect re-runs
+              window.location.reload();
+            }}
+          />
         ) : (
-          <NoContentView onClose={handleClose} />
+          <NoContentView onClose={handleClose} tourId={tourId} onRestartTour={() => {
+            if (!tourId) return;
+            clearTourSeen(tourId);
+            handleClose();
+            window.location.reload();
+          }} />
         )}
       </aside>
 
@@ -196,9 +233,15 @@ export function HelpPanel() {
 function PanelContent({
   content,
   onClose,
+  tourId,
+  tourSeen,
+  onRestartTour,
 }: {
   content: NonNullable<(typeof HELP_CONTENT)[string]>;
   onClose: () => void;
+  tourId: string | null;
+  tourSeen: boolean;
+  onRestartTour: () => void;
 }) {
   return (
     <>
@@ -423,6 +466,42 @@ function PanelContent({
           Got it, let me explore
           <ChevronRight style={{ width: 15, height: 15 }} aria-hidden="true" />
         </button>
+
+        {/* Restart Tour button — only shown when tour exists for this page */}
+        {tourId && (
+          <button
+            onClick={onRestartTour}
+            style={{
+              width: "100%",
+              marginTop: 8,
+              padding: "10px 16px",
+              borderRadius: 10,
+              background: "transparent",
+              color: "#475569",
+              border: "1px solid #E2E8F0",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              transition: "background 150ms ease, color 150ms ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "#F1F5F9";
+              (e.currentTarget as HTMLButtonElement).style.color = "#0F172A";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+              (e.currentTarget as HTMLButtonElement).style.color = "#475569";
+            }}
+          >
+            <PlayCircle style={{ width: 15, height: 15 }} aria-hidden="true" />
+            {tourSeen ? "Restart Interactive Tour" : "Start Interactive Tour"}
+          </button>
+        )}
+
         <p style={{ textAlign: "center", fontSize: 11, color: "#94A3B8", marginTop: 8 }}>
           Click the <strong style={{ color: "#3B82F6" }}>?</strong> button anytime to reopen this guide
         </p>
@@ -433,7 +512,15 @@ function PanelContent({
 
 // ── Fallback when no content defined for this route ───────────────────────────
 
-function NoContentView({ onClose }: { onClose: () => void }) {
+function NoContentView({
+  onClose,
+  tourId,
+  onRestartTour,
+}: {
+  onClose: () => void;
+  tourId: string | null;
+  onRestartTour: () => void;
+}) {
   return (
     <>
       <div
@@ -473,6 +560,28 @@ function NoContentView({ onClose }: { onClose: () => void }) {
           <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
             Navigate to any main section of Ledgr for a step-by-step guide.
           </p>
+          {tourId && (
+            <button
+              onClick={onRestartTour}
+              style={{
+                marginTop: 16,
+                padding: "10px 20px",
+                borderRadius: 10,
+                background: "#EFF6FF",
+                color: "#2563EB",
+                border: "1px solid #BFDBFE",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <PlayCircle style={{ width: 15, height: 15 }} aria-hidden="true" />
+              Start Interactive Tour
+            </button>
+          )}
         </div>
       </div>
     </>

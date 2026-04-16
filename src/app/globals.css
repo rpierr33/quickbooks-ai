@@ -254,3 +254,100 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── driver.js product tour — Ledgr brand overrides ─────────────────────────*/
+.ledgr-tour-popover.driver-popover {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  border-radius: 14px !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 8px 24px -4px rgba(0, 0, 0, 0.12),
+    0 24px 48px -8px rgba(0, 0, 0, 0.08) !important;
+  padding: 20px !important;
+  max-width: 320px !important;
+}
+
+.ledgr-tour-popover .driver-popover-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 6px !important;
+  line-height: 1.3 !important;
+}
+
+.ledgr-tour-popover .driver-popover-description {
+  font-size: 13px !important;
+  color: #475569 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 0 !important;
+}
+
+.ledgr-tour-popover .driver-popover-footer {
+  margin-top: 16px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #F1F5F9 !important;
+}
+
+.ledgr-tour-popover .driver-popover-progress-text {
+  font-size: 11px !important;
+  color: #94A3B8 !important;
+  font-weight: 500 !important;
+}
+
+.ledgr-tour-popover button.driver-popover-next-btn {
+  background: #2563EB !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 7px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 150ms ease !important;
+  font-family: inherit !important;
+}
+
+.ledgr-tour-popover button.driver-popover-next-btn:hover {
+  background: #1D4ED8 !important;
+}
+
+.ledgr-tour-popover button.driver-popover-prev-btn {
+  background: #F1F5F9 !important;
+  color: #334155 !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  padding: 7px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 150ms ease !important;
+  font-family: inherit !important;
+}
+
+.ledgr-tour-popover button.driver-popover-prev-btn:hover {
+  background: #E2E8F0 !important;
+}
+
+.ledgr-tour-popover button.driver-popover-close-btn {
+  color: #94A3B8 !important;
+  font-size: 18px !important;
+  top: 14px !important;
+  right: 14px !important;
+  cursor: pointer !important;
+  transition: color 150ms ease !important;
+}
+
+.ledgr-tour-popover button.driver-popover-close-btn:hover {
+  color: #0F172A !important;
+}
+
+/* Stage highlight ring */
+.driver-active .driver-popover {
+  z-index: 10001 !important;
+}
+
+.driver-overlay {
+  z-index: 10000 !important;
+}

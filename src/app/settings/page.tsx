@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Building2, Shield, Bell, Database, Receipt, Users, Trash2, Mail, Link2, RefreshCcw, CheckCircle2, AlertCircle, Copy, UserCheck, Layers } from "lucide-react";
+import { ProductTour } from "@/components/ui/product-tour";
 import { useToast } from "@/components/ui/toast";
 import { exportTransactions, exportInvoices } from "@/lib/export";
 import { PlaidLink } from "@/components/plaid-link";
@@ -344,7 +345,7 @@ export default function SettingsPage() {
     <div className="animate-fade-in" style={{ maxWidth: 720, width: '100%' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Company Info */}
-        <div style={card}>
+        <div data-tour="company-info" style={card}>
           {sectionHeader(<Building2 style={{ width: 18, height: 18, color: '#7C3AED' }} />, '#EDE9FE', 'Company Information', 'Basic details about your business')}
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
             {loadingCompany ? (
@@ -424,7 +425,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Team & Roles */}
-        <div style={card}>
+        <div data-tour="team-management" style={card}>
           {sectionHeader(<Users style={{ width: 18, height: 18, color: '#2563EB' }} />, '#EFF6FF', 'Team & Roles', 'Manage who has access to your account')}
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
             {teamLoading ? (
@@ -515,7 +516,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Bank Connections */}
-        <div style={card}>
+        <div data-tour="bank-connections" style={card}>
           {sectionHeader(<Link2 style={{ width: 18, height: 18, color: '#8B5CF6' }} />, '#F5F3FF', 'Bank Connections', 'Link your bank accounts for automatic transaction import')}
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
             {plaidConfigured === false && (
@@ -628,6 +629,38 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Settings product tour */}
+      <ProductTour
+        tourId="settings"
+        delay={800}
+        steps={[
+          {
+            element: '[data-tour="company-info"]',
+            popover: {
+              title: 'Company Information',
+              description: 'Set your company name, email, currency, and fiscal year start. These settings apply across all invoices and reports.',
+              side: 'right',
+            },
+          },
+          {
+            element: '[data-tour="bank-connections"]',
+            popover: {
+              title: 'Bank Connections',
+              description: 'Link your bank via Plaid to automatically import transactions. No more manual entry — your books stay up to date.',
+              side: 'right',
+            },
+          },
+          {
+            element: '[data-tour="team-management"]',
+            popover: {
+              title: 'Team & Roles',
+              description: 'Invite accountants, editors, or viewers. Roles control exactly what each person can see and do in Ledgr.',
+              side: 'right',
+            },
+          },
+        ]}
+      />
     </div>
   );
 }
