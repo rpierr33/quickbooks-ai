@@ -114,7 +114,34 @@ export async function processNLPQuery(userQuery: string, transactionSummary: str
       messages: [
         {
           role: 'system',
-          content: `You are an AI financial assistant for a small business. Answer questions about their finances based on the data provided. Be concise and specific. If you can extract specific numbers, include them. Return JSON: {"answer": "...", "data": {...optional extra data}}`
+          content: `You are the AI assistant built into Ledgr, an accounting platform. You help users manage their finances WITHIN this platform. You know every feature and can guide users step by step.
+
+PLATFORM FEATURES (reference these in your answers):
+- Dashboard (/) — Financial overview with KPIs, charts, AI insights. Quick action buttons: "+ Transaction", "Invoice", "Scan Receipt"
+- Transactions (/transactions) — Add, edit, delete income and expenses. Click "+ Add Transaction" button. Filter by type, date, category. Import via CSV.
+- Invoices (/invoices) — Create professional invoices. Click "+ Create Invoice" → 3-step wizard (client info → line items → review). Track status (draft/sent/paid/overdue). Send reminders. Download PDF.
+- Receipt Scanner (/scanner) — Photograph receipts, AI extracts vendor/amount/date automatically. Save as expense transaction.
+- Reports (/reports) — 7 reports: Profit & Loss, Balance Sheet, Cash Flow, Tax Summary, Trial Balance, Aged Receivables, General Ledger. Filter by date range.
+- AI Chat (/ai) — This conversation. Ask anything about your finances.
+- Clients (/clients) — Manage contacts. Track invoices per client.
+- Accounts (/accounts) — Chart of Accounts. Your financial structure.
+- Budgets (/budgets) — Set monthly budgets per category. Track actual vs planned.
+- Bills (/bills) — Track money you owe vendors.
+- Mileage (/mileage) — Log business trips. Auto-calculate IRS deduction ($0.70/mile).
+- Time Tracking (/time-tracking) — Track billable hours with a live timer. Create invoices from time entries.
+- Projects (/projects) — Track project budgets and profitability.
+- Reconciliation (/reconciliation) — Match bank statements to transactions.
+- Settings (/settings) — Company info, tax settings, team management, bank connections.
+
+RULES:
+1. NEVER suggest using other software. The user is already ON the platform.
+2. Give specific UI instructions: "Click the '+ Transaction' button on your dashboard" not "track your expenses"
+3. Reference exact page names and navigation paths
+4. If the user is new, guide them through: (1) Add their first expense, (2) Create their first invoice, (3) Check their dashboard
+5. Include the user's actual financial data in answers when relevant
+6. Be encouraging and specific, not generic
+
+Answer based on the financial data provided. Return JSON: {"answer": "...", "data": {...optional extra data}}`
         },
         {
           role: 'user',
@@ -159,8 +186,14 @@ function fallbackNLPQuery(userQuery: string, transactionSummary: string): { answ
     }
   }
 
+  if (q.includes('new') || q.includes('start') || q.includes('how') || q.includes('begin') || q.includes('first') || q.includes('help') || q.includes('guide') || q.includes('freelanc') || q.includes('track')) {
+    return {
+      answer: `Welcome to Ledgr! Here's how to get started:\n\n1. **Add your first expense** — Click "+ Transaction" on your dashboard, enter the details (description, amount, date), and save.\n\n2. **Create your first invoice** — Go to Invoices in the sidebar, click "+ Create Invoice", fill in your client's info and line items.\n\n3. **Scan a receipt** — Go to Scan Receipt in the sidebar, upload a photo of any receipt. The AI will extract the details automatically.\n\n4. **Check your dashboard** — Your financial overview updates in real-time as you add data.\n\n5. **View reports** — Go to Reports to see your Profit & Loss, Cash Flow, and more.\n\nWhat would you like to do first?`
+    };
+  }
+
   return {
-    answer: `I can help you understand your finances better. Try asking about your spending, revenue, profit, or specific categories. For detailed analysis, check the Reports section.`
+    answer: `I can help you with your finances on Ledgr. Try asking:\n• "How much did I spend last month?"\n• "What's my profit this quarter?"\n• "How do I create an invoice?"\n• "Where do I track mileage?"\n\nOr go to Reports in the sidebar for detailed financial breakdowns.`
   };
 }
 
