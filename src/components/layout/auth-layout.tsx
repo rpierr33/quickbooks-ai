@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Sidebar, MobileNav } from "./sidebar";
 import { Header } from "./header";
+import { HelpPanel } from "@/components/ui/help-panel";
 
 // Pages that should NOT show the authenticated layout (sidebar/header)
 const PUBLIC_PATHS = ["/login", "/pay", "/billing", "/onboarding"];
@@ -43,6 +44,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <MobileNav />
+      <HelpPanel />
     </div>
   );
 }

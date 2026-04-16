@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { markReportsVisited } from "@/components/ui/getting-started-checklist";
 import { formatCurrency } from "@/lib/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { Download, Sparkles, TrendingUp, AlertTriangle, RefreshCw, FileText, Calculator, Receipt, BookOpen } from "lucide-react";
@@ -49,6 +50,11 @@ const card: React.CSSProperties = {
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState("pl");
+
+  // Mark reports as visited for the Getting Started checklist
+  useEffect(() => {
+    markReportsVisited();
+  }, []);
   const [dateRange, setDateRange] = useState("6m");
   const tabs = [
     { id: "pl", label: "Profit & Loss" },

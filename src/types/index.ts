@@ -218,6 +218,10 @@ export interface DashboardStats {
   monthly_data: ReportData[];
   invoice_overdue: number;
   invoice_paid_30d: number;
+  /** Total transactions for this company — used by the Getting Started checklist */
+  transaction_count?: number;
+  /** Total invoices for this company — used by the Getting Started checklist */
+  invoice_count?: number;
 }
 
 // ── Clients / Vendors ──

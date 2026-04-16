@@ -117,6 +117,9 @@ export async function GET() {
       monthly_data: monthlyData,
       invoice_overdue: parseFloat(invoiceOverdue.toFixed(2)),
       invoice_paid_30d: parseFloat(invoicePaid30d.toFixed(2)),
+      // Checklist helpers
+      transaction_count: transactions.length,
+      invoice_count: invoices.length,
     });
   } catch (error) {
     console.error('Dashboard error:', error);

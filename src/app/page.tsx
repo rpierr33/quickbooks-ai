@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
+import { GettingStartedChecklist } from "@/components/ui/getting-started-checklist";
 import {
   Sparkles,
   AlertTriangle,
@@ -884,6 +885,13 @@ export default function DashboardPage() {
           <QuickActionButton href="/scanner" icon={ScanLine} label="Scan Receipt" accent />
         </div>
       </div>
+
+      {/* ── Getting Started checklist (first 60 days) ─────────────────────── */}
+      <GettingStartedChecklist
+        hasTransactions={(data.transaction_count ?? 0) > 0}
+        hasInvoices={(data.invoice_count ?? 0) > 0}
+        hasVisitedReports={false}
+      />
 
       {/* ── KPI strip ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 14 }}>
