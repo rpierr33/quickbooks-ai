@@ -711,7 +711,7 @@ function TransactionsPageInner() {
             element: '[data-tour="add-transaction-btn"]',
             popover: {
               title: 'Add a Transaction',
-              description: 'Click here to log any income or expense. Takes about 10 seconds — just enter a description, amount, and type.',
+              description: 'Use this button to log any income or expense. Enter a description, amount, and type — takes about 10 seconds.',
               side: 'bottom',
             },
           },

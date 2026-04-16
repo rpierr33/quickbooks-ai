@@ -508,7 +508,7 @@ export default function InvoicesPage() {
             element: '[data-tour="create-invoice-btn"]',
             popover: {
               title: 'Create Your First Invoice',
-              description: 'Click here to build a professional invoice in seconds. Add line items, set a due date, and send it directly to your client.',
+              description: 'Use this button to build a professional invoice. Add line items, set a due date, and send it directly to your client.',
               side: 'bottom',
             },
           },

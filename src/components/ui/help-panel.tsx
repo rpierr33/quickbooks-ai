@@ -79,6 +79,9 @@ export function HelpPanel() {
       return;
     }
     if (!hasSeenPage(normPath)) {
+      // Don't auto-open if a spotlight tour is about to run (they conflict visually)
+      const tourRunning = !hasTourBeenSeen(TOUR_IDS[normPath] || '');
+      if (tourRunning && TOUR_IDS[normPath]) return;
       // Delay slightly so the page content renders first
       const t = setTimeout(() => setOpen(true), 600);
       return () => clearTimeout(t);
