@@ -17,10 +17,10 @@ import { useRouter } from "next/navigation";
 import type { ScannedReceipt, ReceiptExtraction } from "@/types";
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
   overflow: 'hidden',
 };
 
@@ -152,7 +152,7 @@ export default function ScannerPage() {
     setEditedExtraction({ ...editedExtraction, [field]: value });
   };
 
-  const confidenceColor = (c: number) => c >= 0.9 ? '#059669' : c >= 0.7 ? '#D97706' : '#DC2626';
+  const confidenceColor = (c: number) => c >= 0.9 ? '#1C3A5B' : c >= 0.7 ? '#8A5A1C' : '#922D15';
   const confidenceLabel = (c: number) => c >= 0.9 ? 'High' : c >= 0.7 ? 'Medium' : 'Low';
 
   return (
@@ -160,8 +160,8 @@ export default function ScannerPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between" style={{ marginBottom: 24, gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>Receipt Scanner</h1>
-          <p style={{ fontSize: 14, color: '#64748B' }}>Snap a receipt, let AI extract the details, save as expense</p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>Receipt Scanner</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-3)' }}>Snap a receipt, let AI extract the details, save as expense</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
@@ -184,7 +184,7 @@ export default function ScannerPage() {
             {history && history.length > 0 && (
               <span style={{
                 marginLeft: 6, fontSize: 11, fontWeight: 600,
-                background: viewMode === 'history' ? 'rgba(255,255,255,0.2)' : '#7C3AED',
+                background: viewMode === 'history' ? 'rgba(255,255,255,0.2)' : '#B33A1F',
                 color: '#fff', padding: '1px 7px', borderRadius: 99,
               }}>
                 {history.length}
@@ -211,29 +211,29 @@ export default function ScannerPage() {
                   padding: 60,
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                   minHeight: 400,
-                  background: dragActive ? 'rgba(124,58,237,0.04)' : '#FAFBFC',
-                  border: `2px dashed ${dragActive ? '#7C3AED' : '#CBD5E1'}`,
-                  borderRadius: 16,
+                  background: dragActive ? 'rgba(124,58,237,0.04)' : '#EFE7D5',
+                  border: `2px dashed ${dragActive ? '#B33A1F' : '#CFBF9E'}`,
+                  borderRadius: 8,
                   margin: 20,
                   transition: 'all 0.2s',
                 }}
               >
                 <div style={{
-                  width: 80, height: 80, borderRadius: 20,
+                  width: 80, height: 80, borderRadius: 8,
                   background: dragActive ? 'rgba(124,58,237,0.1)' : '#F1F5F9',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   marginBottom: 20, transition: 'all 0.2s',
                 }}>
                   {dragActive ? (
-                    <Upload style={{ width: 36, height: 36, color: '#7C3AED' }} />
+                    <Upload style={{ width: 36, height: 36, color: 'var(--stamp)' }} />
                   ) : (
-                    <Camera style={{ width: 36, height: 36, color: '#94A3B8' }} />
+                    <Camera style={{ width: 36, height: 36, color: 'var(--ink-4)' }} />
                   )}
                 </div>
-                <p style={{ fontSize: 18, fontWeight: 600, color: dragActive ? '#7C3AED' : '#0F172A', marginBottom: 8 }}>
+                <p style={{ fontSize: 18, fontWeight: 600, color: dragActive ? '#B33A1F' : '#0F172A', marginBottom: 8 }}>
                   {dragActive ? 'Drop your receipt here' : 'Upload a receipt or invoice'}
                 </p>
-                <p style={{ fontSize: 14, color: '#64748B', marginBottom: 20, textAlign: 'center' }}>
+                <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 20, textAlign: 'center' }}>
                   Drag & drop an image, or click to browse. Supports JPEG, PNG, WebP, PDF.
                 </p>
                 <Button variant="default" size="sm" className="cursor-pointer">
@@ -259,9 +259,9 @@ export default function ScannerPage() {
             <div style={{ ...card, padding: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sparkles style={{ width: 16, height: 16, color: '#7C3AED' }} />
+                  <Sparkles style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
                 </div>
-                <h2 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A' }}>How it works</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>How it works</h2>
               </div>
               {[
                 { step: '1', title: 'Upload', desc: 'Take a photo or upload a receipt image', icon: Camera },
@@ -272,15 +272,15 @@ export default function ScannerPage() {
                 <div key={i} style={{ display: 'flex', gap: 14, marginBottom: i < 3 ? 20 : 0, alignItems: 'flex-start' }}>
                   <div style={{
                     width: 28, height: 28, borderRadius: 99, flexShrink: 0,
-                    background: '#7C3AED', color: '#fff',
+                    background: 'var(--stamp)', color: '#fff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 700,
                   }}>
                     {s.step}
                   </div>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', marginBottom: 2 }}>{s.title}</p>
-                    <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.4 }}>{s.desc}</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>{s.title}</p>
+                    <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.4 }}>{s.desc}</p>
                   </div>
                 </div>
               ))}
@@ -288,21 +288,21 @@ export default function ScannerPage() {
 
             {/* Quick stats */}
             <div style={{ ...card, padding: 20, marginTop: 16 }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Scanner Stats</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Scanner Stats</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: '#475569' }}>Total scanned</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{history?.length || 0}</span>
+                  <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Total scanned</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{history?.length || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: '#475569' }}>Saved as expenses</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#059669' }}>
+                  <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Saved as expenses</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--pencil)' }}>
                     {history?.filter(h => h.status === 'saved').length || 0}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: '#475569' }}>Avg. confidence</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#7C3AED' }}>
+                  <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Avg. confidence</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--stamp)' }}>
                     {history && history.length > 0
                       ? `${Math.round((history.reduce((s, h) => s + h.confidence, 0) / history.length) * 100)}%`
                       : '—'}
@@ -318,15 +318,15 @@ export default function ScannerPage() {
       {viewMode === 'scanning' && (
         <div style={{ ...card, padding: 40, maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
           {imagePreview && (
-            <div style={{ marginBottom: 24, borderRadius: 12, overflow: 'hidden', border: '1px solid #E2E8F0', maxHeight: 300 }}>
-              <img src={imagePreview} alt="Receipt" style={{ width: '100%', maxHeight: 300, objectFit: 'contain', background: '#F8FAFC' }} />
+            <div style={{ marginBottom: 24, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--rule)', maxHeight: 300 }}>
+              <img src={imagePreview} alt="Receipt" style={{ width: '100%', maxHeight: 300, objectFit: 'contain', background: 'var(--paper)' }} />
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <div className="animate-spin" style={{ width: 48, height: 48, borderRadius: 99, border: '3px solid #E2E8F0', borderTopColor: '#7C3AED' }} />
+            <div className="animate-spin" style={{ width: 48, height: 48, borderRadius: 99, border: '3px solid #E2E8F0', borderTopColor: '#B33A1F' }} />
             <div>
-              <p style={{ fontSize: 18, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>Scanning receipt...</p>
-              <p style={{ fontSize: 14, color: '#64748B' }}>AI is reading vendor, amounts, items, and date</p>
+              <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>Scanning receipt...</p>
+              <p style={{ fontSize: 14, color: 'var(--ink-3)' }}>AI is reading vendor, amounts, items, and date</p>
             </div>
           </div>
           <Button variant="outline" size="sm" className="cursor-pointer" style={{ marginTop: 24 }} onClick={resetScanner}>
@@ -341,12 +341,12 @@ export default function ScannerPage() {
           {/* Left: Image preview */}
           <div>
             <div style={card}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>Receipt Image</p>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--rule-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Receipt Image</p>
                 <button
                   className="cursor-pointer"
                   onClick={() => setShowImageModal(true)}
-                  style={{ background: 'transparent', border: 'none', padding: 4, color: '#64748B' }}
+                  style={{ background: 'transparent', border: 'none', padding: 4, color: 'var(--ink-3)' }}
                 >
                   <ZoomIn style={{ width: 16, height: 16 }} />
                 </button>
@@ -356,7 +356,7 @@ export default function ScannerPage() {
                   <img
                     src={imagePreview}
                     alt="Receipt"
-                    style={{ width: '100%', maxHeight: 500, objectFit: 'contain', borderRadius: 8, background: '#F8FAFC', cursor: 'pointer' }}
+                    style={{ width: '100%', maxHeight: 500, objectFit: 'contain', borderRadius: 8, background: 'var(--paper)', cursor: 'pointer' }}
                     onClick={() => setShowImageModal(true)}
                   />
                 </div>
@@ -366,12 +366,12 @@ export default function ScannerPage() {
             {/* Confidence badge */}
             <div style={{ ...card, padding: 16, marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Sparkles style={{ width: 16, height: 16, color: '#7C3AED' }} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>AI Confidence</span>
+                <Sparkles style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)' }}>AI Confidence</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
-                  width: 120, height: 6, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden',
+                  width: 120, height: 6, borderRadius: 99, background: 'var(--paper-3)', overflow: 'hidden',
                 }}>
                   <div style={{
                     width: `${scanResult.confidence * 100}%`, height: '100%', borderRadius: 99,
@@ -392,8 +392,8 @@ export default function ScannerPage() {
           {/* Right: Extracted data */}
           <div>
             <div style={card}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>Extracted Data</p>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--rule-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Extracted Data</p>
                 <Button
                   variant="ghost" size="sm" className="cursor-pointer"
                   onClick={() => setEditMode(!editMode)}
@@ -442,26 +442,26 @@ export default function ScannerPage() {
                 {/* Line items */}
                 {editedExtraction.line_items.length > 0 && (
                   <div style={{ marginTop: 24 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Line Items ({editedExtraction.line_items.length})
                     </p>
-                    <div style={{ borderRadius: 10, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+                    <div style={{ borderRadius: 10, border: '1px solid var(--rule)', overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                          <tr style={{ background: '#F8FAFC' }}>
-                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Item</th>
-                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'center', textTransform: 'uppercase' }}>Qty</th>
-                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'right', textTransform: 'uppercase' }}>Price</th>
-                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'right', textTransform: 'uppercase' }}>Amount</th>
+                          <tr style={{ background: 'var(--paper)' }}>
+                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Item</th>
+                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'center', textTransform: 'uppercase' }}>Qty</th>
+                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'right', textTransform: 'uppercase' }}>Price</th>
+                            <th style={{ padding: '8px 12px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'right', textTransform: 'uppercase' }}>Amount</th>
                           </tr>
                         </thead>
                         <tbody>
                           {editedExtraction.line_items.map((item, i) => (
                             <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
-                              <td style={{ padding: '10px 12px', fontSize: 13, color: '#0F172A' }}>{item.description}</td>
-                              <td style={{ padding: '10px 12px', fontSize: 13, color: '#475569', textAlign: 'center' }}>{item.quantity}</td>
-                              <td style={{ padding: '10px 12px', fontSize: 13, color: '#475569', textAlign: 'right' }}>${item.unit_price.toFixed(2)}</td>
-                              <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, color: '#0F172A', textAlign: 'right' }}>${item.amount.toFixed(2)}</td>
+                              <td style={{ padding: '10px 12px', fontSize: 13, color: 'var(--ink)' }}>{item.description}</td>
+                              <td style={{ padding: '10px 12px', fontSize: 13, color: 'var(--ink-2)', textAlign: 'center' }}>{item.quantity}</td>
+                              <td style={{ padding: '10px 12px', fontSize: 13, color: 'var(--ink-2)', textAlign: 'right' }}>${item.unit_price.toFixed(2)}</td>
+                              <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, color: 'var(--ink)', textAlign: 'right' }}>${item.amount.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -498,13 +498,13 @@ export default function ScannerPage() {
       {/* History View */}
       {viewMode === 'history' && (
         <div style={card}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>Scan History</p>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--rule-soft)' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Scan History</p>
           </div>
           {historyLoading ? (
             <div style={{ padding: 60, textAlign: 'center' }}>
-              <Loader2 className="animate-spin" style={{ width: 24, height: 24, color: '#94A3B8', margin: '0 auto 12px' }} />
-              <p style={{ fontSize: 14, color: '#64748B' }}>Loading history...</p>
+              <Loader2 className="animate-spin" style={{ width: 24, height: 24, color: 'var(--ink-4)', margin: '0 auto 12px' }} />
+              <p style={{ fontSize: 14, color: 'var(--ink-3)' }}>Loading history...</p>
             </div>
           ) : !history || history.length === 0 ? (
             <EmptyState
@@ -521,14 +521,14 @@ export default function ScannerPage() {
               <div className="hidden sm:block">
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ background: '#F8FAFC' }}>
-                      <th style={{ padding: '10px 20px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '0.05em' }}>File</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>Vendor</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>Date</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'right', textTransform: 'uppercase' }}>Amount</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'left', textTransform: 'uppercase' }}>Category</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'center', textTransform: 'uppercase' }}>Confidence</th>
-                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: '#64748B', textAlign: 'center', textTransform: 'uppercase' }}>Status</th>
+                    <tr style={{ background: 'var(--paper)' }}>
+                      <th style={{ padding: '10px 20px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'left', textTransform: 'uppercase', letterSpacing: '0.05em' }}>File</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'left', textTransform: 'uppercase' }}>Vendor</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'left', textTransform: 'uppercase' }}>Date</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'right', textTransform: 'uppercase' }}>Amount</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'left', textTransform: 'uppercase' }}>Category</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'center', textTransform: 'uppercase' }}>Confidence</th>
+                      <th style={{ padding: '10px 16px', fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textAlign: 'center', textTransform: 'uppercase' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -537,38 +537,38 @@ export default function ScannerPage() {
                         <td style={{ padding: '12px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <div style={{
-                              width: 32, height: 32, borderRadius: 8, background: '#F1F5F9',
+                              width: 32, height: 32, borderRadius: 8, background: 'var(--paper-3)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                             }}>
                               {receipt.file_type?.includes('pdf') ? (
-                                <FileText style={{ width: 16, height: 16, color: '#EF4444' }} />
+                                <FileText style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
                               ) : (
-                                <ImageIcon style={{ width: 16, height: 16, color: '#7C3AED' }} />
+                                <ImageIcon style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
                               )}
                             </div>
                             <div>
-                              <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {receipt.file_name}
                               </p>
-                              <p style={{ fontSize: 11, color: '#94A3B8' }}>
+                              <p style={{ fontSize: 11, color: 'var(--ink-4)' }}>
                                 {receipt.file_size ? `${(receipt.file_size / 1024).toFixed(0)} KB` : ''}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 500, color: '#0F172A' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>
                           {receipt.extraction.vendor}
                         </td>
-                        <td style={{ padding: '12px 16px', fontSize: 13, color: '#475569' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--ink-2)' }}>
                           {formatDate(receipt.extraction.date)}
                         </td>
-                        <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#0F172A', textAlign: 'right' }}>
+                        <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: 'var(--ink)', textAlign: 'right' }}>
                           {formatCurrency(receipt.extraction.amount)}
                         </td>
                         <td style={{ padding: '12px 16px' }}>
                           <span style={{
                             fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-                            background: '#F1F5F9', color: '#475569',
+                            background: 'var(--paper-3)', color: 'var(--ink-2)',
                           }}>
                             {receipt.extraction.category}
                           </span>
@@ -584,8 +584,8 @@ export default function ScannerPage() {
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <span style={{
                             fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-                            background: receipt.status === 'saved' ? '#ECFDF5' : receipt.status === 'confirmed' ? '#EFF6FF' : '#F1F5F9',
-                            color: receipt.status === 'saved' ? '#059669' : receipt.status === 'confirmed' ? '#2563EB' : '#64748B',
+                            background: receipt.status === 'saved' ? '#DDE4EC' : receipt.status === 'confirmed' ? '#DDE4EC' : '#F1F5F9',
+                            color: receipt.status === 'saved' ? '#1C3A5B' : receipt.status === 'confirmed' ? '#171510' : '#64748B',
                           }}>
                             {receipt.status === 'saved' ? 'Saved' : receipt.status === 'confirmed' ? 'Confirmed' : 'Scanned'}
                           </span>
@@ -600,24 +600,24 @@ export default function ScannerPage() {
               <div className="sm:hidden" style={{ padding: 12 }}>
                 {history.map((receipt) => (
                   <div key={receipt.id} style={{
-                    padding: 16, borderRadius: 12, border: '1px solid #F1F5F9',
-                    marginBottom: 8, background: '#FAFBFC',
+                    padding: 16, borderRadius: 8, border: '1px solid var(--rule-soft)',
+                    marginBottom: 8, background: 'var(--paper-3)',
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{receipt.extraction.vendor}</p>
-                        <p style={{ fontSize: 12, color: '#64748B' }}>{formatDate(receipt.extraction.date)}</p>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{receipt.extraction.vendor}</p>
+                        <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(receipt.extraction.date)}</p>
                       </div>
-                      <p style={{ fontSize: 16, fontWeight: 700, color: '#0F172A' }}>{formatCurrency(receipt.extraction.amount)}</p>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{formatCurrency(receipt.extraction.amount)}</p>
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: '#F1F5F9', color: '#475569' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'var(--paper-3)', color: 'var(--ink-2)' }}>
                         {receipt.extraction.category}
                       </span>
                       <span style={{
                         fontSize: 11, padding: '2px 8px', borderRadius: 99,
-                        background: receipt.status === 'saved' ? '#ECFDF5' : '#F1F5F9',
-                        color: receipt.status === 'saved' ? '#059669' : '#64748B',
+                        background: receipt.status === 'saved' ? '#DDE4EC' : '#F1F5F9',
+                        color: receipt.status === 'saved' ? '#1C3A5B' : '#64748B',
                       }}>
                         {receipt.status}
                       </span>
@@ -675,7 +675,7 @@ function FieldRow({
   const labelStyle: React.CSSProperties = {
     fontSize: compact ? 11 : 12,
     fontWeight: 500,
-    color: '#64748B',
+    color: 'var(--ink-3)',
     marginBottom: 4,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.04em',
@@ -684,7 +684,7 @@ function FieldRow({
   const valueStyle: React.CSSProperties = {
     fontSize: compact ? 14 : 15,
     fontWeight: 600,
-    color: '#0F172A',
+    color: 'var(--ink)',
   };
 
   if (editable && options) {
@@ -704,7 +704,7 @@ function FieldRow({
         <label style={labelStyle}>{label}</label>
         <div style={{ position: 'relative' }}>
           {prefix && (
-            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#94A3B8', fontWeight: 500 }}>
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--ink-4)', fontWeight: 500 }}>
               {prefix}
             </span>
           )}

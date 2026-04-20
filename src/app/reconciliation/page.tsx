@@ -23,9 +23,9 @@ import type { Account, Transaction } from "@/types";
 
 /* ─── Design Tokens ─── */
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   overflow: "hidden",
 };
@@ -219,7 +219,7 @@ export default function ReconciliationPage() {
       <tr
         style={{
           borderBottom: "1px solid #F1F5F9",
-          background: index % 2 === 1 ? "#FAFBFC" : "transparent",
+          background: index % 2 === 1 ? "#EFE7D5" : "transparent",
           transition: "background 0.15s",
           cursor: showCheckbox ? "pointer" : "default",
         }}
@@ -229,7 +229,7 @@ export default function ReconciliationPage() {
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background =
-            index % 2 === 1 ? "#FAFBFC" : "transparent";
+            index % 2 === 1 ? "#EFE7D5" : "transparent";
         }}
       >
         {showCheckbox && (
@@ -240,9 +240,9 @@ export default function ReconciliationPage() {
                 height: 20,
                 borderRadius: 6,
                 border: isChecked
-                  ? "2px solid #7C3AED"
-                  : "2px solid #CBD5E1",
-                background: isChecked ? "#7C3AED" : "#FFFFFF",
+                  ? "2px solid #B33A1F"
+                  : "2px solid #CFBF9E",
+                background: isChecked ? "#B33A1F" : "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -283,7 +283,7 @@ export default function ReconciliationPage() {
               fontVariantNumeric: "tabular-nums",
               fontWeight: 600,
               fontSize: 13,
-              color: isIncome ? "#059669" : "#EF4444",
+              color: isIncome ? "#1C3A5B" : "#B33A1F",
             }}
           >
             {isIncome ? "+" : "-"}
@@ -316,13 +316,13 @@ export default function ReconciliationPage() {
             width: 72,
             height: 72,
             borderRadius: "50%",
-            background: "#ECFDF5",
+            background: "#DDE4EC",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <CheckCircle2 style={{ width: 36, height: 36, color: "#059669" }} />
+          <CheckCircle2 style={{ width: 36, height: 36, color: "#1C3A5B" }} />
         </div>
         <div>
           <h2
@@ -371,8 +371,8 @@ export default function ReconciliationPage() {
           style={{
             width: 40,
             height: 40,
-            borderRadius: 12,
-            background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+            borderRadius: 8,
+            background: "var(--stamp)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -510,7 +510,7 @@ export default function ReconciliationPage() {
               flexWrap: "wrap",
               alignItems: "center",
               gap: 24,
-              background: "#F8FAFC",
+              background: "var(--paper)",
             }}
           >
             {/* Book Balance */}
@@ -523,7 +523,7 @@ export default function ReconciliationPage() {
 
             <ArrowRight
               className="hidden sm:block"
-              style={{ width: 20, height: 20, color: "#CBD5E1", flexShrink: 0 }}
+              style={{ width: 20, height: 20, color: "#CFBF9E", flexShrink: 0 }}
             />
 
             {/* Cleared Total */}
@@ -534,7 +534,7 @@ export default function ReconciliationPage() {
               <p
                 style={{
                   ...bigNumber,
-                  color: clearedTotal >= 0 ? "#059669" : "#EF4444",
+                  color: clearedTotal >= 0 ? "#1C3A5B" : "#B33A1F",
                 }}
               >
                 {clearedTotal >= 0 ? "+" : ""}
@@ -544,7 +544,7 @@ export default function ReconciliationPage() {
 
             <ArrowRight
               className="hidden sm:block"
-              style={{ width: 20, height: 20, color: "#CBD5E1", flexShrink: 0 }}
+              style={{ width: 20, height: 20, color: "#CFBF9E", flexShrink: 0 }}
             />
 
             {/* Statement Balance */}
@@ -563,11 +563,11 @@ export default function ReconciliationPage() {
                 flex: "1 1 160px",
                 minWidth: 160,
                 padding: "14px 20px",
-                borderRadius: 12,
-                background: isDifferenceZero ? "#ECFDF5" : "#FEF2F2",
+                borderRadius: 8,
+                background: isDifferenceZero ? "#DDE4EC" : "#F5E0D9",
                 border: isDifferenceZero
-                  ? "1px solid #A7F3D0"
-                  : "1px solid #FECACA",
+                  ? "1px solid #DDE4EC"
+                  : "1px solid #F5E0D9",
                 textAlign: "center",
               }}
             >
@@ -575,7 +575,7 @@ export default function ReconciliationPage() {
                 style={{
                   ...sectionLabel,
                   marginBottom: 6,
-                  color: isDifferenceZero ? "#059669" : "#EF4444",
+                  color: isDifferenceZero ? "#1C3A5B" : "#B33A1F",
                 }}
               >
                 Difference
@@ -584,7 +584,7 @@ export default function ReconciliationPage() {
                 style={{
                   ...bigNumber,
                   fontSize: 28,
-                  color: isDifferenceZero ? "#059669" : "#EF4444",
+                  color: isDifferenceZero ? "#1C3A5B" : "#B33A1F",
                 }}
               >
                 {formatCurrency(Math.abs(difference))}
@@ -600,18 +600,18 @@ export default function ReconciliationPage() {
               >
                 {isDifferenceZero ? (
                   <CheckCircle2
-                    style={{ width: 14, height: 14, color: "#059669" }}
+                    style={{ width: 14, height: 14, color: "#1C3A5B" }}
                   />
                 ) : (
                   <AlertCircle
-                    style={{ width: 14, height: 14, color: "#EF4444" }}
+                    style={{ width: 14, height: 14, color: "#B33A1F" }}
                   />
                 )}
                 <span
                   style={{
                     fontSize: 12,
                     fontWeight: 500,
-                    color: isDifferenceZero ? "#059669" : "#EF4444",
+                    color: isDifferenceZero ? "#1C3A5B" : "#B33A1F",
                   }}
                 >
                   {isDifferenceZero
@@ -652,7 +652,7 @@ export default function ReconciliationPage() {
                   style={{
                     fontWeight: 600,
                     fontVariantNumeric: "tabular-nums",
-                    color: clearedTotal >= 0 ? "#059669" : "#EF4444",
+                    color: clearedTotal >= 0 ? "#1C3A5B" : "#B33A1F",
                   }}
                 >
                   {clearedTotal >= 0 ? "+" : ""}
@@ -702,7 +702,7 @@ export default function ReconciliationPage() {
                     width: 8,
                     height: 8,
                     borderRadius: "50%",
-                    background: "#059669",
+                    background: "#1C3A5B",
                   }}
                 />
                 <h3
@@ -720,7 +720,7 @@ export default function ReconciliationPage() {
                   fontSize: 12,
                   fontWeight: 600,
                   color: "#FFFFFF",
-                  background: "#059669",
+                  background: "#1C3A5B",
                   padding: "2px 10px",
                   borderRadius: 99,
                 }}
@@ -753,7 +753,7 @@ export default function ReconciliationPage() {
                   style={{
                     width: 32,
                     height: 32,
-                    color: "#CBD5E1",
+                    color: "#CFBF9E",
                     margin: "0 auto 12px",
                   }}
                 />
@@ -784,14 +784,14 @@ export default function ReconciliationPage() {
                         onClick={() => toggleCleared(tx.id)}
                         style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: i < clearedTransactions.length - 1 ? "1px solid #F1F5F9" : "none", cursor: "pointer" }}
                       >
-                        <div style={{ width: 20, height: 20, borderRadius: 6, border: "2px solid #7C3AED", background: "#7C3AED", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: "2px solid #B33A1F", background: "#B33A1F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           <Check style={{ width: 12, height: 12, color: "#FFFFFF" }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.description}</p>
                           <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>{formatDate(tx.date)}</p>
                         </div>
-                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#059669" : "#EF4444", flexShrink: 0 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#1C3A5B" : "#B33A1F", flexShrink: 0 }}>
                           {isIncome ? "+" : "-"}{formatCurrency(amt)}
                         </span>
                       </div>
@@ -836,7 +836,7 @@ export default function ReconciliationPage() {
                 style={{
                   padding: "12px 20px",
                   borderTop: "1px solid #E2E8F0",
-                  background: "#F8FAFC",
+                  background: "var(--paper)",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
@@ -852,7 +852,7 @@ export default function ReconciliationPage() {
                     fontSize: 15,
                     fontWeight: 700,
                     fontVariantNumeric: "tabular-nums",
-                    color: clearedTotal >= 0 ? "#059669" : "#EF4444",
+                    color: clearedTotal >= 0 ? "#1C3A5B" : "#B33A1F",
                   }}
                 >
                   {clearedTotal >= 0 ? "+" : ""}
@@ -879,7 +879,7 @@ export default function ReconciliationPage() {
                     width: 8,
                     height: 8,
                     borderRadius: "50%",
-                    background: "#F59E0B",
+                    background: "#8A5A1C",
                   }}
                 />
                 <h3
@@ -897,7 +897,7 @@ export default function ReconciliationPage() {
                   fontSize: 12,
                   fontWeight: 600,
                   color: "#FFFFFF",
-                  background: "#F59E0B",
+                  background: "#8A5A1C",
                   padding: "2px 10px",
                   borderRadius: 99,
                 }}
@@ -930,7 +930,7 @@ export default function ReconciliationPage() {
                   style={{
                     width: 32,
                     height: 32,
-                    color: "#059669",
+                    color: "#1C3A5B",
                     margin: "0 auto 12px",
                   }}
                 />
@@ -938,7 +938,7 @@ export default function ReconciliationPage() {
                   style={{
                     fontSize: 14,
                     fontWeight: 500,
-                    color: "#059669",
+                    color: "#1C3A5B",
                   }}
                 >
                   All transactions cleared!
@@ -961,14 +961,14 @@ export default function ReconciliationPage() {
                         onClick={() => toggleCleared(tx.id)}
                         style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: i < unclearedTransactions.length - 1 ? "1px solid #F1F5F9" : "none", cursor: "pointer" }}
                       >
-                        <div style={{ width: 20, height: 20, borderRadius: 6, border: isChecked ? "2px solid #7C3AED" : "2px solid #CBD5E1", background: isChecked ? "#7C3AED" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: isChecked ? "2px solid #B33A1F" : "2px solid #CFBF9E", background: isChecked ? "#B33A1F" : "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
                           {isChecked && <Check style={{ width: 12, height: 12, color: "#FFFFFF" }} />}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tx.description}</p>
                           <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 2 }}>{formatDate(tx.date)}</p>
                         </div>
-                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#059669" : "#EF4444", flexShrink: 0 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: isIncome ? "#1C3A5B" : "#B33A1F", flexShrink: 0 }}>
                           {isIncome ? "+" : "-"}{formatCurrency(amt)}
                         </span>
                       </div>
@@ -1023,7 +1023,7 @@ export default function ReconciliationPage() {
             style={{
               width: 40,
               height: 40,
-              color: "#CBD5E1",
+              color: "#CFBF9E",
               margin: "0 auto 16px",
             }}
           />
@@ -1050,10 +1050,10 @@ export default function ReconciliationPage() {
           <DialogTitle>Complete Reconciliation</DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
             You are about to mark <strong>{clearedIds.size}</strong> transaction{clearedIds.size !== 1 ? 's' : ''} as reconciled for the statement ending <strong>{statementDate}</strong>. This action marks each transaction with a reconciliation note.
           </p>
-          <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 8 }}>This can be reviewed in the transaction history at any time.</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-4)', marginTop: 8 }}>This can be reviewed in the transaction history at any time.</p>
         </DialogContent>
         <DialogFooter className="flex gap-3">
           <Button variant="outline" onClick={() => setShowConfirm(false)} className="flex-1 cursor-pointer">Cancel</Button>

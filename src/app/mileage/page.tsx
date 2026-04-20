@@ -25,16 +25,16 @@ const PURPOSE_LABELS: Record<string, string> = {
 };
 
 const PURPOSE_COLORS: Record<string, { bg: string; color: string }> = {
-  business: { bg: "#EDE9FE", color: "#5B21B6" },
-  medical: { bg: "#ECFDF5", color: "#065F46" },
+  business: { bg: "#F5E0D9", color: "#5B21B6" },
+  medical: { bg: "#DDE4EC", color: "#065F46" },
   charity: { bg: "#FFF7ED", color: "#9A3412" },
   personal: { bg: "#F1F5F9", color: "#475569" },
 };
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   overflow: "hidden",
 };
@@ -227,7 +227,7 @@ export default function MileagePage() {
         {(dateFrom || dateTo || purposeFilter !== "all") && (
           <button
             onClick={() => { setDateFrom(""); setDateTo(""); setPurposeFilter("all"); }}
-            style={{ fontSize: 12, color: "#7C3AED", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
+            style={{ fontSize: 12, color: "#B33A1F", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
           >
             Clear filters
           </button>
@@ -274,12 +274,12 @@ export default function MileagePage() {
                       </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0, marginLeft: 12 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#059669" }}>{formatCurrency(rec.deduction_amount)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#1C3A5B" }}>{formatCurrency(rec.deduction_amount)}</span>
                       <div style={{ display: "flex", gap: 4 }}>
-                        <button onClick={() => openEdit(rec)} title="Edit" className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #E2E8F0", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
+                        <button onClick={() => openEdit(rec)} title="Edit" className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
                           <Pencil style={{ width: 12, height: 12 }} />
                         </button>
-                        <button onClick={() => setDeletingId(rec.id)} title="Delete" className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                        <button onClick={() => setDeletingId(rec.id)} title="Delete" className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}>
                           <Trash2 style={{ width: 12, height: 12 }} />
                         </button>
                       </div>
@@ -304,15 +304,15 @@ export default function MileagePage() {
                 </thead>
                 <tbody>
                   {records.map((rec, i) => (
-                    <tr key={rec.id} style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#FAFBFC" : "transparent" }}
+                    <tr key={rec.id} style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#EFE7D5" : "transparent" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "#F1F5F9")}
-                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#FAFBFC" : "transparent")}
+                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#EFE7D5" : "transparent")}
                     >
                       <td style={{ padding: "14px 16px", color: "#64748B", whiteSpace: "nowrap" }}>{formatDate(rec.date)}</td>
                       <td style={{ padding: "14px 16px", fontWeight: 500, color: "#0F172A", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{rec.from_location}</td>
                       <td style={{ padding: "14px 16px", color: "#475569", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{rec.to_location}</td>
                       <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 500, color: "#0F172A", whiteSpace: "nowrap" }}>
-                        {rec.miles} mi{rec.is_round_trip && <span style={{ marginLeft: 4 }}><RotateCcw style={{ width: 11, height: 11, display: "inline", verticalAlign: "middle", color: "#7C3AED" }} /></span>}
+                        {rec.miles} mi{rec.is_round_trip && <span style={{ marginLeft: 4 }}><RotateCcw style={{ width: 11, height: 11, display: "inline", verticalAlign: "middle", color: "#B33A1F" }} /></span>}
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right" }}>
                         <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 99, background: PURPOSE_COLORS[rec.purpose]?.bg ?? "#F1F5F9", color: PURPOSE_COLORS[rec.purpose]?.color ?? "#475569" }}>
@@ -320,13 +320,13 @@ export default function MileagePage() {
                         </span>
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right", color: "#64748B" }}>${rec.rate_per_mile}/mi</td>
-                      <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: "#059669" }}>{formatCurrency(rec.deduction_amount)}</td>
+                      <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: "#1C3A5B" }}>{formatCurrency(rec.deduction_amount)}</td>
                       <td style={{ padding: "14px 16px", textAlign: "right" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6 }}>
-                          <button onClick={() => openEdit(rec)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #E2E8F0", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
+                          <button onClick={() => openEdit(rec)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
                             <Pencil style={{ width: 13, height: 13 }} />
                           </button>
-                          <button onClick={() => setDeletingId(rec.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                          <button onClick={() => setDeletingId(rec.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}>
                             <Trash2 style={{ width: 13, height: 13 }} />
                           </button>
                         </div>
@@ -338,11 +338,11 @@ export default function MileagePage() {
             </div>
 
             {/* Footer totals */}
-            <div style={{ padding: "12px 16px", borderTop: "1px solid #E2E8F0", background: "#F8FAFC", display: "flex", justifyContent: "flex-end", gap: 32 }}>
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #E2E8F0", background: "var(--paper)", display: "flex", justifyContent: "flex-end", gap: 32 }}>
               <span style={{ fontSize: 13, color: "#64748B" }}>
                 {records.length} trip{records.length !== 1 ? "s" : ""} &middot; {records.reduce((s, r) => s + r.miles, 0).toFixed(1)} total miles
               </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#059669" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#1C3A5B" }}>
                 {formatCurrency(records.reduce((s, r) => s + r.deduction_amount, 0))} total deduction
               </span>
             </div>
@@ -393,7 +393,7 @@ export default function MileagePage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 2 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, color: "#475569", cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.is_round_trip} onChange={e => setForm({ ...form, is_round_trip: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#7C3AED" }} />
+                  <input type="checkbox" checked={form.is_round_trip} onChange={e => setForm({ ...form, is_round_trip: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#B33A1F" }} />
                   Round trip
                 </label>
                 <p style={{ fontSize: 11, color: "#94A3B8", marginTop: 4 }}>Doubles the mileage</p>
@@ -406,18 +406,18 @@ export default function MileagePage() {
 
             {/* Deduction preview */}
             {previewMiles > 0 && (
-              <div style={{ borderRadius: 10, padding: "12px 16px", background: "#F0FDF4", border: "1px solid #BBF7D0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ borderRadius: 10, padding: "12px 16px", background: "#DDE4EC", border: "1px solid #DDE4EC", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#15803D" }}>Estimated Deduction</p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "#1C3A5B" }}>Estimated Deduction</p>
                   <p style={{ fontSize: 11, color: "#4ADE80", marginTop: 2 }}>
                     {form.is_round_trip ? `${(previewMiles * 2).toFixed(1)}` : previewMiles.toFixed(1)} mi × ${IRS_RATES[form.purpose] ?? 0}/mi
                   </p>
                 </div>
-                <span style={{ fontSize: 22, fontWeight: 700, color: "#15803D" }}>{formatCurrency(previewDeduction)}</span>
+                <span style={{ fontSize: 22, fontWeight: 700, color: "#1C3A5B" }}>{formatCurrency(previewDeduction)}</span>
               </div>
             )}
             {form.purpose === "personal" && (
-              <p style={{ fontSize: 12, color: "#F59E0B", padding: "8px 12px", background: "#FFFBEB", borderRadius: 8, border: "1px solid #FDE68A" }}>
+              <p style={{ fontSize: 12, color: "#8A5A1C", padding: "8px 12px", background: "#F2E7D0", borderRadius: 8, border: "1px solid #E8D8B8" }}>
                 Personal mileage is not tax deductible ($0.00/mi).
               </p>
             )}
@@ -443,7 +443,7 @@ export default function MileagePage() {
             onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 cursor-pointer"
-            style={{ background: "#EF4444", borderColor: "#EF4444" }}
+            style={{ background: "#B33A1F", borderColor: "#B33A1F" }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

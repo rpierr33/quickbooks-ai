@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import type { Client, Invoice } from "@/types";
 
-const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
+const card: React.CSSProperties = { background: 'var(--paper-2)', border: '1px solid var(--rule)', borderRadius: 8, boxShadow: 'var(--shadow-sm)', overflow: 'hidden' };
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
@@ -97,32 +97,32 @@ export default function ClientsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
-        <div style={{ ...card, borderLeft: '4px solid #7C3AED', padding: 20 }}>
+        <div style={{ ...card, borderLeft: '4px solid #B33A1F', padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Users style={{ width: 16, height: 16, color: '#7C3AED' }} />
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Users style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Active Contacts</span>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>Active Contacts</span>
           </div>
-          <p style={{ fontSize: 28, fontWeight: 800, color: '#0F172A' }}>{activeClients}</p>
+          <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--ink)' }}>{activeClients}</p>
         </div>
-        <div style={{ ...card, borderLeft: '4px solid #059669', padding: 20 }}>
+        <div style={{ ...card, borderLeft: '4px solid #1C3A5B', padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <DollarSign style={{ width: 16, height: 16, color: '#059669' }} />
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--pencil-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <DollarSign style={{ width: 16, height: 16, color: 'var(--pencil)' }} />
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Total Invoiced</span>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>Total Invoiced</span>
           </div>
-          <p style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{formatCurrency(totalInvoiced)}</p>
+          <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--pencil)' }}>{formatCurrency(totalInvoiced)}</p>
         </div>
-        <div style={{ ...card, borderLeft: '4px solid #F59E0B', padding: 20 }}>
+        <div style={{ ...card, borderLeft: '4px solid #8A5A1C', padding: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AlertCircle style={{ width: 16, height: 16, color: '#F59E0B' }} />
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--ai-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AlertCircle style={{ width: 16, height: 16, color: '#8A5A1C' }} />
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Outstanding</span>
+            <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>Outstanding</span>
           </div>
-          <p style={{ fontSize: 28, fontWeight: 800, color: '#F59E0B' }}>{formatCurrency(totalOutstanding)}</p>
+          <p style={{ fontSize: 28, fontWeight: 800, color: '#8A5A1C' }}>{formatCurrency(totalOutstanding)}</p>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export default function ClientsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between" style={{ gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, maxWidth: 400 }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8' }} />
+            <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--ink-4)' }} />
             <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search contacts..." style={{ paddingLeft: 38 }} />
           </div>
           <Select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ width: 140 }}>
@@ -148,9 +148,9 @@ export default function ClientsPage() {
       {/* Contacts List */}
       {filtered.length === 0 ? (
         <div style={{ ...card, padding: 48, textAlign: 'center' }}>
-          <Users style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>No contacts found</p>
-          <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>Add clients and vendors to track invoices, payments, and balances.</p>
+          <Users style={{ width: 40, height: 40, color: 'var(--ink-4)', margin: '0 auto 12px' }} />
+          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>No contacts found</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-4)', marginBottom: 16 }}>Add clients and vendors to track invoices, payments, and balances.</p>
           <Button onClick={() => setShowCreate(true)} size="sm" className="cursor-pointer"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Add Contact</Button>
         </div>
       ) : (
@@ -169,28 +169,28 @@ export default function ClientsPage() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#F2E7D0' : '#F5E0D9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#8A5A1C' : '#B33A1F' }}>{client.name.charAt(0).toUpperCase()}</span>
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.name}</p>
-                      {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.email}</p>}
+                      <p style={{ fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.name}</p>
+                      {client.email && <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{client.email}</p>}
                     </div>
                   </div>
                   <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</p>
-                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>outstanding</p>
+                    <p style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: client.outstanding_balance > 0 ? '#B33A1F' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</p>
+                    <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>outstanding</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                  <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99, background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE', color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED', textTransform: 'capitalize' }}>
+                  <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99, background: client.type === 'vendor' ? '#F2E7D0' : client.type === 'both' ? '#F0F9FF' : '#F5E0D9', color: client.type === 'vendor' ? '#8A5A1C' : client.type === 'both' ? '#1C3A5B' : '#B33A1F', textTransform: 'capitalize' }}>
                     {client.type}
                   </span>
                   <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
-                    <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                    <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--paper-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)' }}>
                       <Pencil style={{ width: 13, height: 13 }} />
                     </button>
-                    <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                    <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--stamp-soft)', background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stamp)' }}>
                       <Trash2 style={{ width: 13, height: 13 }} />
                     </button>
                   </div>
@@ -203,12 +203,12 @@ export default function ClientsPage() {
           <div className="hidden md:block" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 620 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Contact</th>
-                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Type</th>
-                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Invoiced</th>
-                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Paid</th>
-                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Outstanding</th>
+                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Contact</th>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Type</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Invoiced</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Paid</th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Outstanding</th>
                   <th style={{ width: 80, padding: '12px 16px' }}></th>
                 </tr>
               </thead>
@@ -219,39 +219,39 @@ export default function ClientsPage() {
                     onClick={() => setSelectedClient(client)}
                     className="cursor-pointer"
                     style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none', transition: 'background 0.1s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FAFBFC'}
+                    onMouseEnter={e => e.currentTarget.style.background = '#EFE7D5'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#FEF3C7' : '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#D97706' : '#7C3AED' }}>{client.name.charAt(0).toUpperCase()}</span>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: client.type === 'vendor' ? '#F2E7D0' : '#F5E0D9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: client.type === 'vendor' ? '#8A5A1C' : '#B33A1F' }}>{client.name.charAt(0).toUpperCase()}</span>
                         </div>
                         <div>
-                          <p style={{ fontWeight: 600, color: '#0F172A' }}>{client.name}</p>
-                          {client.email && <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{client.email}</p>}
+                          <p style={{ fontWeight: 600, color: 'var(--ink)' }}>{client.name}</p>
+                          {client.email && <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 1 }}>{client.email}</p>}
                         </div>
                       </div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       <span style={{
                         fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-                        background: client.type === 'vendor' ? '#FEF3C7' : client.type === 'both' ? '#F0F9FF' : '#EDE9FE',
-                        color: client.type === 'vendor' ? '#D97706' : client.type === 'both' ? '#0284C7' : '#7C3AED',
+                        background: client.type === 'vendor' ? '#F2E7D0' : client.type === 'both' ? '#F0F9FF' : '#F5E0D9',
+                        color: client.type === 'vendor' ? '#8A5A1C' : client.type === 'both' ? '#1C3A5B' : '#B33A1F',
                         textTransform: 'capitalize',
                       }}>
                         {client.type}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#0F172A' }}>{formatCurrency(client.total_invoiced)}</td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: '#059669' }}>{formatCurrency(client.total_paid)}</td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#EF4444' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: 'var(--ink)' }}>{formatCurrency(client.total_invoiced)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 500, color: 'var(--pencil)' }}>{formatCurrency(client.total_paid)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: client.outstanding_balance > 0 ? '#B33A1F' : '#94A3B8' }}>{formatCurrency(client.outstanding_balance)}</td>
                     <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-                        <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                        <button onClick={() => openEditClient(client)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--paper-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)' }}>
                           <Pencil style={{ width: 13, height: 13 }} />
                         </button>
-                        <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
+                        <button onClick={() => setDeletingId(client.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--stamp-soft)', background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stamp)' }}>
                           <Trash2 style={{ width: 13, height: 13 }} />
                         </button>
                       </div>
@@ -282,27 +282,27 @@ export default function ClientsPage() {
                 .slice(0, 10);
 
               const statusColors: Record<string, { bg: string; color: string }> = {
-                draft: { bg: '#F1F5F9', color: '#475569' },
-                sent: { bg: '#EFF6FF', color: '#2563EB' },
-                paid: { bg: '#ECFDF5', color: '#059669' },
-                overdue: { bg: '#FEF2F2', color: '#DC2626' },
+                draft: { bg: '#F1F5F9', color: 'var(--ink-2)' },
+                sent: { bg: '#DDE4EC', color: 'var(--stamp)' },
+                paid: { bg: '#DDE4EC', color: 'var(--pencil)' },
+                overdue: { bg: '#F5E0D9', color: 'var(--stamp-2)' },
               };
 
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {/* Financial summary */}
                   <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 12 }}>
-                    <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Invoiced</p>
-                      <p style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_invoiced)}</p>
+                    <div style={{ background: 'var(--paper)', borderRadius: 8, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: 'var(--ink-4)' }}>Invoiced</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_invoiced)}</p>
                     </div>
-                    <div style={{ background: '#F0FDF4', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Paid</p>
-                      <p style={{ fontSize: 18, fontWeight: 700, color: '#059669', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_paid)}</p>
+                    <div style={{ background: 'var(--pencil-soft)', borderRadius: 8, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: 'var(--ink-4)' }}>Paid</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--pencil)', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.total_paid)}</p>
                     </div>
-                    <div style={{ background: selectedClient.outstanding_balance > 0 ? '#FEF2F2' : '#F8FAFC', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: '#94A3B8' }}>Outstanding</p>
-                      <p style={{ fontSize: 18, fontWeight: 700, color: selectedClient.outstanding_balance > 0 ? '#EF4444' : '#94A3B8', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.outstanding_balance)}</p>
+                    <div style={{ background: selectedClient.outstanding_balance > 0 ? '#F5E0D9' : '#F8FAFC', borderRadius: 8, padding: 16, textAlign: 'center' }}>
+                      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', color: 'var(--ink-4)' }}>Outstanding</p>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: selectedClient.outstanding_balance > 0 ? '#B33A1F' : '#94A3B8', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(selectedClient.outstanding_balance)}</p>
                     </div>
                   </div>
 
@@ -310,8 +310,8 @@ export default function ClientsPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {selectedClient.email && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <Mail style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <a href={`mailto:${selectedClient.email}`} style={{ fontSize: 13, color: '#2563EB', textDecoration: 'none' }}
+                        <Mail style={{ width: 14, height: 14, color: 'var(--ink-4)' }} />
+                        <a href={`mailto:${selectedClient.email}`} style={{ fontSize: 13, color: 'var(--stamp)', textDecoration: 'none' }}
                           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
                           {selectedClient.email}
@@ -320,8 +320,8 @@ export default function ClientsPage() {
                     )}
                     {selectedClient.phone && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <Phone style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <a href={`tel:${selectedClient.phone}`} style={{ fontSize: 13, color: '#2563EB', textDecoration: 'none' }}
+                        <Phone style={{ width: 14, height: 14, color: 'var(--ink-4)' }} />
+                        <a href={`tel:${selectedClient.phone}`} style={{ fontSize: 13, color: 'var(--stamp)', textDecoration: 'none' }}
                           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
                           {selectedClient.phone}
@@ -330,37 +330,37 @@ export default function ClientsPage() {
                     )}
                     {selectedClient.company && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <Building2 style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.company}</span>
+                        <Building2 style={{ width: 14, height: 14, color: 'var(--ink-4)' }} />
+                        <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>{selectedClient.company}</span>
                       </div>
                     )}
                     {selectedClient.address && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <MapPin style={{ width: 14, height: 14, color: '#94A3B8' }} />
-                        <span style={{ fontSize: 13, color: '#475569' }}>{selectedClient.address}</span>
+                        <MapPin style={{ width: 14, height: 14, color: 'var(--ink-4)' }} />
+                        <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>{selectedClient.address}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Recent Invoices */}
                   <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', marginBottom: 10 }}>
-                      Recent Invoices {clientInvoices.length > 0 && <span style={{ color: '#94A3B8', fontWeight: 400 }}>({clientInvoices.length})</span>}
+                    <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', marginBottom: 10 }}>
+                      Recent Invoices {clientInvoices.length > 0 && <span style={{ color: 'var(--ink-4)', fontWeight: 400 }}>({clientInvoices.length})</span>}
                     </p>
                     {clientInvoices.length === 0 ? (
                       <div style={{ padding: '20px 0', textAlign: 'center' }}>
-                        <FileText style={{ width: 28, height: 28, color: '#CBD5E1', margin: '0 auto 8px' }} />
-                        <p style={{ fontSize: 13, color: '#94A3B8' }}>No invoices found for this client</p>
+                        <FileText style={{ width: 28, height: 28, color: 'var(--ink-4)', margin: '0 auto 8px' }} />
+                        <p style={{ fontSize: 13, color: 'var(--ink-4)' }}>No invoices found for this client</p>
                       </div>
                     ) : (
-                      <div style={{ border: '1px solid #E2E8F0', borderRadius: 10, overflow: 'hidden' }}>
+                      <div style={{ border: '1px solid var(--rule)', borderRadius: 10, overflow: 'hidden' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                           <thead>
-                            <tr style={{ borderBottom: '1px solid #E2E8F0', background: '#F8FAFC' }}>
-                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Invoice</th>
-                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }} className="hidden sm:table-cell">Date</th>
-                              <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Amount</th>
-                              <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', fontSize: 10 }}>Status</th>
+                            <tr style={{ borderBottom: '1px solid var(--rule)', background: 'var(--paper)' }}>
+                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', fontSize: 10 }}>Invoice</th>
+                              <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', fontSize: 10 }} className="hidden sm:table-cell">Date</th>
+                              <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', fontSize: 10 }}>Amount</th>
+                              <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', fontSize: 10 }}>Status</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -372,12 +372,12 @@ export default function ClientsPage() {
                                   key={inv.id}
                                   style={{
                                     borderBottom: i < clientInvoices.length - 1 ? '1px solid #F1F5F9' : 'none',
-                                    background: i % 2 === 1 ? '#FAFBFC' : 'transparent',
+                                    background: i % 2 === 1 ? '#EFE7D5' : 'transparent',
                                   }}
                                 >
-                                  <td style={{ padding: '10px 12px', color: '#0F172A', fontFamily: 'monospace', fontSize: 11 }}>{inv.invoice_number}</td>
-                                  <td style={{ padding: '10px 12px', color: '#64748B' }} className="hidden sm:table-cell">{formatDate(inv.created_at)}</td>
-                                  <td style={{ padding: '10px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0F172A' }}>{formatCurrency(invTotal)}</td>
+                                  <td style={{ padding: '10px 12px', color: 'var(--ink)', fontFamily: 'monospace', fontSize: 11 }}>{inv.invoice_number}</td>
+                                  <td style={{ padding: '10px 12px', color: 'var(--ink-3)' }} className="hidden sm:table-cell">{formatDate(inv.created_at)}</td>
+                                  <td style={{ padding: '10px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: 'var(--ink)' }}>{formatCurrency(invTotal)}</td>
                                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                                     <span style={{
                                       fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, textTransform: 'capitalize',
@@ -418,11 +418,11 @@ export default function ClientsPage() {
           <DialogTitle>Delete Contact</DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>Are you sure you want to delete this contact? This action cannot be undone.</p>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>Are you sure you want to delete this contact? This action cannot be undone.</p>
         </DialogContent>
         <DialogFooter className="flex gap-3">
           <Button variant="outline" onClick={() => setDeletingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
-          <Button onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }} disabled={deleteMutation.isPending} className="flex-1 w-full cursor-pointer" style={{ background: '#EF4444', borderColor: '#EF4444' }}>
+          <Button onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }} disabled={deleteMutation.isPending} className="flex-1 w-full cursor-pointer" style={{ background: 'var(--stamp)', borderColor: '#B33A1F' }}>
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
@@ -436,26 +436,26 @@ export default function ClientsPage() {
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Name *</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Name *</label>
               <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Contact name" />
             </div>
             <div className="grid grid-cols-2" style={{ gap: 12 }}>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Email</label>
                 <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="email@example.com" />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Phone</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Phone</label>
                 <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(555) 123-4567" />
               </div>
             </div>
             <div className="grid grid-cols-2" style={{ gap: 12 }}>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Company</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Company</label>
                 <Input value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} placeholder="Company name" />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Type</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Type</label>
                 <Select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
                   <option value="client">Client</option>
                   <option value="vendor">Vendor</option>
@@ -464,11 +464,11 @@ export default function ClientsPage() {
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Address</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Address</label>
               <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Full address" />
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax ID / EIN</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Tax ID / EIN</label>
               <Input value={form.tax_id} onChange={e => setForm({ ...form, tax_id: e.target.value })} placeholder="XX-XXXXXXX" />
             </div>
           </div>

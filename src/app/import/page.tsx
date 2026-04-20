@@ -17,9 +17,9 @@ import {
 import { useRouter } from "next/navigation";
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   overflow: "hidden",
 };
@@ -447,7 +447,7 @@ export default function ImportPage() {
       </div>
 
       {/* Tab bar */}
-      <div style={{ display: "flex", gap: 4, background: "#F1F5F9", padding: 4, borderRadius: 12, marginBottom: 20, overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: 4, background: "var(--paper-3)", padding: 4, borderRadius: 8, marginBottom: 20, overflowX: "auto" }}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -481,19 +481,19 @@ export default function ImportPage() {
         {/* UPLOAD STEP */}
         {step === "upload" && (
           <>
-            <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 12, padding: "14px 18px" }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: "#1D4ED8", marginBottom: 6 }}>{guide.title}</p>
+            <div style={{ background: "#DDE4EC", border: "1px solid #DDE4EC", borderRadius: 8, padding: "14px 18px" }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#3A352A", marginBottom: 6 }}>{guide.title}</p>
               <ol style={{ paddingLeft: 16, margin: 0 }}>
                 {guide.steps.map((s, i) => (
-                  <li key={i} style={{ fontSize: 12, color: "#3B82F6", marginTop: 3, lineHeight: 1.5 }}>{s}</li>
+                  <li key={i} style={{ fontSize: 12, color: "#171510", marginTop: 3, lineHeight: 1.5 }}>{s}</li>
                 ))}
               </ol>
             </div>
 
             <div style={card}>
               <div style={{ padding: "20px 24px", borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#EDE9FE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Upload style={{ width: 18, height: 18, color: "#7C3AED" }} />
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Upload style={{ width: 18, height: 18, color: "#B33A1F" }} />
                 </div>
                 <div>
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0F172A" }}>Upload {TABS.find((t) => t.id === activeTab)?.label} File</h3>
@@ -507,32 +507,32 @@ export default function ImportPage() {
                   onDrop={onDrop}
                   onClick={() => fileInputRef.current?.click()}
                   style={{
-                    border: `2px dashed ${dragOver ? "#7C3AED" : "#E2E8F0"}`,
-                    borderRadius: 12,
+                    border: `2px dashed ${dragOver ? "#B33A1F" : "#E2E8F0"}`,
+                    borderRadius: 8,
                     padding: "48px 24px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     gap: 12,
                     cursor: "pointer",
-                    background: dragOver ? "#F5F3FF" : "#FAFBFC",
+                    background: dragOver ? "#F5E0D9" : "#EFE7D5",
                     transition: "all 0.2s",
                   }}
                 >
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: dragOver ? "#EDE9FE" : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>
-                    <FileSpreadsheet style={{ width: 28, height: 28, color: dragOver ? "#7C3AED" : "#94A3B8" }} />
+                  <div style={{ width: 56, height: 56, borderRadius: 8, background: dragOver ? "#F5E0D9" : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>
+                    <FileSpreadsheet style={{ width: 28, height: 28, color: dragOver ? "#B33A1F" : "#94A3B8" }} />
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontSize: 14, fontWeight: 500, color: "#0F172A" }}>{dragOver ? "Drop your file here" : "Drag & drop your file here"}</p>
-                    <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>or <span style={{ color: "#7C3AED", fontWeight: 500 }}>click to browse</span></p>
+                    <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 4 }}>or <span style={{ color: "#B33A1F", fontWeight: 500 }}>click to browse</span></p>
                   </div>
-                  <p style={{ fontSize: 11, color: "#CBD5E1" }}>Max file size: 10 MB</p>
+                  <p style={{ fontSize: 11, color: "#CFBF9E" }}>Max file size: 10 MB</p>
                 </div>
                 <input ref={fileInputRef} type="file" accept={accept} onChange={onFileSelect} style={{ display: "none" }} />
                 {parseError && (
-                  <div style={{ marginTop: 16, padding: 12, borderRadius: 8, background: "#FEF2F2", border: "1px solid #FECACA", display: "flex", alignItems: "center", gap: 8 }}>
-                    <AlertCircle style={{ width: 16, height: 16, color: "#EF4444", flexShrink: 0 }} />
-                    <p style={{ fontSize: 13, color: "#DC2626" }}>{parseError}</p>
+                  <div style={{ marginTop: 16, padding: 12, borderRadius: 8, background: "#F5E0D9", border: "1px solid #F5E0D9", display: "flex", alignItems: "center", gap: 8 }}>
+                    <AlertCircle style={{ width: 16, height: 16, color: "#B33A1F", flexShrink: 0 }} />
+                    <p style={{ fontSize: 13, color: "#922D15" }}>{parseError}</p>
                   </div>
                 )}
               </div>
@@ -545,7 +545,7 @@ export default function ImportPage() {
           <>
             <div style={{ ...card, padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <FileSpreadsheet style={{ width: 18, height: 18, color: "#7C3AED" }} />
+                <FileSpreadsheet style={{ width: 18, height: 18, color: "#B33A1F" }} />
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>{fileName}</p>
                   <p style={{ fontSize: 11, color: "#94A3B8" }}>{csvRows.length} rows found</p>
@@ -558,8 +558,8 @@ export default function ImportPage() {
 
             <div style={card}>
               <div style={{ padding: "20px 24px", borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#EDE9FE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <ArrowRight style={{ width: 18, height: 18, color: "#7C3AED" }} />
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <ArrowRight style={{ width: 18, height: 18, color: "#B33A1F" }} />
                 </div>
                 <div>
                   <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0F172A" }}>Map Columns</h3>
@@ -571,25 +571,25 @@ export default function ImportPage() {
                   <div key={h} style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                     <div style={{ width: 180, flexShrink: 0 }}>
                       <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>{h}</p>
-                      <p style={{ fontSize: 11, color: "#CBD5E1", marginTop: 1 }}>e.g. &quot;{csvRows[0]?.[h]?.slice(0, 30) || "—"}&quot;</p>
+                      <p style={{ fontSize: 11, color: "#CFBF9E", marginTop: 1 }}>e.g. &quot;{csvRows[0]?.[h]?.slice(0, 30) || "—"}&quot;</p>
                     </div>
                     <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
-                      <ArrowRight style={{ width: 14, height: 14, color: "#CBD5E1", flexShrink: 0 }} />
+                      <ArrowRight style={{ width: 14, height: 14, color: "#CFBF9E", flexShrink: 0 }} />
                       <select
                         value={mapping[h] || ""}
                         onChange={(e) => updateMapping(h, e.target.value as LedgrField | "")}
-                        style={{ flex: 1, maxWidth: 280, padding: "8px 12px", fontSize: 13, borderRadius: 8, border: "1px solid #E2E8F0", background: "#FFFFFF", color: mapping[h] ? "#0F172A" : "#94A3B8", cursor: "pointer", outline: "none" }}
+                        style={{ flex: 1, maxWidth: 280, padding: "8px 12px", fontSize: 13, borderRadius: 8, border: "1px solid var(--rule)", background: "var(--paper-2)", color: mapping[h] ? "#0F172A" : "#94A3B8", cursor: "pointer", outline: "none" }}
                       >
                         <option value="">— Skip this column —</option>
                         {LEDGR_FIELDS.map((f) => (<option key={f} value={f}>{FIELD_LABELS[f]}</option>))}
                       </select>
-                      {mapping[h] && <Check style={{ width: 16, height: 16, color: "#059669", flexShrink: 0 }} />}
+                      {mapping[h] && <Check style={{ width: 16, height: 16, color: "#1C3A5B", flexShrink: 0 }} />}
                     </div>
                   </div>
                 ))}
                 {!requiredFieldsMapped && (
-                  <div style={{ marginTop: 8, padding: 12, borderRadius: 8, background: "#FFFBEB", border: "1px solid #FDE68A", display: "flex", alignItems: "center", gap: 8 }}>
-                    <AlertCircle style={{ width: 16, height: 16, color: "#D97706", flexShrink: 0 }} />
+                  <div style={{ marginTop: 8, padding: 12, borderRadius: 8, background: "#F2E7D0", border: "1px solid #E8D8B8", display: "flex", alignItems: "center", gap: 8 }}>
+                    <AlertCircle style={{ width: 16, height: 16, color: "#8A5A1C", flexShrink: 0 }} />
                     <p style={{ fontSize: 12, color: "#92400E" }}>
                       Please map: {LEDGR_FIELDS.filter((f) => !Object.values(mapping).includes(f)).map((f) => FIELD_LABELS[f]).join(", ")}
                     </p>
@@ -607,9 +607,9 @@ export default function ImportPage() {
                   <thead>
                     <tr>
                       {csvHeaders.map((h) => (
-                        <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "#64748B", background: "#F8FAFC", borderBottom: "1px solid #E2E8F0", whiteSpace: "nowrap" }}>
+                        <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "#64748B", background: "var(--paper)", borderBottom: "1px solid #E2E8F0", whiteSpace: "nowrap" }}>
                           {h}
-                          {mapping[h] && <span style={{ display: "block", fontSize: 10, fontWeight: 500, color: "#7C3AED", marginTop: 2 }}>→ {FIELD_LABELS[mapping[h] as LedgrField]}</span>}
+                          {mapping[h] && <span style={{ display: "block", fontSize: 10, fontWeight: 500, color: "#B33A1F", marginTop: 2 }}>→ {FIELD_LABELS[mapping[h] as LedgrField]}</span>}
                         </th>
                       ))}
                     </tr>
@@ -628,8 +628,8 @@ export default function ImportPage() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-              <button onClick={reset} style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#64748B", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>Cancel</button>
-              <button onClick={() => startImport(buildCsvRows())} disabled={!requiredFieldsMapped} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: requiredFieldsMapped ? "#7C3AED" : "#CBD5E1", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: requiredFieldsMapped ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={reset} style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid var(--rule)", background: "var(--paper-2)", color: "#64748B", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>Cancel</button>
+              <button onClick={() => startImport(buildCsvRows())} disabled={!requiredFieldsMapped} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: requiredFieldsMapped ? "#B33A1F" : "#CFBF9E", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: requiredFieldsMapped ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: 8 }}>
                 <Upload style={{ width: 14, height: 14 }} />
                 Import {csvRows.length} Transactions
               </button>
@@ -642,7 +642,7 @@ export default function ImportPage() {
           <>
             <div style={{ ...card, padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <FileText style={{ width: 18, height: 18, color: "#7C3AED" }} />
+                <FileText style={{ width: 18, height: 18, color: "#B33A1F" }} />
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>{fileName}</p>
                   <p style={{ fontSize: 11, color: "#94A3B8" }}>
@@ -657,7 +657,7 @@ export default function ImportPage() {
             </div>
 
             {parseWarnings.length > 0 && (
-              <div style={{ padding: 12, borderRadius: 10, background: "#FFFBEB", border: "1px solid #FDE68A" }}>
+              <div style={{ padding: 12, borderRadius: 10, background: "#F2E7D0", border: "1px solid #E8D8B8" }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: "#92400E", marginBottom: 4 }}>{parseWarnings.length} row{parseWarnings.length !== 1 ? "s" : ""} skipped during parsing:</p>
                 {parseWarnings.map((w, i) => <p key={i} style={{ fontSize: 11, color: "#B45309", marginTop: 2 }}>{w}</p>)}
               </div>
@@ -670,7 +670,7 @@ export default function ImportPage() {
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
-                    <tr style={{ background: "#F8FAFC" }}>
+                    <tr style={{ background: "var(--paper)" }}>
                       {["Date", "Description", "Amount", "Type"].map((h) => (
                         <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, color: "#64748B", borderBottom: "1px solid #E2E8F0", whiteSpace: "nowrap" }}>{h}</th>
                       ))}
@@ -681,12 +681,12 @@ export default function ImportPage() {
                       <tr key={i} style={{ borderBottom: "1px solid #F1F5F9" }}>
                         <td style={{ padding: "8px 16px", color: "#64748B", whiteSpace: "nowrap" }}>{row.date}</td>
                         <td style={{ padding: "8px 16px", color: "#0F172A", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.description}</td>
-                        <td style={{ padding: "8px 16px", fontWeight: 600, color: row.type === "income" ? "#059669" : row.type === "expense" ? "#DC2626" : "#64748B", whiteSpace: "nowrap" }}>
+                        <td style={{ padding: "8px 16px", fontWeight: 600, color: row.type === "income" ? "#1C3A5B" : row.type === "expense" ? "#922D15" : "#64748B", whiteSpace: "nowrap" }}>
                           {row.type === "income" ? "+" : row.type === "expense" ? "-" : ""}
                           {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(row.amount)}
                         </td>
                         <td style={{ padding: "8px 16px" }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 99, background: row.type === "income" ? "#ECFDF5" : row.type === "expense" ? "#FEF2F2" : "#F1F5F9", color: row.type === "income" ? "#059669" : row.type === "expense" ? "#DC2626" : "#64748B" }}>{row.type}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 99, background: row.type === "income" ? "#DDE4EC" : row.type === "expense" ? "#F5E0D9" : "#F1F5F9", color: row.type === "income" ? "#1C3A5B" : row.type === "expense" ? "#922D15" : "#64748B" }}>{row.type}</span>
                         </td>
                       </tr>
                     ))}
@@ -697,8 +697,8 @@ export default function ImportPage() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-              <button onClick={reset} style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#64748B", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>Cancel</button>
-              <button onClick={() => startImport(parsedRows)} disabled={parsedRows.length === 0} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: parsedRows.length > 0 ? "#7C3AED" : "#CBD5E1", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: parsedRows.length > 0 ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={reset} style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid var(--rule)", background: "var(--paper-2)", color: "#64748B", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>Cancel</button>
+              <button onClick={() => startImport(parsedRows)} disabled={parsedRows.length === 0} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: parsedRows.length > 0 ? "#B33A1F" : "#CFBF9E", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: parsedRows.length > 0 ? "pointer" : "not-allowed", display: "flex", alignItems: "center", gap: 8 }}>
                 <Upload style={{ width: 14, height: 14 }} />
                 Import {parsedRows.length} Transactions
               </button>
@@ -710,8 +710,8 @@ export default function ImportPage() {
         {step === "importing" && (
           <div style={card}>
             <div style={{ padding: "20px 24px", borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#EDE9FE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Upload style={{ width: 18, height: 18, color: "#7C3AED" }} />
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Upload style={{ width: 18, height: 18, color: "#B33A1F" }} />
               </div>
               <div>
                 <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0F172A" }}>Importing Transactions</h3>
@@ -722,10 +722,10 @@ export default function ImportPage() {
               <div style={{ width: "100%", maxWidth: 400 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                   <p style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>Processing row {importProgress} of {importTotal}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#7C3AED" }}>{importTotal > 0 ? Math.round((importProgress / importTotal) * 100) : 0}%</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#B33A1F" }}>{importTotal > 0 ? Math.round((importProgress / importTotal) * 100) : 0}%</p>
                 </div>
-                <div style={{ width: "100%", height: 8, borderRadius: 4, background: "#F1F5F9", overflow: "hidden" }}>
-                  <div style={{ width: `${importTotal > 0 ? (importProgress / importTotal) * 100 : 0}%`, height: "100%", borderRadius: 4, background: "linear-gradient(90deg, #7C3AED, #9333EA)", transition: "width 0.15s ease" }} />
+                <div style={{ width: "100%", height: 8, borderRadius: 4, background: "var(--paper-3)", overflow: "hidden" }}>
+                  <div style={{ width: `${importTotal > 0 ? (importProgress / importTotal) * 100 : 0}%`, height: "100%", borderRadius: 4, background: "var(--stamp)", transition: "width 0.15s ease" }} />
                 </div>
               </div>
               <p style={{ fontSize: 12, color: "#94A3B8" }}>{fileName}</p>
@@ -738,25 +738,25 @@ export default function ImportPage() {
           <>
             <div style={card}>
               <div style={{ padding: 32, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: result.imported > 0 ? "#ECFDF5" : "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {result.imported > 0 ? <Check style={{ width: 28, height: 28, color: "#059669" }} /> : <AlertCircle style={{ width: 28, height: 28, color: "#EF4444" }} />}
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: result.imported > 0 ? "#DDE4EC" : "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {result.imported > 0 ? <Check style={{ width: 28, height: 28, color: "#1C3A5B" }} /> : <AlertCircle style={{ width: 28, height: 28, color: "#B33A1F" }} />}
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0F172A" }}>Import Complete</h3>
                   <p style={{ fontSize: 14, color: "#64748B", marginTop: 6 }}>
-                    Imported <strong style={{ color: "#059669" }}>{result.imported}</strong> transaction{result.imported !== 1 ? "s" : ""}.
-                    {result.skipped > 0 && <> <strong style={{ color: "#EF4444" }}>{result.skipped}</strong> skipped.</>}
-                    {dupeCount > 0 && <> <strong style={{ color: "#D97706" }}>{dupeCount}</strong> duplicate{dupeCount !== 1 ? "s" : ""} skipped.</>}
+                    Imported <strong style={{ color: "#1C3A5B" }}>{result.imported}</strong> transaction{result.imported !== 1 ? "s" : ""}.
+                    {result.skipped > 0 && <> <strong style={{ color: "#B33A1F" }}>{result.skipped}</strong> skipped.</>}
+                    {dupeCount > 0 && <> <strong style={{ color: "#8A5A1C" }}>{dupeCount}</strong> duplicate{dupeCount !== 1 ? "s" : ""} skipped.</>}
                   </p>
                 </div>
                 <div style={{ width: "100%", maxWidth: 400 }}>
-                  <div style={{ width: "100%", height: 8, borderRadius: 4, background: "#F1F5F9", overflow: "hidden" }}>
-                    <div style={{ width: "100%", height: "100%", borderRadius: 4, background: result.imported > 0 ? "#059669" : "#EF4444" }} />
+                  <div style={{ width: "100%", height: 8, borderRadius: 4, background: "var(--paper-3)", overflow: "hidden" }}>
+                    <div style={{ width: "100%", height: "100%", borderRadius: 4, background: result.imported > 0 ? "#1C3A5B" : "#B33A1F" }} />
                   </div>
                 </div>
                 {result.errors.length > 0 && (
-                  <div style={{ width: "100%", maxWidth: 500, maxHeight: 160, overflowY: "auto", padding: 12, borderRadius: 8, background: "#FEF2F2", border: "1px solid #FECACA" }}>
-                    <p style={{ fontSize: 12, fontWeight: 600, color: "#DC2626", marginBottom: 6 }}>Skipped rows:</p>
+                  <div style={{ width: "100%", maxWidth: 500, maxHeight: 160, overflowY: "auto", padding: 12, borderRadius: 8, background: "#F5E0D9", border: "1px solid #F5E0D9" }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: "#922D15", marginBottom: 6 }}>Skipped rows:</p>
                     {result.errors.slice(0, 20).map((err, i) => <p key={i} style={{ fontSize: 11, color: "#B91C1C", marginTop: 2 }}>{err}</p>)}
                     {result.errors.length > 20 && <p style={{ fontSize: 11, color: "#B91C1C", marginTop: 4 }}>...and {result.errors.length - 20} more</p>}
                   </div>
@@ -764,11 +764,11 @@ export default function ImportPage() {
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-              <button onClick={reset} style={{ padding: "10px 24px", borderRadius: 10, border: "1px solid #E2E8F0", background: "#FFFFFF", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={reset} style={{ padding: "10px 24px", borderRadius: 10, border: "1px solid var(--rule)", background: "var(--paper-2)", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                 <RotateCcw style={{ width: 14, height: 14 }} />
                 Import Another File
               </button>
-              <button onClick={() => router.push("/transactions")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "#7C3AED", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={() => router.push("/transactions")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "#B33A1F", color: "#FFFFFF", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                 <ExternalLink style={{ width: 14, height: 14 }} />
                 View Imported Transactions
               </button>

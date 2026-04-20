@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
   overflow: 'hidden',
 };
 
@@ -46,8 +46,8 @@ const plans = [
     period: '/mo',
     description: 'For freelancers and small businesses getting their books in order.',
     icon: Rocket,
-    iconBg: '#EDE9FE',
-    iconColor: '#7C3AED',
+    iconBg: '#F5E0D9',
+    iconColor: '#B33A1F',
     features: [
       'Up to 10 clients',
       '50 invoices/month',
@@ -69,7 +69,7 @@ const plans = [
     period: '/mo',
     description: 'For growing businesses that need full accounting power.',
     icon: Star,
-    iconBg: 'linear-gradient(135deg, #7C3AED, #9333EA)',
+    iconBg: 'var(--stamp)',
     iconColor: '#FFFFFF',
     features: [
       'Unlimited clients & vendors',
@@ -250,19 +250,19 @@ export default function BillingPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }} className="animate-fade-in">
       {/* Header */}
       <div style={{ textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
-        <h2 style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Choose your plan</h2>
+        <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Choose your plan</h2>
         {!planLoading && currentPlan !== 'free_trial' && (
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8,
             padding: '4px 12px', borderRadius: 99,
-            background: '#ECFDF5', border: '1px solid #A7F3D0',
+            background: 'var(--pencil-soft)', border: '1px solid #DDE4EC',
             fontSize: 12, fontWeight: 600, color: '#065F46',
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--pencil)', display: 'inline-block' }} />
             Current plan: {plans.find(p => p.id === currentPlan)?.name ?? currentPlan}
           </div>
         )}
-        <p style={{ fontSize: 14, color: '#64748B', marginTop: 8, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: 8, lineHeight: 1.6 }}>
           Start with a 14-day free trial. No credit card required.
         </p>
 
@@ -270,7 +270,7 @@ export default function BillingPage() {
         {stripeAvailable === false && (
           <div style={{
             marginTop: 16, padding: '10px 16px', borderRadius: 8,
-            background: '#FFFBEB', border: '1px solid #FDE68A',
+            background: 'var(--ai-soft)', border: '1px solid var(--ai-soft)',
             fontSize: 12, color: '#92400E', textAlign: 'left',
           }}>
             <strong>Payments not configured.</strong> Set <code>STRIPE_SECRET_KEY</code> and{' '}
@@ -279,7 +279,7 @@ export default function BillingPage() {
         )}
 
         {/* Annual/Monthly toggle */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F1F5F9', padding: 4, borderRadius: 10, marginTop: 20 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--paper-3)', padding: 4, borderRadius: 10, marginTop: 20 }}>
           <button
             className="cursor-pointer"
             onClick={() => setAnnual(false)}
@@ -303,7 +303,7 @@ export default function BillingPage() {
             }}
           >
             Annual
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#ECFDF5', padding: '2px 6px', borderRadius: 4, marginLeft: 6 }}>Save 20%</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--pencil)', background: 'var(--pencil-soft)', padding: '2px 6px', borderRadius: 4, marginLeft: 6 }}>Save 20%</span>
           </button>
         </div>
       </div>
@@ -324,14 +324,14 @@ export default function BillingPage() {
               key={plan.id}
               style={{
                 ...card,
-                border: plan.highlighted ? '2px solid #7C3AED' : isCurrent ? '2px solid #059669' : '1px solid #E2E8F0',
+                border: plan.highlighted ? '2px solid #B33A1F' : isCurrent ? '2px solid #1C3A5B' : '1px solid #E2E8F0',
                 position: 'relative',
               }}
             >
               {plan.highlighted && (
                 <div style={{
                   position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%) translateY(-50%)',
-                  background: 'linear-gradient(135deg, #7C3AED, #9333EA)', color: '#fff',
+                  background: 'var(--stamp)', color: '#fff',
                   fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
                   padding: '4px 16px', borderRadius: 99,
                 }}>
@@ -341,7 +341,7 @@ export default function BillingPage() {
               {isCurrent && !plan.highlighted && (
                 <div style={{
                   position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%) translateY(-50%)',
-                  background: '#059669', color: '#fff',
+                  background: 'var(--pencil)', color: '#fff',
                   fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
                   padding: '4px 16px', borderRadius: 99,
                 }}>
@@ -354,24 +354,24 @@ export default function BillingPage() {
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: plan.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <plan.icon style={{ width: 20, height: 20, color: plan.iconColor }} />
                   </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>{plan.name}</h3>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{plan.name}</h3>
                 </div>
 
                 {/* Price */}
                 <div style={{ marginBottom: 12 }}>
                   {plan.isTrial ? (
                     <>
-                      <span style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>Free</span>
-                      <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 500, marginLeft: 6 }}>14-day trial</span>
+                      <span style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em' }}>Free</span>
+                      <span style={{ fontSize: 14, color: 'var(--ink-4)', fontWeight: 500, marginLeft: 6 }}>14-day trial</span>
                     </>
                   ) : (
                     <>
-                      <span style={{ fontSize: 42, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: 42, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
                         ${displayPrice}
                       </span>
-                      <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 500 }}>/mo</span>
+                      <span style={{ fontSize: 14, color: 'var(--ink-4)', fontWeight: 500 }}>/mo</span>
                       {annual && (
-                        <span style={{ display: 'block', fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
+                        <span style={{ display: 'block', fontSize: 12, color: 'var(--ink-4)', marginTop: 2 }}>
                           ${Math.round((displayPrice as number) * 12 * 100) / 100}/year billed annually
                         </span>
                       )}
@@ -379,7 +379,7 @@ export default function BillingPage() {
                   )}
                 </div>
 
-                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, marginBottom: 20 }}>{plan.description}</p>
+                <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 20 }}>{plan.description}</p>
 
                 {/* CTA */}
                 <Button
@@ -388,7 +388,7 @@ export default function BillingPage() {
                   disabled={isCurrent || isLoading}
                   onClick={() => handlePlanClick(plan)}
                   style={plan.highlighted && !isCurrent ? {
-                    background: 'linear-gradient(135deg, #7C3AED, #9333EA)',
+                    background: 'var(--stamp)',
                     border: 'none',
                   } : undefined}
                 >
@@ -402,12 +402,12 @@ export default function BillingPage() {
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                       <div style={{
                         width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                        background: plan.highlighted ? '#EDE9FE' : '#F1F5F9',
+                        background: plan.highlighted ? '#F5E0D9' : '#F1F5F9',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Check style={{ width: 10, height: 10, color: plan.highlighted ? '#7C3AED' : '#64748B' }} />
+                        <Check style={{ width: 10, height: 10, color: plan.highlighted ? '#B33A1F' : '#64748B' }} />
                       </div>
-                      <span style={{ fontSize: 13, color: '#475569', lineHeight: 1.4 }}>{feature}</span>
+                      <span style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.4 }}>{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -431,14 +431,14 @@ export default function BillingPage() {
               key={plan.id}
               style={{
                 ...card,
-                border: isCurrent ? '2px solid #059669' : '1px solid #E2E8F0',
+                border: isCurrent ? '2px solid #1C3A5B' : '1px solid #E2E8F0',
                 position: 'relative',
               }}
             >
               {isCurrent && (
                 <div style={{
                   position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%) translateY(-50%)',
-                  background: '#059669', color: '#fff',
+                  background: 'var(--pencil)', color: '#fff',
                   fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
                   padding: '4px 16px', borderRadius: 99,
                 }}>
@@ -450,23 +450,23 @@ export default function BillingPage() {
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: plan.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <plan.icon style={{ width: 20, height: 20, color: plan.iconColor }} />
                   </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>{plan.name}</h3>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{plan.name}</h3>
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
                   {plan.isEnterprise ? (
                     <>
-                      <span style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em' }}>Custom</span>
-                      <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 400, marginLeft: 8 }}>contact sales</span>
+                      <span style={{ fontSize: 32, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em' }}>Custom</span>
+                      <span style={{ fontSize: 13, color: 'var(--ink-4)', fontWeight: 400, marginLeft: 8 }}>contact sales</span>
                     </>
                   ) : (
                     <>
-                      <span style={{ fontSize: 42, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
+                      <span style={{ fontSize: 42, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
                         ${displayPrice}
                       </span>
-                      <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 500 }}>/mo</span>
+                      <span style={{ fontSize: 14, color: 'var(--ink-4)', fontWeight: 500 }}>/mo</span>
                       {annual && (
-                        <span style={{ display: 'block', fontSize: 12, color: '#94A3B8', marginTop: 2 }}>
+                        <span style={{ display: 'block', fontSize: 12, color: 'var(--ink-4)', marginTop: 2 }}>
                           ${Math.round(displayPrice * 12 * 100) / 100}/year billed annually
                         </span>
                       )}
@@ -474,14 +474,14 @@ export default function BillingPage() {
                   )}
                 </div>
 
-                <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, marginBottom: 20 }}>{plan.description}</p>
+                <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 20 }}>{plan.description}</p>
 
                 <Button
                   className="w-full cursor-pointer"
                   variant={isCurrent ? 'outline' : 'default'}
                   disabled={isCurrent || isLoading}
                   onClick={() => handlePlanClick(plan)}
-                  style={!isCurrent ? { background: '#0F172A', border: 'none' } : undefined}
+                  style={!isCurrent ? { background: 'var(--ink)', border: 'none' } : undefined}
                 >
                   {isCurrent && <CreditCard style={{ width: 14, height: 14, marginRight: 6 }} />}
                   {isLoading ? 'Redirecting...' : isCurrent ? 'Current Plan' : plan.cta}
@@ -492,12 +492,12 @@ export default function BillingPage() {
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                       <div style={{
                         width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                        background: '#F1F5F9',
+                        background: 'var(--paper-3)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Check style={{ width: 10, height: 10, color: '#64748B' }} />
+                        <Check style={{ width: 10, height: 10, color: 'var(--ink-3)' }} />
                       </div>
-                      <span style={{ fontSize: 13, color: '#475569', lineHeight: 1.4 }}>{feature}</span>
+                      <span style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.4 }}>{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -509,7 +509,7 @@ export default function BillingPage() {
 
       {/* FAQ */}
       <div style={{ ...card, padding: 28, maxWidth: 680, margin: '0 auto', width: '100%' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>Frequently Asked Questions</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', marginBottom: 16 }}>Frequently Asked Questions</h3>
         {[
           { q: 'Can I switch plans at any time?', a: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and billing is prorated.' },
           { q: 'Is there a free trial for paid plans?', a: 'Yes! Start with a 14-day free trial that gives you full access. No credit card required to start.' },
@@ -523,11 +523,11 @@ export default function BillingPage() {
               className="cursor-pointer"
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', background: 'none', border: 'none', textAlign: 'left' }}
             >
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{faq.q}</p>
-              <ChevronDown style={{ width: 16, height: 16, color: '#94A3B8', flexShrink: 0, marginLeft: 12, transform: openFaq === i ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{faq.q}</p>
+              <ChevronDown style={{ width: 16, height: 16, color: 'var(--ink-4)', flexShrink: 0, marginLeft: 12, transform: openFaq === i ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
             {openFaq === i && (
-              <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, paddingBottom: 14, margin: 0 }}>{faq.a}</p>
+              <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, paddingBottom: 14, margin: 0 }}>{faq.a}</p>
             )}
           </div>
         ))}

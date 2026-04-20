@@ -21,21 +21,21 @@ export function useToast() {
 }
 
 const icons: Record<ToastType, React.ReactNode> = {
-  success: <CheckCircle2 style={{ width: 18, height: 18, color: "#059669", flexShrink: 0 }} />,
-  error: <AlertCircle style={{ width: 18, height: 18, color: "#DC2626", flexShrink: 0 }} />,
-  info: <Info style={{ width: 18, height: 18, color: "#7C3AED", flexShrink: 0 }} />,
+  success: <CheckCircle2 style={{ width: 18, height: 18, color: "#1C3A5B", flexShrink: 0 }} />,
+  error: <AlertCircle style={{ width: 18, height: 18, color: "#922D15", flexShrink: 0 }} />,
+  info: <Info style={{ width: 18, height: 18, color: "#B33A1F", flexShrink: 0 }} />,
 };
 
 const bgColors: Record<ToastType, string> = {
-  success: "#F0FDF4",
-  error: "#FEF2F2",
-  info: "#F5F3FF",
+  success: "#DDE4EC",
+  error: "#F5E0D9",
+  info: "#F5E0D9",
 };
 
 const borderColors: Record<ToastType, string> = {
-  success: "#BBF7D0",
-  error: "#FECACA",
-  info: "#DDD6FE",
+  success: "#DDE4EC",
+  error: "#F5E0D9",
+  info: "#F5E0D9",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -80,7 +80,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               alignItems: "center",
               gap: 10,
               padding: "12px 16px",
-              borderRadius: 12,
+              borderRadius: 8,
               background: bgColors[t.type],
               border: `1px solid ${borderColors[t.type]}`,
               boxShadow: "0 4px 16px rgba(0,0,0,0.08)",

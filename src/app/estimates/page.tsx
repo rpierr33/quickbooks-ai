@@ -11,18 +11,18 @@ import { useToast } from "@/components/ui/toast";
 import type { Estimate, EstimateItem } from "@/types";
 
 const statusConfig: Record<string, { bg: string; color: string; border: string; borderLeft: string }> = {
-  draft: { bg: '#F8FAFC', color: '#475569', border: '#E2E8F0', borderLeft: '#94A3B8' },
-  sent: { bg: '#EFF6FF', color: '#2563EB', border: '#BFDBFE', borderLeft: '#F59E0B' },
-  accepted: { bg: '#ECFDF5', color: '#059669', border: '#A7F3D0', borderLeft: '#059669' },
-  declined: { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA', borderLeft: '#EF4444' },
-  converted: { bg: '#F5F3FF', color: '#7C3AED', border: '#DDD6FE', borderLeft: '#7C3AED' },
+  draft: { bg: '#F8FAFC', color: 'var(--ink-2)', border: '#E2E8F0', borderLeft: '#94A3B8' },
+  sent: { bg: '#DDE4EC', color: 'var(--stamp)', border: '#DDE4EC', borderLeft: '#8A5A1C' },
+  accepted: { bg: '#DDE4EC', color: 'var(--pencil)', border: '#DDE4EC', borderLeft: '#1C3A5B' },
+  declined: { bg: '#F5E0D9', color: 'var(--stamp-2)', border: '#F5E0D9', borderLeft: '#B33A1F' },
+  converted: { bg: '#F5E0D9', color: 'var(--stamp)', border: '#F5E0D9', borderLeft: '#B33A1F' },
 };
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
 };
 
 const statusTabs = ['all', 'draft', 'sent', 'accepted', 'declined'] as const;
@@ -122,7 +122,7 @@ export default function EstimatesPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p style={{ fontSize: 14, color: '#64748B' }}>{estimates?.length || 0} total estimates</p>
+        <p style={{ fontSize: 14, color: 'var(--ink-3)' }}>{estimates?.length || 0} total estimates</p>
         <Button onClick={() => setShowCreate(true)} className="cursor-pointer shrink-0 whitespace-nowrap">
           <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Create Estimate
         </Button>
@@ -131,28 +131,28 @@ export default function EstimatesPage() {
       {/* Summary Stats */}
       {estimates && estimates.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 12 }}>
-          <div style={{ ...card, borderLeft: '4px solid #7C3AED', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7C3AED' }}>Total Estimates</p>
-            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#0F172A', marginTop: 4 }}>{stats.total}</p>
+          <div style={{ ...card, borderLeft: '4px solid #B33A1F', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--stamp)' }}>Total Estimates</p>
+            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: 'var(--ink)', marginTop: 4 }}>{stats.total}</p>
           </div>
-          <div style={{ ...card, borderLeft: '4px solid #059669', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#059669' }}>Accepted Value</p>
-            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#059669', marginTop: 4 }}>{formatCurrency(stats.accepted)}</p>
+          <div style={{ ...card, borderLeft: '4px solid #1C3A5B', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--pencil)' }}>Accepted Value</p>
+            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: 'var(--pencil)', marginTop: 4 }}>{formatCurrency(stats.accepted)}</p>
           </div>
-          <div style={{ ...card, borderLeft: '4px solid #F59E0B', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#D97706' }}>Pending Value</p>
-            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#0F172A', marginTop: 4 }}>{formatCurrency(stats.pending)}</p>
+          <div style={{ ...card, borderLeft: '4px solid #8A5A1C', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ai)' }}>Pending Value</p>
+            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: 'var(--ink)', marginTop: 4 }}>{formatCurrency(stats.pending)}</p>
           </div>
-          <div style={{ ...card, borderLeft: '4px solid #2563EB', padding: 20 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#2563EB' }}>Conversion Rate</p>
-            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#0F172A', marginTop: 4 }}>{stats.rate}%</p>
+          <div style={{ ...card, borderLeft: '4px solid #171510', padding: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--stamp)' }}>Conversion Rate</p>
+            <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: 'var(--ink)', marginTop: 4 }}>{stats.rate}%</p>
           </div>
         </div>
       )}
 
       {/* Status Tabs */}
       {estimates && estimates.length > 0 && (
-        <div style={{ display: 'flex', gap: 4, background: '#F1F5F9', padding: 4, borderRadius: 10, width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: 4, background: 'var(--paper-3)', padding: 4, borderRadius: 10, width: 'fit-content' }}>
           {statusTabs.map(tab => (
             <button
               key={tab}
@@ -181,7 +181,7 @@ export default function EstimatesPage() {
         <EmptyState icon={FileCheck} title="No estimates yet" description="Create your first estimate to start quoting clients."
           action={<Button size="sm" onClick={() => setShowCreate(true)} className="cursor-pointer"><Plus style={{ width: 16, height: 16, marginRight: 4 }} /> Create</Button>} />
       ) : filteredEstimates.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94A3B8', fontSize: 14 }}>No estimates with status &ldquo;{activeTab}&rdquo;</div>
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-4)', fontSize: 14 }}>No estimates with status &ldquo;{activeTab}&rdquo;</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
           {filteredEstimates.map((est) => {
@@ -193,8 +193,8 @@ export default function EstimatesPage() {
                 <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: '#94A3B8' }}>{est.estimate_number}</p>
-                      <p style={{ fontSize: 14, fontWeight: 500, color: '#64748B', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{est.client_name}</p>
+                      <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>{est.estimate_number}</p>
+                      <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-3)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{est.client_name}</p>
                     </div>
                     <span style={{
                       fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, textTransform: 'capitalize', flexShrink: 0, marginLeft: 8,
@@ -203,15 +203,15 @@ export default function EstimatesPage() {
                       {est.status}
                     </span>
                   </div>
-                  <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: '#0F172A', marginTop: 8 }}>{formatCurrency(est.total)}</p>
+                  <p style={{ fontSize: 26, fontWeight: 800, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', color: 'var(--ink)', marginTop: 8 }}>{formatCurrency(est.total)}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
                     {est.valid_until && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748B' }}>
-                        <CalendarDays style={{ width: 12, height: 12, color: '#94A3B8' }} />
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--ink-3)' }}>
+                        <CalendarDays style={{ width: 12, height: 12, color: 'var(--ink-4)' }} />
                         Valid until {formatDate(est.valid_until)}
                       </span>
                     )}
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>
+                    <span style={{ fontSize: 12, color: 'var(--ink-4)' }}>
                       {itemCount} item{itemCount !== 1 ? 's' : ''}
                     </span>
                   </div>
@@ -219,29 +219,29 @@ export default function EstimatesPage() {
                 {/* Quick Actions on hover */}
                 <div
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', flexWrap: 'wrap' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderTop: '1px solid #F1F5F9', background: 'var(--paper)', flexWrap: 'wrap' }}
                 >
                   {est.status === 'accepted' && (
                     <button
                       onClick={() => convertMutation.mutate(est)}
                       disabled={convertMutation.isPending}
                       className="cursor-pointer"
-                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#7C3AED', background: '#F5F3FF', border: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: 'var(--stamp)', background: 'var(--stamp-soft)', border: 'none' }}
                     >
                       <ArrowRight style={{ width: 12, height: 12 }} /> Convert to Invoice
                     </button>
                   )}
                   {est.status === 'draft' && (
-                    <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'sent' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#2563EB', background: '#EFF6FF', border: 'none' }}>
+                    <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'sent' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: 'var(--stamp)', background: 'var(--pencil-soft)', border: 'none' }}>
                       <Send style={{ width: 12, height: 12 }} /> Send
                     </button>
                   )}
                   {est.status === 'sent' && (
                     <>
-                      <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'accepted' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#059669', background: '#ECFDF5', border: 'none' }}>
+                      <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'accepted' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: 'var(--pencil)', background: 'var(--pencil-soft)', border: 'none' }}>
                         <CheckCircle2 style={{ width: 12, height: 12 }} /> Accept
                       </button>
-                      <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'declined' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#DC2626', background: '#FEF2F2', border: 'none' }}>
+                      <button onClick={() => updateStatusMutation.mutate({ id: est.id, status: 'declined' })} className="cursor-pointer" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: 'var(--stamp-2)', background: 'var(--stamp-soft)', border: 'none' }}>
                         <XCircle style={{ width: 12, height: 12 }} /> Decline
                       </button>
                     </>
@@ -249,7 +249,7 @@ export default function EstimatesPage() {
                   <button
                     onClick={() => setViewEstimate(est)}
                     className="cursor-pointer"
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: '#64748B', background: '#F1F5F9', border: 'none' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 500, color: 'var(--ink-3)', background: 'var(--paper-3)', border: 'none' }}
                   >
                     <FileText style={{ width: 12, height: 12 }} /> View
                   </button>
@@ -265,28 +265,28 @@ export default function EstimatesPage() {
         <DialogHeader>
           <DialogTitle>{step === 1 ? "Client Information" : step === 2 ? "Line Items" : "Review & Create"}</DialogTitle>
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            {[1, 2, 3].map(s => <div key={s} style={{ height: 4, flex: 1, borderRadius: 99, background: step >= s ? '#7C3AED' : '#E2E8F0' }} />)}
+            {[1, 2, 3].map(s => <div key={s} style={{ height: 4, flex: 1, borderRadius: 99, background: step >= s ? '#B33A1F' : '#E2E8F0' }} />)}
           </div>
         </DialogHeader>
         <DialogContent>
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Client Name</label><Input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} placeholder="Acme Corp" /></div>
-              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label><Input type="email" value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })} placeholder="billing@acme.com" /></div>
-              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Valid Until</label><Input type="date" value={form.valid_until} onChange={e => setForm({ ...form, valid_until: e.target.value })} /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Client Name</label><Input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} placeholder="Acme Corp" /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Email</label><Input type="email" value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })} placeholder="billing@acme.com" /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Valid Until</label><Input type="date" value={form.valid_until} onChange={e => setForm({ ...form, valid_until: e.target.value })} /></div>
             </div>
           )}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {form.items.map((item, i) => (
-                <div key={i} style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div key={i} style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: 'var(--paper)', border: '1px solid var(--rule)' }}>
                   <Input value={item.description} onChange={e => updateItem(i, 'description', e.target.value)} placeholder="Item description" />
                   <div className="flex gap-3 items-end">
-                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Qty</label><Input type="number" value={item.quantity} onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 0)} /></div>
-                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', display: 'block', marginBottom: 6 }}>Rate</label><Input type="number" step="0.01" value={item.rate} onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)} /></div>
-                    <button onClick={() => removeItem(i)} className="cursor-pointer" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: '#94A3B8', background: 'transparent', border: 'none' }} aria-label="Remove"><Trash2 style={{ width: 16, height: 16 }} /></button>
+                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', display: 'block', marginBottom: 6 }}>Qty</label><Input type="number" value={item.quantity} onChange={e => updateItem(i, 'quantity', parseInt(e.target.value) || 0)} /></div>
+                    <div className="flex-1"><label style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', display: 'block', marginBottom: 6 }}>Rate</label><Input type="number" step="0.01" value={item.rate} onChange={e => updateItem(i, 'rate', parseFloat(e.target.value) || 0)} /></div>
+                    <button onClick={() => removeItem(i)} className="cursor-pointer" style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, color: 'var(--ink-4)', background: 'transparent', border: 'none' }} aria-label="Remove"><Trash2 style={{ width: 16, height: 16 }} /></button>
                   </div>
-                  {item.amount > 0 && <p style={{ textAlign: 'right', fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(item.amount)}</p>}
+                  {item.amount > 0 && <p style={{ textAlign: 'right', fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--ink)' }}>{formatCurrency(item.amount)}</p>}
                 </div>
               ))}
               <Button variant="outline" size="sm" onClick={addItem} className="w-full cursor-pointer border-dashed"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Add Line Item</Button>
@@ -294,17 +294,17 @@ export default function EstimatesPage() {
           )}
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                <div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Client</span><span style={{ fontWeight: 600, color: '#0F172A' }}>{form.client_name}</span></div>
-                {form.valid_until && <div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Valid Until</span><span style={{ fontWeight: 500, color: '#0F172A' }}>{formatDate(form.valid_until)}</span></div>}
+              <div style={{ borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, background: 'var(--paper)', border: '1px solid var(--rule)' }}>
+                <div className="flex justify-between text-sm"><span style={{ color: 'var(--ink-3)' }}>Client</span><span style={{ fontWeight: 600, color: 'var(--ink)' }}>{form.client_name}</span></div>
+                {form.valid_until && <div className="flex justify-between text-sm"><span style={{ color: 'var(--ink-3)' }}>Valid Until</span><span style={{ fontWeight: 500, color: 'var(--ink)' }}>{formatDate(form.valid_until)}</span></div>}
                 {form.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm" style={{ color: '#475569' }}><span className="truncate mr-3">{item.description} &times;{item.quantity}</span><span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(item.amount)}</span></div>
+                  <div key={i} className="flex justify-between text-sm" style={{ color: 'var(--ink-2)' }}><span className="truncate mr-3">{item.description} &times;{item.quantity}</span><span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--ink)' }}>{formatCurrency(item.amount)}</span></div>
                 ))}
-                <div style={{ paddingTop: 12, marginTop: 12, borderTop: '1px solid #E2E8F0' }}><div className="flex justify-between text-sm"><span style={{ color: '#64748B' }}>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: '#0F172A' }}>{formatCurrency(subtotal)}</span></div></div>
+                <div style={{ paddingTop: 12, marginTop: 12, borderTop: '1px solid var(--rule)' }}><div className="flex justify-between text-sm"><span style={{ color: 'var(--ink-3)' }}>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--ink)' }}>{formatCurrency(subtotal)}</span></div></div>
               </div>
-              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax Rate (%)</label><Input type="number" step="0.01" value={form.tax_rate} onChange={e => setForm({ ...form, tax_rate: e.target.value })} /></div>
-              <div><label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Notes</label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Optional notes..." /></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 20, paddingTop: 8, color: '#0F172A' }}><span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(total)}</span></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Tax Rate (%)</label><Input type="number" step="0.01" value={form.tax_rate} onChange={e => setForm({ ...form, tax_rate: e.target.value })} /></div>
+              <div><label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Notes</label><Input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Optional notes..." /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 20, paddingTop: 8, color: 'var(--ink)' }}><span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(total)}</span></div>
             </div>
           )}
         </DialogContent>
@@ -330,9 +330,9 @@ export default function EstimatesPage() {
             <DialogHeader>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, paddingRight: 24 }}>
                 <div>
-                  <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: '#94A3B8' }}>{est.estimate_number}</p>
+                  <p style={{ fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>{est.estimate_number}</p>
                   <DialogTitle style={{ marginTop: 4 }}>{est.client_name}</DialogTitle>
-                  {est.client_email && <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{est.client_email}</p>}
+                  {est.client_email && <p style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 2 }}>{est.client_email}</p>}
                 </div>
                 <span style={{
                   fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 99,
@@ -350,56 +350,56 @@ export default function EstimatesPage() {
                   <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
                     {est.created_at && (
                       <div>
-                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 2 }}>Created</p>
-                        <p style={{ fontSize: 13, color: '#475569' }}>{formatDate(est.created_at)}</p>
+                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Created</p>
+                        <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>{formatDate(est.created_at)}</p>
                       </div>
                     )}
                     {est.valid_until && (
                       <div>
-                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 2 }}>Valid Until</p>
-                        <p style={{ fontSize: 13, color: '#475569' }}>{formatDate(est.valid_until)}</p>
+                        <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 2 }}>Valid Until</p>
+                        <p style={{ fontSize: 13, color: 'var(--ink-2)' }}>{formatDate(est.valid_until)}</p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Line Items */}
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-                  <div style={{ padding: '10px 14px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Description</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>Amount</span>
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--rule)' }}>
+                  <div style={{ padding: '10px 14px', background: 'var(--paper)', borderBottom: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>Description</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>Amount</span>
                   </div>
                   {Array.isArray(items) && items.map((item: EstimateItem, i: number) => (
                     <div key={i} style={{ padding: '12px 14px', borderBottom: i < items.length - 1 ? '1px solid #F1F5F9' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <p style={{ fontSize: 13, color: '#0F172A', fontWeight: 500 }}>{item.description}</p>
-                        <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{item.quantity} &times; {formatCurrency(item.rate)}</p>
+                        <p style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>{item.description}</p>
+                        <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>{item.quantity} &times; {formatCurrency(item.rate)}</p>
                       </div>
-                      <span style={{ fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#0F172A', flexShrink: 0, marginLeft: 12 }}>{formatCurrency(item.amount)}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--ink)', flexShrink: 0, marginLeft: 12 }}>{formatCurrency(item.amount)}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Totals */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 4 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748B' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--ink-3)' }}>
                     <span>Subtotal</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewSubtotal)}</span>
                   </div>
                   {viewTaxRate > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748B' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--ink-3)' }}>
                       <span>Tax ({viewTaxRate}%)</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewTaxAmount)}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, color: '#0F172A', paddingTop: 8, borderTop: '1px solid #E2E8F0', marginTop: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, color: 'var(--ink)', paddingTop: 8, borderTop: '1px solid var(--rule)', marginTop: 4 }}>
                     <span>Total</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatCurrency(viewTotal)}</span>
                   </div>
                 </div>
 
                 {/* Notes */}
                 {est.notes && (
-                  <div style={{ padding: 12, borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94A3B8', marginBottom: 6 }}>Notes</p>
-                    <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{est.notes}</p>
+                  <div style={{ padding: 12, borderRadius: 8, background: 'var(--paper)', border: '1px solid var(--rule)' }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', marginBottom: 6 }}>Notes</p>
+                    <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6 }}>{est.notes}</p>
                   </div>
                 )}
               </div>

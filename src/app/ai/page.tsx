@@ -1,7 +1,5 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Send, Sparkles, User, MessageSquare, ArrowRight, Database } from "lucide-react";
 import { ProductTour } from "@/components/ui/product-tour";
 
 interface Message {
@@ -9,11 +7,11 @@ interface Message {
   content: string;
 }
 
-const suggestions = [
-  "How much did I spend last month?",
-  "What's my most expensive category?",
-  "Show me my profit trend",
-  "Any unusual spending?",
+const SUGGESTIONS = [
+  "Where did my money go last month?",
+  "How am I doing versus the prior month?",
+  "Draft a firm-but-polite nudge for the overdue invoice.",
+  "What should I set aside for quarterly taxes?",
 ];
 
 export default function AIPage() {
@@ -21,6 +19,7 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const firstName = "Rosa"; // fallback display name
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,141 +28,91 @@ export default function AIPage() {
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = { role: "user", content: text };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("/api/ai/query", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: text }) });
+      const res = await fetch("/api/ai/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text }),
+      });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: "assistant", content: data.answer || data.error || "I couldn't process that." }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: data.answer || data.error || "I couldn't read that clearly. Try rewording?" }]);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Try again." }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong on my end. Try again in a moment." }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'calc(100vh - 160px)', minHeight: 400 }} className="animate-fade-in">
-      {/* Chat Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 16, minHeight: 0 }}>
-        {messages.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', padding: '0 16px' }}>
-            {/* Icon */}
-            <div style={{ borderRadius: 20, padding: 20, marginBottom: 24, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', boxShadow: '0 8px 24px rgba(124,58,237,0.25)' }}>
-              <Sparkles style={{ width: 32, height: 32, color: '#fff' }} />
-            </div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: '#0F172A', marginBottom: 8 }}>AI Financial Assistant</h2>
-            <p style={{ fontSize: 14, color: '#64748B', maxWidth: 340, lineHeight: 1.6 }}>
-              Ask anything about your finances. I analyze spending, find trends, and surface insights.
-            </p>
-
-            {/* Data context badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#EDE9FE', color: '#7C3AED', fontSize: 12, fontWeight: 500,
-              padding: '6px 14px', borderRadius: 99, border: '1px solid #DDD6FE', marginTop: 12,
-            }}>
-              <Database style={{ width: 14, height: 14 }} />
-              I have access to your transactions, invoices, and financial reports.
-            </div>
-
-            {/* Try Asking */}
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94A3B8', marginTop: 28, marginBottom: 12 }}>
-              Try asking
-            </p>
-            <div data-tour="suggestion-chips" className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, width: '100%', maxWidth: 480 }}>
-              {suggestions.map(s => (
-                <button
-                  key={s}
-                  onClick={() => sendMessage(s)}
-                  className="group cursor-pointer"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: 14, minHeight: 56, borderRadius: 12, textAlign: 'left',
-                    background: '#FFFFFF', border: '1px solid #E2E8F0',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A78BFA'; e.currentTarget.style.background = '#FAFAFE'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
-                >
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <MessageSquare style={{ width: 14, height: 14, color: '#7C3AED' }} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 500, flex: 1, color: '#0F172A' }}>{s}</span>
-                  <ArrowRight className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ width: 14, height: 14, color: '#7C3AED', flexShrink: 0 }} />
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', gap: 12, justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                {msg.role === 'assistant' && (
-                  <div style={{ width: 32, height: 32, borderRadius: 12, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Sparkles style={{ width: 16, height: 16, color: '#fff' }} />
-                  </div>
-                )}
-                <div style={{
-                  maxWidth: '78%', borderRadius: 16, padding: '12px 16px', fontSize: 14, lineHeight: 1.6,
-                  ...(msg.role === 'user'
-                    ? { background: '#7C3AED', color: '#FFFFFF' }
-                    : { background: '#FFFFFF', color: '#475569', border: '1px solid #E2E8F0' })
-                }}>
-                  {msg.content}
-                </div>
-                {msg.role === 'user' && (
-                  <div style={{ width: 32, height: 32, borderRadius: 12, background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <User style={{ width: 16, height: 16, color: '#fff' }} />
-                  </div>
-                )}
-              </div>
+    <div className="chat-shell">
+      {messages.length === 0 ? (
+        <div className="chat-empty">
+          <div className="kicker">Ask Ledgr</div>
+          <h1>
+            Answers, <em>straight from your books</em>
+          </h1>
+          <p className="lead">
+            Plain language in, plain answers out. I read your transactions, invoices, and categories so you don't have to.
+          </p>
+          <div className="chat-suggestions" data-tour="suggestion-chips">
+            {SUGGESTIONS.map((s, i) => (
+              <button key={i} type="button" className="chat-sugg" onClick={() => sendMessage(s)}>
+                <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+                <span className="q">{s}</span>
+              </button>
             ))}
-            {loading && (
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 12, background: 'linear-gradient(135deg, #7C3AED, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Sparkles style={{ width: 16, height: 16, color: '#fff' }} />
-                </div>
-                <div style={{ borderRadius: 16, padding: '14px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '0ms' }} />
-                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '150ms' }} />
-                    <div className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: '#A78BFA', animationDelay: '300ms' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={bottomRef} />
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="chat-thread">
+          {messages.map((m, i) => (
+            <div key={i} className={"chat-msg " + (m.role === "user" ? "you" : "")}>
+              <div className="speaker">{m.role === "user" ? firstName : "Ledgr"}</div>
+              <div className="speech">
+                {m.content.split("\n").map((p, j) => (
+                  <p key={j}>{p}</p>
+                ))}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="chat-msg">
+              <div className="speaker">Ledgr</div>
+              <div className="speech" style={{ color: "var(--ink-3)" }}>
+                Reading your books…
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+      )}
 
-      {/* Chat Input */}
-      <div data-tour="chat-input-area" style={{ paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
-        <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', gap: 12 }}>
-          <input
-            data-tour="chat-input"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Ask about your finances..."
-            disabled={loading}
-            style={{
-              flex: 1, height: 44, borderRadius: 10, padding: '0 16px', fontSize: 14,
-              border: '1.5px solid #CBD5E1', color: '#0F172A', background: '#FFFFFF',
-              outline: 'none', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', transition: 'all 0.15s',
-            }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)'; }}
-          />
-          <Button data-tour="send-btn" type="submit" disabled={loading || !input.trim()} className="cursor-pointer shrink-0" style={{ width: 44, height: 44, borderRadius: 10, padding: 0 }}>
-            <Send style={{ width: 16, height: 16 }} />
-          </Button>
-        </form>
-        <p style={{ fontSize: 10, color: '#CBD5E1', textAlign: 'center', marginTop: 8 }}>Press Enter to send</p>
-      </div>
+      <form
+        className="chat-input"
+        data-tour="chat-input-area"
+        onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
+      >
+        <input
+          data-tour="chat-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask about cash, categories, clients…"
+          disabled={loading}
+        />
+        <button
+          data-tour="send-btn"
+          type="submit"
+          className="send"
+          disabled={loading || !input.trim()}
+          aria-label="Send"
+        >
+          Send
+        </button>
+      </form>
 
-      {/* AI Chat product tour */}
       <ProductTour
         tourId="ai-chat"
         delay={800}
@@ -171,25 +120,17 @@ export default function AIPage() {
           {
             element: '[data-tour="suggestion-chips"]',
             popover: {
-              title: 'Quick Question Starters',
-              description: 'Tap any of these to instantly ask a common financial question — Ledgr will pull data from your real transactions and invoices to answer.',
-              side: 'top',
+              title: "Quick starters",
+              description: "Tap any of these to ask a common question. Ledgr pulls from your real data to answer.",
+              side: "top",
             },
           },
           {
             element: '[data-tour="chat-input"]',
             popover: {
-              title: 'Ask Anything',
-              description: 'Type any question about your finances in plain English. "What\'s my biggest expense?", "Am I profitable this quarter?" — Ledgr understands it all.',
-              side: 'top',
-            },
-          },
-          {
-            element: '[data-tour="send-btn"]',
-            popover: {
-              title: 'Send Your Question',
-              description: 'Hit Enter or click this button to get an AI-powered answer. Responses are based on your actual financial data.',
-              side: 'left',
+              title: "Ask in plain words",
+              description: "Type any question about your finances. 'Biggest expense?', 'Am I profitable?' — plain English works.",
+              side: "top",
             },
           },
         ]}

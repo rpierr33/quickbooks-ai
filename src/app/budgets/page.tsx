@@ -28,9 +28,9 @@ import { useToast } from "@/components/ui/toast";
 import type { Budget, Transaction, Category } from "@/types";
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
 };
 
@@ -50,15 +50,15 @@ const bigNumber: React.CSSProperties = {
 };
 
 function getProgressColor(pct: number): string {
-  if (pct > 100) return "#EF4444";
-  if (pct >= 80) return "#F59E0B";
-  return "#059669";
+  if (pct > 100) return "#B33A1F";
+  if (pct >= 80) return "#8A5A1C";
+  return "#1C3A5B";
 }
 
 function getProgressBg(pct: number): string {
-  if (pct > 100) return "#FEE2E2";
-  if (pct >= 80) return "#FEF3C7";
-  return "#D1FAE5";
+  if (pct > 100) return "#F5E0D9";
+  if (pct >= 80) return "#F2E7D0";
+  return "#DDE4EC";
 }
 
 export default function BudgetsPage() {
@@ -267,8 +267,8 @@ export default function BudgetsPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: "1px solid #E2E8F0",
-              background: "#FFFFFF",
+              border: "1px solid var(--rule)",
+              background: "var(--paper-2)",
               color: "#475569",
             }}
           >
@@ -295,8 +295,8 @@ export default function BudgetsPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: "1px solid #E2E8F0",
-              background: "#FFFFFF",
+              border: "1px solid var(--rule)",
+              background: "var(--paper-2)",
               color: "#475569",
             }}
           >
@@ -331,13 +331,13 @@ export default function BudgetsPage() {
                 width: 32,
                 height: 32,
                 borderRadius: 8,
-                background: "#EDE9FE",
+                background: "#F5E0D9",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Target style={{ width: 16, height: 16, color: "#7C3AED" }} />
+              <Target style={{ width: 16, height: 16, color: "#B33A1F" }} />
             </div>
             <span style={sectionLabel}>Total Budget</span>
           </div>
@@ -359,13 +359,13 @@ export default function BudgetsPage() {
                 width: 32,
                 height: 32,
                 borderRadius: 8,
-                background: "#FEE2E2",
+                background: "#F5E0D9",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Wallet style={{ width: 16, height: 16, color: "#EF4444" }} />
+              <Wallet style={{ width: 16, height: 16, color: "#B33A1F" }} />
             </div>
             <span style={sectionLabel}>Total Spent</span>
           </div>
@@ -388,7 +388,7 @@ export default function BudgetsPage() {
                 height: 32,
                 borderRadius: 8,
                 background:
-                  totalRemaining >= 0 ? "#D1FAE5" : "#FEE2E2",
+                  totalRemaining >= 0 ? "#DDE4EC" : "#F5E0D9",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -396,11 +396,11 @@ export default function BudgetsPage() {
             >
               {totalRemaining >= 0 ? (
                 <TrendingDown
-                  style={{ width: 16, height: 16, color: "#059669" }}
+                  style={{ width: 16, height: 16, color: "#1C3A5B" }}
                 />
               ) : (
                 <TrendingUp
-                  style={{ width: 16, height: 16, color: "#EF4444" }}
+                  style={{ width: 16, height: 16, color: "#B33A1F" }}
                 />
               )}
             </div>
@@ -409,7 +409,7 @@ export default function BudgetsPage() {
           <p
             style={{
               ...bigNumber,
-              color: totalRemaining >= 0 ? "#059669" : "#EF4444",
+              color: totalRemaining >= 0 ? "#1C3A5B" : "#B33A1F",
             }}
           >
             {formatCurrency(Math.abs(totalRemaining))}
@@ -465,7 +465,7 @@ export default function BudgetsPage() {
               marginTop: 8,
               height: 6,
               borderRadius: 99,
-              background: "#F1F5F9",
+              background: "var(--paper-3)",
               overflow: "hidden",
             }}
           >
@@ -520,7 +520,7 @@ export default function BudgetsPage() {
               style={{
                 width: 40,
                 height: 40,
-                color: "#CBD5E1",
+                color: "#CFBF9E",
                 margin: "0 auto 12px",
               }}
             />
@@ -582,7 +582,7 @@ export default function BudgetsPage() {
                         textDecoration: 'none',
                         transition: 'color 120ms ease',
                       }}
-                      onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#7C3AED'}
+                      onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#B33A1F'}
                       onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#0F172A'}
                     >
                       {row.category_name}
@@ -601,7 +601,7 @@ export default function BudgetsPage() {
                       <button
                         onClick={() => openEditBudget(row)}
                         className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "#F1F5F9", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "var(--paper-3)", color: "#475569", display: "flex", alignItems: "center", justifyContent: "center" }}
                         title="Edit budget"
                       >
                         <Pencil style={{ width: 13, height: 13 }} />
@@ -609,7 +609,7 @@ export default function BudgetsPage() {
                       <button
                         onClick={() => setDeletingBudgetId(row.id)}
                         className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "#F5E0D9", color: "#B33A1F", display: "flex", alignItems: "center", justifyContent: "center" }}
                         title="Delete budget"
                       >
                         <Trash2 style={{ width: 13, height: 13 }} />
@@ -683,7 +683,7 @@ export default function BudgetsPage() {
                             fontSize: 14,
                             fontWeight: 600,
                             fontVariantNumeric: "tabular-nums",
-                            color: isOver ? "#EF4444" : "#0F172A",
+                            color: isOver ? "#B33A1F" : "#0F172A",
                             cursor: 'pointer',
                             transition: 'opacity 120ms ease',
                           }}
@@ -709,7 +709,7 @@ export default function BudgetsPage() {
                           fontSize: 14,
                           fontWeight: 600,
                           fontVariantNumeric: "tabular-nums",
-                          color: isOver ? "#EF4444" : "#059669",
+                          color: isOver ? "#B33A1F" : "#1C3A5B",
                         }}
                       >
                         {isOver ? "-" : "+"}
@@ -740,7 +740,7 @@ export default function BudgetsPage() {
             onClick={() => { if (deletingBudgetId) deleteMutation.mutate(deletingBudgetId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 w-full cursor-pointer"
-            style={{ background: "#EF4444", color: "#FFFFFF" }}
+            style={{ background: "#B33A1F", color: "#FFFFFF" }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

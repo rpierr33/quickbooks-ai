@@ -2,30 +2,15 @@
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Dialog } from "@/components/ui/dialog";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { formatCurrencyAmount, SUPPORTED_CURRENCIES, getExchangeRate, convertAmount } from "@/lib/currency";
-import { Plus, ArrowLeftRight, Sparkles, Search, ChevronLeft, ChevronRight, Download, Paperclip, X, Image, Pencil, Trash2 } from "lucide-react";
-import { ProductTour } from "@/components/ui/product-tour";
-import { exportTransactions } from "@/lib/export";
+import { getExchangeRate, convertAmount } from "@/lib/currency";
 import { useToast } from "@/components/ui/toast";
+import { exportTransactions } from "@/lib/export";
 import type { Transaction } from "@/types";
 
 const BASE_CURRENCY = "USD";
-
 const PAGE_SIZE = 25;
-
-const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-  overflow: 'hidden',
-};
 
 function TransactionsPageInner() {
   const queryClient = useQueryClient();
@@ -33,7 +18,6 @@ function TransactionsPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Read URL params for deep-linking from dashboard/reports/budgets
   const urlType = searchParams.get("type") ?? "all";
   const urlMonth = searchParams.get("month") ?? "";
   const urlCategory = searchParams.get("category") ?? "";
@@ -42,12 +26,11 @@ function TransactionsPageInner() {
   const [dateRangeFilter, setDateRangeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [search, setSearch] = useState("");
-  const [showAddDialog, setShowAddDialog] = useState(searchParams.get("action") === "new");
-  const [step, setStep] = useState(1);
+  const [showDialog, setShowDialog] = useState(searchParams.get("action") === "new");
+  const [step, setStep] = useState(0);
   const [page, setPage] = useState(1);
-  const [sortCol, setSortCol] = useState<'date' | 'description' | 'amount' | 'type'>('date');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [receipt, setReceipt] = useState<{ name: string; size: string; file?: File } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     description: "",
@@ -56,8 +39,6 @@ function TransactionsPageInner() {
     notes: "",
     currency: "USD",
   });
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["transactions", typeFilter, search],
@@ -65,13 +46,12 @@ function TransactionsPageInner() {
       const params = new URLSearchParams();
       if (typeFilter !== "all") params.set("type", typeFilter);
       if (search) params.set("search", search);
-      return fetch(`/api/transactions?${params}`).then(r => r.json());
+      return fetch(`/api/transactions?${params}`).then((r) => r.json());
     },
   });
 
   React.useEffect(() => { setPage(1); }, [typeFilter, search, dateRangeFilter, categoryFilter]);
 
-  // Client-side date range filtering
   const getDateRangeStart = (range: string): Date | null => {
     const now = new Date();
     switch (range) {
@@ -80,72 +60,48 @@ function TransactionsPageInner() {
       case "3m": return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
       case "6m": return new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
       case "ytd": return new Date(now.getFullYear(), 0, 1);
-      default: return null; // "all" — no filter
+      default: return null;
     }
   };
 
-  const toggleSort = (col: typeof sortCol) => {
-    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setSortCol(col); setSortDir(col === 'date' ? 'desc' : 'asc'); }
-    setPage(1);
-  };
-
-  const sortedTransactions = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!transactions) return [];
     const rangeStart = getDateRangeStart(dateRangeFilter);
-    let filtered = rangeStart
-      ? transactions.filter((t) => new Date(t.date) >= rangeStart)
-      : transactions;
-    // Filter by month from URL param (e.g. ?month=2026-01)
-    if (urlMonth) {
-      filtered = filtered.filter(t => t.date.startsWith(urlMonth));
-    }
-    // Filter by category if set
-    if (categoryFilter) {
-      filtered = filtered.filter(t => (t.category_name ?? '') === categoryFilter);
-    }
-    return [...filtered].sort((a, b) => {
-      let cmp = 0;
-      switch (sortCol) {
-        case 'date': cmp = a.date.localeCompare(b.date); break;
-        case 'description': cmp = a.description.localeCompare(b.description); break;
-        case 'amount': {
-          const aAmt = typeof a.amount === 'string' ? parseFloat(a.amount) : a.amount;
-          const bAmt = typeof b.amount === 'string' ? parseFloat(b.amount) : b.amount;
-          cmp = aAmt - bAmt; break;
-        }
-        case 'type': cmp = a.type.localeCompare(b.type); break;
-      }
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
-  }, [transactions, sortCol, sortDir]);
+    let rows = rangeStart ? transactions.filter((t) => new Date(t.date) >= rangeStart) : transactions;
+    if (urlMonth) rows = rows.filter((t) => t.date.startsWith(urlMonth));
+    if (categoryFilter) rows = rows.filter((t) => (t.category_name ?? "") === categoryFilter);
+    return [...rows].sort((a, b) => b.date.localeCompare(a.date));
+  }, [transactions, dateRangeFilter, urlMonth, categoryFilter]);
 
-  const totalCount = sortedTransactions.length;
+  const totalCount = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const paginatedTransactions = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return sortedTransactions.slice(start, start + PAGE_SIZE);
-  }, [sortedTransactions, page]);
+  const paginated = useMemo(() => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), [filtered, page]);
+
+  // Running balance (most recent on top, then going down)
+  const withBalance = useMemo(() => {
+    let running = 0;
+    for (const t of filtered) {
+      const amt = typeof t.amount === "string" ? parseFloat(t.amount) : t.amount;
+      running += t.type === "income" ? amt : -amt;
+    }
+    let running2 = running;
+    return paginated.map((t) => {
+      const bal = running2;
+      const amt = typeof t.amount === "string" ? parseFloat(t.amount) : t.amount;
+      running2 -= t.type === "income" ? amt : -amt;
+      return { t, bal };
+    });
+  }, [paginated, filtered]);
+
+  const totalIncome = filtered.filter((t) => t.type === "income").reduce((s, t) => {
+    const a = typeof t.amount === "string" ? parseFloat(t.amount) : t.amount; return s + a;
+  }, 0);
+  const totalExpense = filtered.filter((t) => t.type === "expense").reduce((s, t) => {
+    const a = typeof t.amount === "string" ? parseFloat(t.amount) : t.amount; return s + a;
+  }, 0);
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof form) => {
-      let receiptNote = "";
-      if (receipt?.file) {
-        const file = receipt.file;
-        // Only attach images (skip PDF for now — base64 PDFs are large)
-        if (file.type.startsWith("image/")) {
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve((reader.result as string).split(",")[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-          receiptNote = `Receipt: ${file.name} (${(file.size / 1024).toFixed(1)} KB) [base64:${base64.substring(0, 40)}...]`;
-        } else {
-          receiptNote = `Receipt attached: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        }
-      }
-      const notes = [data.notes, receiptNote].filter(Boolean).join("\n") || null;
       const exchangeRate = getExchangeRate(data.currency, BASE_CURRENCY);
       const baseAmount = data.currency !== BASE_CURRENCY
         ? convertAmount(parseFloat(data.amount) || 0, data.currency, BASE_CURRENCY)
@@ -153,609 +109,371 @@ function TransactionsPageInner() {
       return fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          notes,
-          exchange_rate: exchangeRate,
-          base_amount: baseAmount,
-        }),
-      }).then(r => r.json());
+        body: JSON.stringify({ ...data, exchange_rate: exchangeRate, base_amount: baseAmount }),
+      }).then((r) => r.json());
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      setShowAddDialog(false);
-      setStep(1);
-      setReceipt(null);
-      setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "", currency: "USD" });
-      toast("Transaction created successfully");
+      closeDialog();
+      toast("Entry posted");
     },
-    onError: () => {
-      toast("Failed to create transaction", "error");
-    },
+    onError: () => toast("Couldn't post entry", "error"),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: string; date: string; description: string; amount: string; type: string; notes: string }) =>
+    mutationFn: ({ id, ...data }: { id: string } & typeof form) =>
       fetch(`/api/transactions/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, amount: parseFloat(data.amount) }),
-      }).then(r => r.json()),
+      }).then((r) => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      closeEditDialog();
-      toast("Transaction updated");
+      closeDialog();
+      toast("Entry updated");
     },
-    onError: () => { toast("Failed to update transaction", "error"); },
+    onError: () => toast("Couldn't update entry", "error"),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) =>
-      fetch(`/api/transactions/${id}`, { method: "DELETE" }).then(r => r.json()),
+    mutationFn: (id: string) => fetch(`/api/transactions/${id}`, { method: "DELETE" }).then((r) => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       setDeletingId(null);
-      toast("Transaction deleted");
+      toast("Entry deleted");
     },
-    onError: () => { toast("Failed to delete transaction", "error"); },
+    onError: () => toast("Couldn't delete entry", "error"),
   });
 
   function openEdit(tx: Transaction) {
     setForm({
       date: tx.date?.split("T")[0] ?? new Date().toISOString().split("T")[0],
       description: tx.description,
-      amount: String(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount),
+      amount: String(typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount),
       type: tx.type,
       notes: tx.notes ?? "",
       currency: tx.currency ?? "USD",
     });
     setEditingId(tx.id);
-    setStep(1);
-    setShowAddDialog(true);
+    setStep(0);
+    setShowDialog(true);
   }
 
-  function closeEditDialog() {
-    setShowAddDialog(false);
+  function closeDialog() {
+    setShowDialog(false);
     setEditingId(null);
-    setStep(1);
-    setReceipt(null);
+    setStep(0);
     setForm({ date: new Date().toISOString().split("T")[0], description: "", amount: "", type: "expense", notes: "", currency: "USD" });
   }
 
-  const handleSubmit = () => {
+  function submitDialog() {
     if (editingId) {
       if (!form.description || !form.amount) return;
       updateMutation.mutate({ id: editingId, ...form });
       return;
     }
-    if (step === 1) {
+    if (step === 0) {
       if (!form.description || !form.amount) return;
-      setStep(2);
+      setStep(1);
       return;
     }
     createMutation.mutate(form);
-  };
-
-  const isSaving = createMutation.isPending || updateMutation.isPending;
+  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
-      {/* Filter Bar */}
-      <div data-tour="filter-bar" className="flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div data-tour="search-bar" style={{ position: 'relative', flex: 1, maxWidth: 384 }}>
-          <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8', pointerEvents: 'none' }} />
-          <Input placeholder="Search transactions..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+    <div>
+      <div className="dash-head">
+        <div>
+          <div className="eyebrow-stamp">Ledger</div>
+          <h1 className="display-h1" style={{ marginTop: 10 }}>Transactions</h1>
+          <p style={{ fontFamily: "var(--sans)", fontSize: 15, color: "var(--ink-3)", maxWidth: "58ch", marginTop: 14, lineHeight: 1.5 }}>
+            Every dollar in and out of your accounts, posted in the order it arrived.
+          </p>
         </div>
-        <div className="flex gap-2 shrink-0 flex-wrap">
-          <Select data-tour="type-filter" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-28">
-            <option value="all">All types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </Select>
-          <Select data-tour="date-filter" value={dateRangeFilter} onChange={(e) => setDateRangeFilter(e.target.value)} className="w-36">
-            <option value="all">All time</option>
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="3m">Last 3 months</option>
-            <option value="6m">Last 6 months</option>
-            <option value="ytd">This year</option>
-          </Select>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
           {transactions && transactions.length > 0 && (
+            <button type="button" className="btn" onClick={() => exportTransactions(transactions)}>Export CSV</button>
+          )}
+          <button type="button" className="btn stamp" onClick={() => setShowDialog(true)}>+ New transaction</button>
+        </div>
+      </div>
+
+      {/* Summary strip */}
+      <div className="summary-strip">
+        <div className="cell" style={{ cursor: "default" }}>
+          <div className="label">Credits · period</div>
+          <div className="n" style={{ color: "var(--pencil)" }}>{formatCurrency(totalIncome)}</div>
+          <div className="delta">{filtered.filter((t) => t.type === "income").length} entries</div>
+        </div>
+        <div className="cell" style={{ cursor: "default" }}>
+          <div className="label">Debits · period</div>
+          <div className="n" style={{ color: "var(--stamp)" }}>{formatCurrency(totalExpense)}</div>
+          <div className="delta">{filtered.filter((t) => t.type === "expense").length} entries</div>
+        </div>
+        <div className="cell" style={{ cursor: "default" }}>
+          <div className="label">Net · period</div>
+          <div className="n">{formatCurrency(totalIncome - totalExpense)}</div>
+          <div className="delta">{totalCount} total entries</div>
+        </div>
+        <div className="cell" style={{ cursor: "default" }}>
+          <div className="label">Page</div>
+          <div className="n">{page} <span style={{ fontSize: 22, color: "var(--ink-3)", fontStyle: "italic" }}>/ {totalPages}</span></div>
+          <div className="delta">Showing {paginated.length} of {totalCount}</div>
+        </div>
+      </div>
+
+      {/* Filter row */}
+      <div style={{ padding: "28px 0", borderBottom: "1px solid var(--ink)", display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 260, display: "flex", alignItems: "baseline", gap: 10, borderBottom: "1px solid var(--ink)", paddingBottom: 6 }}>
+          <span style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--ink-3)" }}>Search</span>
+          <input
+            style={{ flex: 1, background: "transparent", border: 0, outline: "none", fontFamily: "var(--serif)", fontSize: 16 }}
+            placeholder="description, vendor, category…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="filter-tabs">
+          {[
+            { key: "all", label: "All" },
+            { key: "income", label: "Credit" },
+            { key: "expense", label: "Debit" },
+          ].map((f) => (
             <button
-              onClick={() => exportTransactions(transactions)}
-              className="cursor-pointer"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: '#FFFFFF', border: '1px solid #E2E8F0', color: '#475569' }}
+              key={f.key}
+              type="button"
+              onClick={() => setTypeFilter(f.key)}
+              className={typeFilter === f.key ? "active" : ""}
             >
-              <Download style={{ width: 14, height: 14 }} /> CSV
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <select
+          className="select"
+          style={{ width: 160, borderBottom: "1px solid var(--ink)", paddingBottom: 6 }}
+          value={dateRangeFilter}
+          onChange={(e) => setDateRangeFilter(e.target.value)}
+        >
+          <option value="all">All time</option>
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="3m">Last 3 months</option>
+          <option value="6m">Last 6 months</option>
+          <option value="ytd">This year</option>
+        </select>
+      </div>
+
+      {/* Active filter chips */}
+      {(categoryFilter || urlMonth || urlType !== "all") && (
+        <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+          {categoryFilter && (
+            <button type="button" onClick={() => { setCategoryFilter(""); router.replace("/transactions"); }} className="pill" style={{ color: "var(--stamp)", cursor: "pointer" }}>
+              Category: {categoryFilter} ✕
             </button>
           )}
-          <Button data-tour="add-transaction-btn" onClick={() => setShowAddDialog(true)} className="cursor-pointer shrink-0 whitespace-nowrap" style={{ padding: '0 16px' }}>
-            <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> Add Transaction
-          </Button>
+          {urlMonth && (
+            <button type="button" onClick={() => router.replace("/transactions")} className="pill" style={{ color: "var(--pencil)", cursor: "pointer" }}>
+              Month: {urlMonth} ✕
+            </button>
+          )}
+          {urlType !== "all" && (
+            <button type="button" onClick={() => { setTypeFilter("all"); router.replace("/transactions"); }} className="pill" style={{ cursor: "pointer" }}>
+              Type: {urlType} ✕
+            </button>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* AI legend + active filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#94A3B8' }}>
-          <Sparkles style={{ width: 12, height: 12, color: '#7C3AED' }} />
-          <span>= AI auto-categorized</span>
+      {/* Table */}
+      <div style={{ marginTop: 36 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 140px 110px 110px 120px 90px", padding: "12px 0", fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--ink)", borderTop: "1px solid var(--ink)", borderBottom: "2px solid var(--ink)", fontWeight: 600 }}>
+          <span>Date</span>
+          <span>Description</span>
+          <span>Category</span>
+          <span style={{ textAlign: "right" }}>Debit</span>
+          <span style={{ textAlign: "right" }}>Credit</span>
+          <span style={{ textAlign: "right" }}>Balance</span>
+          <span style={{ textAlign: "right" }}>&nbsp;</span>
         </div>
-        {categoryFilter && (
-          <button
-            onClick={() => { setCategoryFilter(""); router.replace('/transactions'); }}
-            className="cursor-pointer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-              background: '#EDE9FE', color: '#7C3AED', border: '1px solid #C4B5FD',
-            }}
-          >
-            Category: {categoryFilter}
-            <X style={{ width: 11, height: 11 }} />
-          </button>
-        )}
-        {urlMonth && (
-          <button
-            onClick={() => router.replace('/transactions')}
-            className="cursor-pointer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-              background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE',
-            }}
-          >
-            Month: {urlMonth}
-            <X style={{ width: 11, height: 11 }} />
-          </button>
-        )}
-        {urlType !== "all" && (
-          <button
-            onClick={() => { setTypeFilter("all"); router.replace('/transactions'); }}
-            className="cursor-pointer"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 99,
-              background: urlType === 'income' ? '#ECFDF5' : '#FEF2F2',
-              color: urlType === 'income' ? '#059669' : '#EF4444',
-              border: `1px solid ${urlType === 'income' ? '#BBF7D0' : '#FECACA'}`,
-            }}
-          >
-            Type: {urlType}
-            <X style={{ width: 11, height: 11 }} />
-          </button>
-        )}
-      </div>
 
-      {/* Transaction List */}
-      <div data-tour="transaction-list" style={card}>
         {isLoading ? (
-          <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[...Array(8)].map((_, i) => <div key={i} className="h-12 rounded-lg animate-shimmer" />)}
+          <div style={{ padding: "40px 0", textAlign: "center" }}>
+            <div className="animate-shimmer" style={{ height: 14, width: 220, background: "var(--paper-2)", margin: "0 auto" }} />
           </div>
-        ) : !transactions || transactions.length === 0 ? (
-          <EmptyState
-            icon={ArrowLeftRight}
-            title="No transactions yet"
-            description="Add your first transaction to get started."
-            action={<Button size="sm" onClick={() => setShowAddDialog(true)} className="cursor-pointer"><Plus style={{ width: 16, height: 16, marginRight: 4 }} /> Add</Button>}
-          />
+        ) : totalCount === 0 ? (
+          <div className="empty">No entries match. Adjust your filters or post a new one.</div>
         ) : (
-          <>
-            {/* Mobile list */}
-            <div className="md:hidden">
-              {paginatedTransactions.map((tx, i) => (
-                <div
-                  key={tx.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-                    padding: '14px 16px',
-                    borderBottom: i < paginatedTransactions.length - 1 ? '1px solid #F1F5F9' : 'none',
-                    background: i % 2 === 1 ? '#FAFBFC' : 'transparent',
-                  }}
-                >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description}</p>
-                      {tx.ai_categorized && <Sparkles style={{ width: 12, height: 12, color: '#7C3AED', flexShrink: 0 }} />}
-                    </div>
-                    <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
-                      {formatDate(tx.date)}
-                      {tx.category_name && <span> &middot; {tx.category_name}</span>}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                    <span style={{ fontSize: 14, fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: tx.type === 'income' ? '#059669' : '#EF4444' }}>
-                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
-                    </span>
-                    <button onClick={() => openEdit(tx)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
-                      <Pencil style={{ width: 13, height: 13 }} />
-                    </button>
-                    <button onClick={() => setDeletingId(tx.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444' }}>
-                      <Trash2 style={{ width: 13, height: 13 }} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop table */}
-            <div className="hidden md:block" style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 720 }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #E2E8F0' }}>
-                    {([
-                      { key: 'date' as const, label: 'Date', align: 'left', w: 120 },
-                      { key: 'description' as const, label: 'Description', align: 'left', w: undefined },
-                      { key: null, label: 'Category', align: 'left', w: 160 },
-                      { key: 'amount' as const, label: 'Amount', align: 'right', w: 140 },
-                      { key: 'type' as const, label: 'Type', align: 'center', w: 100 },
-                      { key: null, label: '', align: 'center', w: 88 },
-                    ] as const).map((col, ci) => (
-                      <th
-                        key={ci}
-                        onClick={col.key ? () => toggleSort(col.key!) : undefined}
-                        style={{
-                          textAlign: col.align as React.CSSProperties['textAlign'], padding: '12px 16px', fontSize: 11, fontWeight: 700,
-                          letterSpacing: '0.08em', textTransform: 'uppercase',
-                          color: sortCol === col.key ? '#7C3AED' : '#64748B',
-                          width: col.w, cursor: col.key ? 'pointer' : 'default', userSelect: 'none',
-                        }}
-                      >
-                        {col.label}
-                        {col.key && sortCol === col.key && (
-                          <span style={{ marginLeft: 4, fontSize: 10 }}>{sortDir === 'asc' ? '▲' : '▼'}</span>
-                        )}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedTransactions.map((tx, i) => (
-                    <tr
-                      key={tx.id}
-                      className="cursor-pointer"
-                      style={{ borderBottom: '1px solid #F1F5F9', background: i % 2 === 1 ? '#FAFBFC' : 'transparent', transition: 'background 0.15s' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = i % 2 === 1 ? '#FAFBFC' : 'transparent')}
-                    >
-                      <td style={{ padding: '14px 16px', color: '#64748B', fontSize: 13 }}>{formatDate(tx.date)}</td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontWeight: 500, color: '#0F172A' }}>{tx.description}</span>
-                          {tx.ai_categorized && (
-                            <span title="AI auto-categorized">
-                              <Sparkles style={{ width: 12, height: 12, color: '#7C3AED', flexShrink: 0 }} />
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px', fontSize: 13 }}>
-                        {tx.category_name ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCategoryFilter(categoryFilter === tx.category_name ? "" : (tx.category_name ?? ""));
-                            }}
-                            title={categoryFilter === tx.category_name ? "Clear category filter" : `Filter by ${tx.category_name}`}
-                            className="cursor-pointer"
-                            style={{
-                              display: 'inline-flex', alignItems: 'center',
-                              fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 99,
-                              background: categoryFilter === tx.category_name ? '#EDE9FE' : '#F1F5F9',
-                              color: categoryFilter === tx.category_name ? '#7C3AED' : '#64748B',
-                              border: categoryFilter === tx.category_name ? '1px solid #C4B5FD' : '1px solid transparent',
-                              transition: 'all 120ms ease',
-                            }}
-                          >
-                            {tx.category_name}
-                          </button>
-                        ) : (
-                          <span style={{ color: '#94A3B8' }}>—</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: tx.type === 'income' ? '#059669' : '#EF4444' }}>
-                          {tx.type === 'income' ? '+' : '-'}{formatCurrency(typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount)}
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <span style={{
-                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, minWidth: 72, textTransform: 'capitalize',
-                          background: tx.type === 'income' ? '#ECFDF5' : tx.type === 'expense' ? '#FEF2F2' : '#F1F5F9',
-                          color: tx.type === 'income' ? '#059669' : tx.type === 'expense' ? '#DC2626' : '#64748B',
-                        }}>
-                          {tx.type}
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                          <button onClick={() => openEdit(tx)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', transition: 'all 0.15s' }}>
-                            <Pencil style={{ width: 13, height: 13 }} />
-                          </button>
-                          <button onClick={() => setDeletingId(tx.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', transition: 'all 0.15s' }}>
-                            <Trash2 style={{ width: 13, height: 13 }} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #E2E8F0', background: '#F8FAFC' }}>
-              <p style={{ fontSize: 13, color: '#64748B' }}>
-                Showing {((page - 1) * PAGE_SIZE) + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount} transactions
-              </p>
-              {totalPages > 1 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          withBalance.map(({ t, bal }) => {
+            const amt = typeof t.amount === "string" ? parseFloat(t.amount) : t.amount;
+            const isDebit = t.type === "expense";
+            return (
+              <div key={t.id} style={{ display: "grid", gridTemplateColumns: "80px 1fr 140px 110px 110px 120px 90px", padding: "12px 0", borderBottom: "1px dotted var(--rule)", alignItems: "baseline" }}>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)", letterSpacing: "0.08em" }}>
+                  {formatDate(t.date).slice(0, 6)}
+                </span>
+                <span style={{ fontFamily: "var(--serif)", fontSize: 14.5 }}>
+                  {t.description}
+                  {t.ai_categorized && <em style={{ color: "var(--ink-3)", marginLeft: 8, fontSize: 12.5 }}>· ledgr'd</em>}
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)" }}>
+                  {t.category_name ?? "—"}
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 13, textAlign: "right", color: isDebit ? "var(--stamp)" : "var(--ink-4)" }}>
+                  {isDebit ? amt.toFixed(2) : "—"}
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 13, textAlign: "right", color: !isDebit ? "var(--pencil)" : "var(--ink-4)" }}>
+                  {!isDebit ? amt.toFixed(2) : "—"}
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 13, textAlign: "right", color: "var(--ink-2)" }}>
+                  {bal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span style={{ textAlign: "right", display: "flex", gap: 6, justifyContent: "flex-end" }}>
                   <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#475569' }}
+                    type="button"
+                    onClick={() => openEdit(t)}
+                    aria-label="Edit entry"
+                    style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em", color: "var(--ink-3)", textTransform: "uppercase" }}
                   >
-                    <ChevronLeft style={{ width: 16, height: 16 }} />
+                    Edit
                   </button>
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let pageNum: number;
-                    if (totalPages <= 5) pageNum = i + 1;
-                    else if (page <= 3) pageNum = i + 1;
-                    else if (page >= totalPages - 2) pageNum = totalPages - 4 + i;
-                    else pageNum = page - 2 + i;
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setPage(pageNum)}
-                        className="cursor-pointer"
-                        style={{
-                          width: 36, height: 36, borderRadius: 8,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 13, fontWeight: 500,
-                          background: page === pageNum ? '#7C3AED' : '#FFFFFF',
-                          color: page === pageNum ? '#FFFFFF' : '#475569',
-                          border: page === pageNum ? 'none' : '1px solid #E2E8F0',
-                          transition: 'all 0.15s',
-                        }}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
                   <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                    className="cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#475569' }}
+                    type="button"
+                    onClick={() => setDeletingId(t.id)}
+                    aria-label="Delete entry"
+                    style={{ fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.16em", color: "var(--stamp)", textTransform: "uppercase" }}
                   >
-                    <ChevronRight style={{ width: 16, height: 16 }} />
+                    Del
                   </button>
-                </div>
-              )}
-            </div>
-          </>
+                </span>
+              </div>
+            );
+          })
+        )}
+
+        {/* Totals row */}
+        {totalCount > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 140px 110px 110px 120px 90px", padding: "16px 0", borderTop: "1px solid var(--rule-strong)", fontFamily: "var(--sans)", fontSize: 13, fontWeight: 500 }}>
+            <span></span>
+            <span style={{ color: "var(--ink)", fontWeight: 500 }}>Totals</span>
+            <span></span>
+            <span style={{ textAlign: "right", color: "var(--stamp)", fontFamily: "var(--mono)" }}>{totalExpense.toFixed(2)}</span>
+            <span style={{ textAlign: "right", color: "var(--pencil)", fontFamily: "var(--mono)" }}>{totalIncome.toFixed(2)}</span>
+            <span style={{ textAlign: "right", color: "var(--ink)", fontFamily: "var(--mono)" }}>{(totalIncome - totalExpense).toFixed(2)}</span>
+            <span></span>
+          </div>
         )}
       </div>
 
-      {/* Add / Edit Transaction Dialog */}
-      <Dialog open={showAddDialog} onClose={closeEditDialog}>
-        <DialogHeader>
-          <DialogTitle>{editingId ? "Edit Transaction" : step === 1 ? "New Transaction" : "Additional Details"}</DialogTitle>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 28 }} className="filter-tabs">
+          <button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>← Prev</button>
+          <button type="button" className="active" style={{ pointerEvents: "none" }}>{page} / {totalPages}</button>
+          <button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next →</button>
+        </div>
+      )}
+
+      {/* Entry dialog */}
+      <Dialog open={showDialog} onClose={closeDialog}>
+        <header>
+          <div className="kicker">{editingId ? "Edit transaction" : "New transaction"}</div>
+          <div className="dtitle">{editingId ? "Update " : "Add a "}<em>{editingId ? "entry" : "transaction"}</em></div>
+          <div className="dsub">Ledgr will suggest a category after you save.</div>
           {!editingId && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 1 ? '#7C3AED' : '#E2E8F0' }} />
-              <div style={{ height: 4, flex: 1, borderRadius: 99, background: step >= 2 ? '#7C3AED' : '#E2E8F0' }} />
+            <div className="steps">
+              <div className={"step " + (step === 0 ? "active" : "done")}>Details</div>
+              <div className="sep" />
+              <div className={"step " + (step === 1 ? "active" : "")}>Notes</div>
             </div>
           )}
-        </DialogHeader>
-        <DialogContent>
-          {(step === 1 || editingId) ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Description</label>
-                <Input placeholder="e.g., AWS Monthly Bill" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        </header>
+        <div className="body">
+          {(editingId || step === 0) && (
+            <>
+              <div className="field">
+                <label className="field-label">Description</label>
+                <input className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Stripe payout, AWS, Figma…" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Amount</label>
-                  <Input type="number" step="0.01" placeholder="0.00" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+              <div className="grid-2">
+                <div className="field">
+                  <label className="field-label">Amount (USD)</label>
+                  <input className="input mono" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="0.00" />
                 </div>
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Type</label>
-                  <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
-                    <option value="transfer">Transfer</option>
-                  </Select>
+                <div className="field">
+                  <label className="field-label">Post to</label>
+                  <select className="select" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                    <option value="expense">Debit — expense</option>
+                    <option value="income">Credit — income</option>
+                  </select>
                 </div>
               </div>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Currency</label>
-                <Select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}>
-                  {SUPPORTED_CURRENCIES.map(c => (
-                    <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
-                  ))}
-                </Select>
-              </div>
-              {form.currency !== BASE_CURRENCY && form.amount && parseFloat(form.amount) > 0 && (
-                <div style={{ padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-                  <p style={{ fontSize: 12, color: '#2563EB' }}>
-                    {formatCurrencyAmount(parseFloat(form.amount), form.currency)} = {formatCurrencyAmount(convertAmount(parseFloat(form.amount), form.currency, BASE_CURRENCY), BASE_CURRENCY)} {BASE_CURRENCY} at current rate (1 {form.currency} = {getExchangeRate(form.currency, BASE_CURRENCY).toFixed(4)} {BASE_CURRENCY})
-                  </p>
-                </div>
-              )}
-              {editingId && (
-                <>
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Date</label>
-                    <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
-                    <Input placeholder="Add any notes..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Date</label>
-                <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-              </div>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
-                <Input placeholder="Add any notes..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-              </div>
-              {/* Receipt Upload */}
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Receipt (optional)</label>
-                {receipt ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                    <Image style={{ width: 16, height: 16, color: '#7C3AED', flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{receipt.name}</p>
-                      <p style={{ fontSize: 11, color: '#94A3B8' }}>{receipt.size}</p>
-                    </div>
-                    <button onClick={() => setReceipt(null)} className="cursor-pointer" style={{ color: '#94A3B8', background: 'transparent', border: 'none', padding: 2 }}>
-                      <X style={{ width: 14, height: 14 }} />
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    className="cursor-pointer"
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      padding: '20px 16px', borderRadius: 8, border: '2px dashed #E2E8F0', background: '#FAFBFC',
-                      transition: 'border-color 0.15s',
-                    }}
-                    onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = '#7C3AED'; }}
-                    onDragLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.style.borderColor = '#E2E8F0';
-                      const file = e.dataTransfer.files[0];
-                      if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB`, file });
-                    }}
-                  >
-                    <Paperclip style={{ width: 20, height: 20, color: '#94A3B8', marginBottom: 6 }} />
-                    <p style={{ fontSize: 12, fontWeight: 500, color: '#64748B' }}>Drop receipt or <span style={{ color: '#7C3AED' }}>browse</span></p>
-                    <p style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>PNG, JPG, PDF up to 5MB</p>
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) setReceipt({ name: file.name, size: `${(file.size / 1024).toFixed(1)} KB`, file });
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-              <div style={{ borderRadius: 8, padding: 14, display: 'flex', alignItems: 'flex-start', gap: 10, background: '#EDE9FE', border: '1px solid #DDD6FE' }}>
-                <Sparkles style={{ width: 16, height: 16, marginTop: 2, color: '#7C3AED', flexShrink: 0 }} />
-                <p style={{ fontSize: 12, lineHeight: 1.5, color: '#5B21B6' }}>AI will automatically categorize this transaction based on the description.</p>
-              </div>
-            </div>
+            </>
           )}
-        </DialogContent>
-        <DialogFooter className="flex gap-3">
-          {step === 2 && !editingId && (
-            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 w-full cursor-pointer">Back</Button>
+          {(editingId || step === 1) && (
+            <>
+              <div className="field">
+                <label className="field-label">Date</label>
+                <input className="input mono" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+              </div>
+              <div className="field">
+                <label className="field-label">Notes</label>
+                <textarea className="textarea" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Pin a receipt, add context…" />
+              </div>
+            </>
           )}
-          <Button onClick={handleSubmit} disabled={isSaving} className="flex-1 w-full cursor-pointer">
-            {editingId
-              ? (isSaving ? "Saving..." : "Update Transaction")
-              : step === 1 ? "Next"
-              : (isSaving ? "Saving..." : "Save Transaction")}
-          </Button>
-        </DialogFooter>
-      </Dialog>
-
-      {/* Delete Confirm Dialog */}
-      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)}>
-        <DialogHeader>
-          <DialogTitle>Delete Transaction</DialogTitle>
-        </DialogHeader>
-        <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
-            Are you sure you want to delete this transaction? This action cannot be undone.
-          </p>
-        </DialogContent>
-        <DialogFooter className="flex gap-3">
-          <Button variant="outline" onClick={() => setDeletingId(null)} className="flex-1 w-full cursor-pointer">Cancel</Button>
-          <Button
-            onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
-            disabled={deleteMutation.isPending}
-            className="flex-1 w-full cursor-pointer"
-            style={{ background: '#EF4444', borderColor: '#EF4444' }}
+        </div>
+        <div className="foot">
+          <button type="button" className="btn ghost" onClick={() => (step === 0 || editingId) ? closeDialog() : setStep(0)}>
+            {(step === 0 || editingId) ? "Cancel" : "← Back"}
+          </button>
+          <span className="spacer" />
+          <button
+            type="button"
+            className="btn stamp"
+            onClick={submitDialog}
+            disabled={createMutation.isPending || updateMutation.isPending}
           >
-            {deleteMutation.isPending ? "Deleting..." : "Delete"}
-          </Button>
-        </DialogFooter>
+            {editingId ? "Save changes" : step === 1 ? "Post transaction" : "Continue →"}
+          </button>
+        </div>
       </Dialog>
 
-      {/* Transactions product tour */}
-      <ProductTour
-        tourId="transactions"
-        delay={800}
-        steps={[
-          {
-            element: '[data-tour="add-transaction-btn"]',
-            popover: {
-              title: 'Add a Transaction',
-              description: 'Use this button to log any income or expense. Enter a description, amount, and type — takes about 10 seconds.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="search-bar"]',
-            popover: {
-              title: 'Search Transactions',
-              description: 'Type any keyword to instantly filter transactions by description, category, or amount.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="type-filter"]',
-            popover: {
-              title: 'Filter by Type',
-              description: 'Switch between All, Income-only, or Expense-only views to focus on what matters.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="date-filter"]',
-            popover: {
-              title: 'Date Range Filter',
-              description: 'Narrow transactions to the last 7 days, 30 days, 3 months, or a custom range.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="transaction-list"]',
-            popover: {
-              title: 'Transaction List',
-              description: 'Click any column header to sort. Use the Edit or Delete icons on hover to manage individual entries.',
-              side: 'top',
-            },
-          },
-        ]}
-      />
+      {/* Delete confirm dialog */}
+      <Dialog open={!!deletingId} onClose={() => setDeletingId(null)} width={440}>
+        <header>
+          <div className="kicker">Confirm delete</div>
+          <div className="dtitle">Delete this <em>transaction?</em></div>
+          <div className="dsub">This can't be undone.</div>
+        </header>
+        <div className="body">
+          <p style={{ fontFamily: "var(--sans)", color: "var(--ink-3)", fontSize: 14, lineHeight: 1.5 }}>
+            Once deleted, the entry is gone from the ledger. Double-check before you proceed.
+          </p>
+        </div>
+        <div className="foot">
+          <button type="button" className="btn ghost" onClick={() => setDeletingId(null)}>Keep it</button>
+          <span className="spacer" />
+          <button
+            type="button"
+            className="btn stamp"
+            onClick={() => deletingId && deleteMutation.mutate(deletingId)}
+            disabled={deleteMutation.isPending}
+          >
+            Delete →
+          </button>
+        </div>
+      </Dialog>
     </div>
   );
 }
 
 export default function TransactionsPage() {
   return (
-    <Suspense fallback={<div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>{[...Array(8)].map((_, i) => <div key={i} className="h-12 rounded-lg animate-shimmer" />)}</div>}>
+    <Suspense fallback={<div className="empty">Opening the day book…</div>}>
       <TransactionsPageInner />
     </Suspense>
   );

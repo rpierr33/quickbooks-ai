@@ -12,9 +12,9 @@ import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   overflow: "hidden",
 };
@@ -328,13 +328,13 @@ export default function TimeTrackingPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{
                   fontSize: 36, fontWeight: 700, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums",
-                  color: timerRunning && !timerPaused ? "#7C3AED" : "#0F172A",
+                  color: timerRunning && !timerPaused ? "#B33A1F" : "#0F172A",
                   transition: "color 0.3s",
                 }}>
                   {formatDuration(timerSeconds)}
                 </span>
                 {timerRunning && !timerPaused && (
-                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7C3AED", animation: "pulse 1.5s infinite" }} />
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#B33A1F", animation: "pulse 1.5s infinite" }} />
                 )}
               </div>
             </div>
@@ -343,31 +343,31 @@ export default function TimeTrackingPage() {
                 <button
                   onClick={startTimer}
                   className="cursor-pointer"
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: "linear-gradient(135deg, #7C3AED, #9333EA)", color: "#FFFFFF", border: "none", fontSize: 14, fontWeight: 600, boxShadow: "0 4px 12px rgba(124,58,237,0.3)", transition: "all 0.15s" }}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: "var(--stamp)", color: "#FFFFFF", border: "none", fontSize: 14, fontWeight: 600, boxShadow: "0 4px 12px rgba(124,58,237,0.3)", transition: "all 0.15s" }}
                 >
                   <Play style={{ width: 16, height: 16 }} /> Start
                 </button>
               ) : timerPaused ? (
                 <>
-                  <button onClick={resumeTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#7C3AED", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
+                  <button onClick={resumeTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#B33A1F", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
                     <Play style={{ width: 14, height: 14 }} /> Resume
                   </button>
-                  <button onClick={stopTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#EF4444", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
+                  <button onClick={stopTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#B33A1F", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
                     <Square style={{ width: 14, height: 14 }} /> Stop
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={pauseTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#FFFFFF", color: "#475569", border: "1px solid #E2E8F0", fontSize: 13, fontWeight: 600 }}>
+                  <button onClick={pauseTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "var(--paper-2)", color: "#475569", border: "1px solid var(--rule)", fontSize: 13, fontWeight: 600 }}>
                     <Pause style={{ width: 14, height: 14 }} /> Pause
                   </button>
-                  <button onClick={stopTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#EF4444", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
+                  <button onClick={stopTimer} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, background: "#B33A1F", color: "#FFFFFF", border: "none", fontSize: 13, fontWeight: 600 }}>
                     <Square style={{ width: 14, height: 14 }} /> Stop &amp; Save
                   </button>
                 </>
               )}
               {timerSeconds > 0 && !timerRunning && (
-                <button onClick={resetTimer} className="cursor-pointer" style={{ padding: "10px 14px", borderRadius: 10, background: "#FFFFFF", color: "#94A3B8", border: "1px solid #E2E8F0", fontSize: 13 }}>
+                <button onClick={resetTimer} className="cursor-pointer" style={{ padding: "10px 14px", borderRadius: 10, background: "var(--paper-2)", color: "#94A3B8", border: "1px solid var(--rule)", fontSize: 13 }}>
                   Reset
                 </button>
               )}
@@ -410,7 +410,7 @@ export default function TimeTrackingPage() {
           <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: 140 }} />
         </div>
         {(dateFrom || dateTo || clientFilter !== "all" || billableFilter !== "all") && (
-          <button onClick={() => { setDateFrom(""); setDateTo(""); setClientFilter("all"); setBillableFilter("all"); }} style={{ fontSize: 12, color: "#7C3AED", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>
+          <button onClick={() => { setDateFrom(""); setDateTo(""); setClientFilter("all"); setBillableFilter("all"); }} style={{ fontSize: 12, color: "#B33A1F", background: "none", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>
             Clear
           </button>
         )}
@@ -442,20 +442,20 @@ export default function TimeTrackingPage() {
                       <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
                         <span style={{ fontSize: 11, color: "#94A3B8" }}>{formatDate(entry.date)}</span>
                         <span style={{ fontSize: 11, fontWeight: 600, color: "#475569" }}>{entryDuration(entry)}</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 99, background: entry.is_billable ? "#EDE9FE" : "#F1F5F9", color: entry.is_billable ? "#5B21B6" : "#64748B" }}>
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 99, background: entry.is_billable ? "#F5E0D9" : "#F1F5F9", color: entry.is_billable ? "#5B21B6" : "#64748B" }}>
                           {entry.is_billable ? "Billable" : "Non-billable"}
                         </span>
                       </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0, marginLeft: 12 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: entry.is_billable ? "#059669" : "#94A3B8" }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: entry.is_billable ? "#1C3A5B" : "#94A3B8" }}>
                         {entry.is_billable ? formatCurrency(entry.total_amount) : "—"}
                       </span>
                       <div style={{ display: "flex", gap: 4 }}>
-                        <button onClick={() => openEdit(entry)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #E2E8F0", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
+                        <button onClick={() => openEdit(entry)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
                           <Pencil style={{ width: 12, height: 12 }} />
                         </button>
-                        <button onClick={() => setDeletingId(entry.id)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                        <button onClick={() => setDeletingId(entry.id)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}>
                           <Trash2 style={{ width: 12, height: 12 }} />
                         </button>
                       </div>
@@ -480,9 +480,9 @@ export default function TimeTrackingPage() {
                 <tbody>
                   {entries.map((entry, i) => (
                     <tr key={entry.id}
-                      style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#FAFBFC" : "transparent" }}
+                      style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#EFE7D5" : "transparent" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "#F1F5F9")}
-                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#FAFBFC" : "transparent")}
+                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#EFE7D5" : "transparent")}
                     >
                       <td style={{ padding: "14px 16px", color: "#64748B", whiteSpace: "nowrap" }}>{formatDate(entry.date)}</td>
                       <td style={{ padding: "14px 16px", fontWeight: 600, color: "#0F172A" }}>{entry.client_name}</td>
@@ -490,19 +490,19 @@ export default function TimeTrackingPage() {
                       <td style={{ padding: "14px 16px", color: "#475569", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.description}</td>
                       <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 500, color: "#0F172A", whiteSpace: "nowrap" }}>{entryDuration(entry)}</td>
                       <td style={{ padding: "14px 16px", textAlign: "right" }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 99, background: entry.is_billable ? "#EDE9FE" : "#F1F5F9", color: entry.is_billable ? "#5B21B6" : "#64748B" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 99, background: entry.is_billable ? "#F5E0D9" : "#F1F5F9", color: entry.is_billable ? "#5B21B6" : "#64748B" }}>
                           {entry.is_billable ? "Billable" : "Non-billable"}
                         </span>
                       </td>
-                      <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: entry.is_billable ? "#059669" : "#94A3B8" }}>
+                      <td style={{ padding: "14px 16px", textAlign: "right", fontWeight: 600, color: entry.is_billable ? "#1C3A5B" : "#94A3B8" }}>
                         {entry.is_billable ? formatCurrency(entry.total_amount) : "—"}
                       </td>
                       <td style={{ padding: "14px 16px", textAlign: "right" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6 }}>
-                          <button onClick={() => openEdit(entry)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #E2E8F0", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
+                          <button onClick={() => openEdit(entry)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid var(--rule)", background: "var(--paper-2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B" }}>
                             <Pencil style={{ width: 13, height: 13 }} />
                           </button>
-                          <button onClick={() => setDeletingId(entry.id)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                          <button onClick={() => setDeletingId(entry.id)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}>
                             <Trash2 style={{ width: 13, height: 13 }} />
                           </button>
                         </div>
@@ -514,11 +514,11 @@ export default function TimeTrackingPage() {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: "12px 16px", borderTop: "1px solid #E2E8F0", background: "#F8FAFC", display: "flex", justifyContent: "flex-end", gap: 32 }}>
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #E2E8F0", background: "var(--paper)", display: "flex", justifyContent: "flex-end", gap: 32 }}>
               <span style={{ fontSize: 13, color: "#64748B" }}>
                 {entries.length} entr{entries.length !== 1 ? "ies" : "y"} &middot; {entries.reduce((s, e) => s + e.hours + e.minutes / 60, 0).toFixed(1)}h total
               </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#059669" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#1C3A5B" }}>
                 {formatCurrency(entries.filter(e => e.is_billable).reduce((s, e) => s + e.total_amount, 0))} billable
               </span>
             </div>
@@ -530,8 +530,8 @@ export default function TimeTrackingPage() {
       <Dialog open={showStopDialog} onClose={() => { setShowStopDialog(false); resetTimer(); }}>
         <DialogHeader>
           <DialogTitle>Save Time Entry</DialogTitle>
-          <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: "#EDE9FE", display: "inline-flex", alignItems: "center", gap: 8 }}>
-            <Clock style={{ width: 14, height: 14, color: "#7C3AED" }} />
+          <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: "#F5E0D9", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <Clock style={{ width: 14, height: 14, color: "#B33A1F" }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: "#5B21B6", fontVariantNumeric: "tabular-nums" }}>{formatDuration(timerSeconds)}</span>
           </div>
         </DialogHeader>
@@ -558,15 +558,15 @@ export default function TimeTrackingPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 2 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, color: "#475569", cursor: "pointer" }}>
-                  <input type="checkbox" checked={stopForm.is_billable} onChange={e => setStopForm({ ...stopForm, is_billable: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#7C3AED" }} />
+                  <input type="checkbox" checked={stopForm.is_billable} onChange={e => setStopForm({ ...stopForm, is_billable: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#B33A1F" }} />
                   Billable
                 </label>
               </div>
             </div>
             {stopForm.is_billable && parseFloat(stopForm.hourly_rate || "0") > 0 && (
-              <div style={{ borderRadius: 8, padding: "10px 14px", background: "#F0FDF4", border: "1px solid #BBF7D0", display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#15803D" }}>Amount</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: "#15803D" }}>
+              <div style={{ borderRadius: 8, padding: "10px 14px", background: "#DDE4EC", border: "1px solid #DDE4EC", display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#1C3A5B" }}>Amount</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: "#1C3A5B" }}>
                   {formatCurrency((timerSeconds / 3600) * parseFloat(stopForm.hourly_rate || "0"))}
                 </span>
               </div>
@@ -623,15 +623,15 @@ export default function TimeTrackingPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 2 }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500, color: "#475569", cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.is_billable} onChange={e => setForm({ ...form, is_billable: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#7C3AED" }} />
+                  <input type="checkbox" checked={form.is_billable} onChange={e => setForm({ ...form, is_billable: e.target.checked })} style={{ width: 16, height: 16, accentColor: "#B33A1F" }} />
                   Billable
                 </label>
               </div>
             </div>
             {form.is_billable && previewAmount > 0 && (
-              <div style={{ borderRadius: 8, padding: "10px 14px", background: "#F0FDF4", border: "1px solid #BBF7D0", display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#15803D" }}>Amount</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: "#15803D" }}>{formatCurrency(previewAmount)}</span>
+              <div style={{ borderRadius: 8, padding: "10px 14px", background: "#DDE4EC", border: "1px solid #DDE4EC", display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#1C3A5B" }}>Amount</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: "#1C3A5B" }}>{formatCurrency(previewAmount)}</span>
               </div>
             )}
             <div>
@@ -660,7 +660,7 @@ export default function TimeTrackingPage() {
             onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 cursor-pointer"
-            style={{ background: "#EF4444", borderColor: "#EF4444" }}
+            style={{ background: "#B33A1F", borderColor: "#B33A1F" }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

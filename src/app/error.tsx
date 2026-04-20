@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function Error({
   error,
@@ -10,50 +10,28 @@ export default function Error({
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 16,
-        padding: '24px',
-        textAlign: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60vh",
+        padding: "80px 24px",
+        textAlign: "center",
+        position: "relative",
+        zIndex: 1,
       }}
     >
-      <div
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 16,
-          background: '#FEF2F2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 4,
-        }}
+      <div className="eyebrow-stamp" style={{ marginBottom: 14 }}>Something went wrong</div>
+      <h1
+        className="display-h1"
+        style={{ fontSize: 56, margin: 0 }}
       >
-        <span style={{ fontSize: 28 }}>!</span>
-      </div>
-      <h2 style={{ fontSize: 20, fontWeight: 600, color: '#0F172A', margin: 0 }}>
-        Something went wrong
-      </h2>
-      <p style={{ color: '#64748B', fontSize: 14, margin: 0, maxWidth: 400 }}>
-        {error.message || 'An unexpected error occurred. Please try again.'}
+        Unexpected <em>error</em>
+      </h1>
+      <p style={{ fontFamily: "var(--sans)", color: "var(--ink-3)", fontSize: 15, marginTop: 18, maxWidth: "54ch", lineHeight: 1.5 }}>
+        {error.message || "An unexpected error occurred. Try the page again, or head back to the dashboard."}
       </p>
-      <button
-        onClick={reset}
-        style={{
-          padding: '10px 24px',
-          background: '#3B82F6',
-          color: '#fff',
-          borderRadius: 8,
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: 14,
-          fontWeight: 500,
-          marginTop: 8,
-        }}
-      >
+      <button onClick={reset} className="btn stamp" style={{ marginTop: 28 }}>
         Try again
       </button>
     </div>

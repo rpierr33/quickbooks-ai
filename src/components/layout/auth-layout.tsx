@@ -8,7 +8,7 @@ import { Header } from "./header";
 import { HelpPanel } from "@/components/ui/help-panel";
 
 // Pages that should NOT show the authenticated layout (sidebar/header)
-const PUBLIC_PATHS = ["/login", "/pay", "/billing", "/onboarding"];
+const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password", "/pay", "/portal", "/billing", "/onboarding"];
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,32 +16,16 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
   const isPublicPage = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
-  // Public pages or unauthenticated users: render without chrome
   if (isPublicPage || status !== "authenticated") {
     return <>{children}</>;
   }
 
-  // Authenticated users on protected pages: render with full layout
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#F8FAFC" }}>
+    <div className="app">
       <Sidebar />
-      <div
-        className="main-content-wrapper"
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minWidth: 0,
-          overflowX: "hidden",
-        }}
-      >
+      <div className="main">
         <Header />
-        <main
-          className="main-content-area"
-          style={{ flex: 1, padding: "28px 32px 96px" }}
-        >
-          {children}
-        </main>
+        <main className="content">{children}</main>
       </div>
       <MobileNav />
       <HelpPanel />

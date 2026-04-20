@@ -23,10 +23,10 @@ interface RecurringTransaction {
 }
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
   overflow: 'hidden',
 };
 
@@ -35,7 +35,7 @@ const sectionLabel: React.CSSProperties = {
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
-  color: '#64748B',
+  color: 'var(--ink-3)',
 };
 
 const bigNumber: React.CSSProperties = {
@@ -60,11 +60,11 @@ function toMonthly(amount: number, frequency: string): number {
 
 function frequencyBadgeColor(frequency: string): { bg: string; color: string } {
   switch (frequency) {
-    case "daily": return { bg: '#FEF3C7', color: '#D97706' };
-    case "weekly": return { bg: '#DBEAFE', color: '#2563EB' };
-    case "monthly": return { bg: '#EDE9FE', color: '#7C3AED' };
-    case "yearly": return { bg: '#ECFDF5', color: '#059669' };
-    default: return { bg: '#F1F5F9', color: '#64748B' };
+    case "daily": return { bg: '#F2E7D0', color: 'var(--ai)' };
+    case "weekly": return { bg: '#DDE4EC', color: 'var(--stamp)' };
+    case "monthly": return { bg: '#F5E0D9', color: 'var(--stamp)' };
+    case "yearly": return { bg: '#DDE4EC', color: 'var(--pencil)' };
+    default: return { bg: '#F1F5F9', color: 'var(--ink-3)' };
   }
 }
 
@@ -213,11 +213,11 @@ export default function RecurringPage() {
           <div style={{ padding: '20px 20px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={sectionLabel}>Monthly Expenses</p>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TrendingDown style={{ width: 16, height: 16, color: '#EF4444' }} />
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TrendingDown style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
               </div>
             </div>
-            <p style={{ ...bigNumber, color: '#EF4444' }}>
+            <p style={{ ...bigNumber, color: 'var(--stamp)' }}>
               {isLoading ? "..." : formatCurrency(summary.monthlyExpense)}
             </p>
           </div>
@@ -228,11 +228,11 @@ export default function RecurringPage() {
           <div style={{ padding: '20px 20px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={sectionLabel}>Monthly Income</p>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TrendingUp style={{ width: 16, height: 16, color: '#059669' }} />
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--pencil-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TrendingUp style={{ width: 16, height: 16, color: 'var(--pencil)' }} />
               </div>
             </div>
-            <p style={{ ...bigNumber, color: '#059669' }}>
+            <p style={{ ...bigNumber, color: 'var(--pencil)' }}>
               {isLoading ? "..." : formatCurrency(summary.monthlyIncome)}
             </p>
           </div>
@@ -243,11 +243,11 @@ export default function RecurringPage() {
           <div style={{ padding: '20px 20px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={sectionLabel}>Net Monthly</p>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <DollarSign style={{ width: 16, height: 16, color: '#64748B' }} />
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--paper-3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <DollarSign style={{ width: 16, height: 16, color: 'var(--ink-3)' }} />
               </div>
             </div>
-            <p style={{ ...bigNumber, color: summary.net >= 0 ? '#059669' : '#EF4444' }}>
+            <p style={{ ...bigNumber, color: summary.net >= 0 ? '#1C3A5B' : '#B33A1F' }}>
               {isLoading ? "..." : formatCurrency(summary.net)}
             </p>
           </div>
@@ -258,11 +258,11 @@ export default function RecurringPage() {
           <div style={{ padding: '20px 20px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={sectionLabel}>Next Due</p>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Calendar style={{ width: 16, height: 16, color: '#7C3AED' }} />
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Calendar style={{ width: 16, height: 16, color: 'var(--stamp)' }} />
               </div>
             </div>
-            <p style={{ ...bigNumber, color: '#0F172A', fontSize: 20 }}>
+            <p style={{ ...bigNumber, color: 'var(--ink)', fontSize: 20 }}>
               {isLoading ? "..." : summary.nextDue ? formatDate(summary.nextDue) : "None"}
             </p>
           </div>
@@ -283,8 +283,8 @@ export default function RecurringPage() {
                 fontSize: 12,
                 fontWeight: 600,
                 border: '1px solid',
-                borderColor: freqFilter === freq ? '#7C3AED' : '#E2E8F0',
-                background: freqFilter === freq ? '#7C3AED' : '#FFFFFF',
+                borderColor: freqFilter === freq ? '#B33A1F' : '#E2E8F0',
+                background: freqFilter === freq ? '#B33A1F' : '#FFFFFF',
                 color: freqFilter === freq ? '#FFFFFF' : '#64748B',
                 textTransform: 'capitalize',
                 transition: 'all 0.15s',
@@ -358,20 +358,20 @@ export default function RecurringPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: isExpense ? '#FEF2F2' : isIncome ? '#ECFDF5' : '#F1F5F9',
+                    background: isExpense ? '#F5E0D9' : isIncome ? '#DDE4EC' : '#F1F5F9',
                     flexShrink: 0,
                   }}>
                     <Repeat style={{
                       width: 18,
                       height: 18,
-                      color: isExpense ? '#EF4444' : isIncome ? '#059669' : '#64748B',
+                      color: isExpense ? '#B33A1F' : isIncome ? '#1C3A5B' : '#64748B',
                     }} />
                   </div>
 
                   {/* Details */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {tx.description}
                       </p>
                       <span style={{
@@ -396,20 +396,20 @@ export default function RecurringPage() {
                           fontWeight: 700,
                           padding: '2px 8px',
                           borderRadius: 99,
-                          background: '#F1F5F9',
-                          color: '#94A3B8',
+                          background: 'var(--paper-3)',
+                          color: 'var(--ink-4)',
                         }}>
                           Paused
                         </span>
                       )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4, flexWrap: 'wrap' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94A3B8' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'var(--ink-4)' }}>
                         <Clock style={{ width: 12, height: 12 }} />
                         Next: {formatDate(tx.next_run)}
                       </span>
                       {tx.last_run && (
-                        <span style={{ fontSize: 12, color: '#94A3B8' }}>
+                        <span style={{ fontSize: 12, color: 'var(--ink-4)' }}>
                           Last: {formatDate(tx.last_run)}
                         </span>
                       )}
@@ -421,7 +421,7 @@ export default function RecurringPage() {
                     fontSize: 16,
                     fontWeight: 700,
                     fontVariantNumeric: 'tabular-nums',
-                    color: isExpense ? '#EF4444' : isIncome ? '#059669' : '#0F172A',
+                    color: isExpense ? '#B33A1F' : isIncome ? '#1C3A5B' : '#0F172A',
                     flexShrink: 0,
                   }}>
                     {isExpense ? '-' : isIncome ? '+' : ''}{formatCurrency(amt)}
@@ -437,13 +437,13 @@ export default function RecurringPage() {
                         width: 34,
                         height: 34,
                         borderRadius: 8,
-                        border: '1px solid #E2E8F0',
+                        border: '1px solid var(--rule)',
                         background: tx.is_active ? '#FFFFFF' : '#F8FAFC',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         transition: 'all 0.15s',
-                        color: tx.is_active ? '#059669' : '#94A3B8',
+                        color: tx.is_active ? '#1C3A5B' : '#94A3B8',
                       }}
                     >
                       {tx.is_active ? <Pause style={{ width: 14, height: 14 }} /> : <Play style={{ width: 14, height: 14 }} />}
@@ -456,13 +456,13 @@ export default function RecurringPage() {
                         width: 34,
                         height: 34,
                         borderRadius: 8,
-                        border: '1px solid #E2E8F0',
-                        background: '#FFFFFF',
+                        border: '1px solid var(--rule)',
+                        background: 'var(--paper-2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         transition: 'all 0.15s',
-                        color: '#64748B',
+                        color: 'var(--ink-3)',
                       }}
                     >
                       <Pencil style={{ width: 14, height: 14 }} />
@@ -483,7 +483,7 @@ export default function RecurringPage() {
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Description</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Description</label>
               <Input
                 placeholder="e.g., Netflix Subscription"
                 value={form.description}
@@ -492,7 +492,7 @@ export default function RecurringPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Amount</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Amount</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -502,7 +502,7 @@ export default function RecurringPage() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Type</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Type</label>
                 <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                   <option value="expense">Expense</option>
                   <option value="income">Income</option>
@@ -512,7 +512,7 @@ export default function RecurringPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Frequency</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Frequency</label>
                 <Select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -521,7 +521,7 @@ export default function RecurringPage() {
                 </Select>
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Next Run Date</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Next Run Date</label>
                 <Input
                   type="date"
                   value={form.next_run}

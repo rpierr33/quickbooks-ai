@@ -11,19 +11,19 @@ import { Plus, ShoppingCart, Pencil, Trash2, ArrowRight, FileText, ChevronDown, 
 import { useToast } from "@/components/ui/toast";
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   overflow: "hidden",
 };
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   draft:     { label: "Draft",     bg: "#F1F5F9", color: "#475569" },
-  sent:      { label: "Sent",      bg: "#EFF6FF", color: "#1D4ED8" },
-  received:  { label: "Received",  bg: "#ECFDF5", color: "#065F46" },
+  sent:      { label: "Sent",      bg: "#DDE4EC", color: "#3A352A" },
+  received:  { label: "Received",  bg: "#DDE4EC", color: "#065F46" },
   partial:   { label: "Partial",   bg: "#FFF7ED", color: "#9A3412" },
-  closed:    { label: "Closed",    bg: "#F0FDF4", color: "#166534" },
+  closed:    { label: "Closed",    bg: "#DDE4EC", color: "#166534" },
 };
 
 const STATUS_FLOW: Record<string, string> = {
@@ -291,8 +291,8 @@ export default function PurchaseOrdersPage() {
             className="cursor-pointer"
             style={{
               padding: "6px 14px", borderRadius: 99, fontSize: 12, fontWeight: 500, border: "1px solid",
-              borderColor: statusFilter === s ? "#7C3AED" : "#E2E8F0",
-              background: statusFilter === s ? "#7C3AED" : "#FFFFFF",
+              borderColor: statusFilter === s ? "#B33A1F" : "#E2E8F0",
+              background: statusFilter === s ? "#B33A1F" : "#FFFFFF",
               color: statusFilter === s ? "#FFFFFF" : "#64748B",
               transition: "all 0.15s",
             }}
@@ -329,7 +329,7 @@ export default function PurchaseOrdersPage() {
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#7C3AED", whiteSpace: "nowrap" }}>{po.po_number}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#B33A1F", whiteSpace: "nowrap" }}>{po.po_number}</span>
                       <span style={{ fontSize: 14, fontWeight: 500, color: "#0F172A" }}>{po.vendor_name}</span>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 10px", borderRadius: 99, background: status.bg, color: status.color }}>
                         {status.label}
@@ -351,10 +351,10 @@ export default function PurchaseOrdersPage() {
                 {isExpanded && (
                   <div style={{ padding: "0 20px 16px", borderTop: "1px solid #F1F5F9" }}>
                     {/* Items table */}
-                    <div style={{ marginTop: 12, borderRadius: 8, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+                    <div style={{ marginTop: 12, borderRadius: 8, border: "1px solid var(--rule)", overflow: "hidden" }}>
                       <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
                         <thead>
-                          <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
+                          <tr style={{ background: "var(--paper)", borderBottom: "1px solid #E2E8F0" }}>
                             <th style={{ padding: "8px 12px", textAlign: "left", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 10 }}>Description</th>
                             <th style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 10 }}>Qty</th>
                             <th style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 10 }}>Unit Price</th>
@@ -372,17 +372,17 @@ export default function PurchaseOrdersPage() {
                           ))}
                         </tbody>
                         <tfoot>
-                          <tr style={{ borderTop: "2px solid #E2E8F0", background: "#F8FAFC" }}>
+                          <tr style={{ borderTop: "2px solid #E2E8F0", background: "var(--paper)" }}>
                             <td colSpan={3} style={{ padding: "8px 12px", textAlign: "right", color: "#64748B", fontSize: 11 }}>Subtotal</td>
                             <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600, color: "#0F172A" }}>{formatCurrency(po.subtotal)}</td>
                           </tr>
                           {po.tax_rate > 0 && (
-                            <tr style={{ background: "#F8FAFC" }}>
+                            <tr style={{ background: "var(--paper)" }}>
                               <td colSpan={3} style={{ padding: "4px 12px", textAlign: "right", color: "#64748B", fontSize: 11 }}>Tax ({po.tax_rate}%)</td>
                               <td style={{ padding: "4px 12px", textAlign: "right", color: "#64748B" }}>{formatCurrency(po.tax_amount)}</td>
                             </tr>
                           )}
-                          <tr style={{ background: "#F8FAFC" }}>
+                          <tr style={{ background: "var(--paper)" }}>
                             <td colSpan={3} style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "#0F172A" }}>Total</td>
                             <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "#0F172A", fontSize: 14 }}>{formatCurrency(po.total)}</td>
                           </tr>
@@ -397,7 +397,7 @@ export default function PurchaseOrdersPage() {
                           onClick={() => advanceStatusMutation.mutate({ id: po.id, status: nextStatus })}
                           disabled={advanceStatusMutation.isPending}
                           className="cursor-pointer"
-                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#EDE9FE", color: "#5B21B6", border: "none", transition: "all 0.15s" }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#F5E0D9", color: "#5B21B6", border: "none", transition: "all 0.15s" }}
                         >
                           <ArrowRight style={{ width: 13, height: 13 }} />
                           Mark as {STATUS_CONFIG[nextStatus]?.label ?? nextStatus}
@@ -407,7 +407,7 @@ export default function PurchaseOrdersPage() {
                         <button
                           onClick={() => setConvertingId(po.id)}
                           className="cursor-pointer"
-                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#F0FDF4", color: "#166534", border: "1px solid #BBF7D0" }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "#DDE4EC", color: "#166534", border: "1px solid #DDE4EC" }}
                         >
                           <FileText style={{ width: 13, height: 13 }} /> Convert to Bill
                         </button>
@@ -416,7 +416,7 @@ export default function PurchaseOrdersPage() {
                         <button
                           onClick={() => openEdit(po)}
                           className="cursor-pointer"
-                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, background: "#FFFFFF", color: "#475569", border: "1px solid #E2E8F0" }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, background: "var(--paper-2)", color: "#475569", border: "1px solid var(--rule)" }}
                         >
                           <Pencil style={{ width: 13, height: 13 }} /> Edit
                         </button>
@@ -425,7 +425,7 @@ export default function PurchaseOrdersPage() {
                         <button
                           onClick={() => setDeletingId(po.id)}
                           className="cursor-pointer"
-                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, background: "#FEF2F2", color: "#EF4444", border: "1px solid #FECACA" }}
+                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, background: "#F5E0D9", color: "#B33A1F", border: "1px solid #F5E0D9" }}
                         >
                           <Trash2 style={{ width: 13, height: 13 }} /> Delete
                         </button>
@@ -474,20 +474,20 @@ export default function PurchaseOrdersPage() {
                       {formatCurrency(item.amount)}
                     </div>
                     {form.items.length > 1 ? (
-                      <button onClick={() => removeItem(idx)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}>
+                      <button onClick={() => removeItem(idx)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}>
                         ×
                       </button>
                     ) : <div />}
                   </div>
                 ))}
-                <button onClick={addItem} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, fontSize: 12, color: "#7C3AED", background: "#F5F3FF", border: "1px solid #DDD6FE", fontWeight: 500 }}>
+                <button onClick={addItem} className="cursor-pointer" style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 8, fontSize: 12, color: "#B33A1F", background: "#F5E0D9", border: "1px solid #F5E0D9", fontWeight: 500 }}>
                   <Plus style={{ width: 13, height: 13 }} /> Add Line Item
                 </button>
               </div>
             </div>
 
             {/* Totals preview */}
-            <div style={{ borderRadius: 8, background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "12px 16px" }}>
+            <div style={{ borderRadius: 8, background: "var(--paper)", border: "1px solid var(--rule)", padding: "12px 16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#64748B", marginBottom: 4 }}>
                 <span>Subtotal</span><span>{formatCurrency(formSubtotal)}</span>
               </div>
@@ -557,7 +557,7 @@ export default function PurchaseOrdersPage() {
             onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 cursor-pointer"
-            style={{ background: "#EF4444", borderColor: "#EF4444" }}
+            style={{ background: "#B33A1F", borderColor: "#B33A1F" }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

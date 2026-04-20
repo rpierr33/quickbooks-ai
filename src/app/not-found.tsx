@@ -1,49 +1,39 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function NotFound() {
   return (
     <div
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 16,
-        padding: '24px',
-        textAlign: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60vh",
+        padding: "80px 24px",
+        textAlign: "center",
+        position: "relative",
+        zIndex: 1,
       }}
     >
-      <h2
+      <div className="eyebrow-stamp" style={{ marginBottom: 14 }}>Page not found</div>
+      <h1
         style={{
-          fontSize: 72,
-          fontWeight: 800,
-          color: '#1E293B',
+          fontFamily: "var(--display)",
+          fontSize: "clamp(96px, 14vw, 180px)",
+          fontWeight: 400,
+          color: "var(--ink)",
+          lineHeight: 0.9,
+          letterSpacing: "-0.04em",
           margin: 0,
-          letterSpacing: '-0.04em',
-          lineHeight: 1,
         }}
       >
         404
-      </h2>
-      <p style={{ color: '#64748B', fontSize: 16, margin: 0 }}>
-        This page does not exist
+      </h1>
+      <p style={{ fontFamily: "var(--sans)", color: "var(--ink-3)", fontSize: 17, marginTop: 18, maxWidth: "54ch", lineHeight: 1.5 }}>
+        We couldn't find the page you're looking for. It may have moved, or the link led nowhere.
       </p>
-      <Link
-        href="/"
-        style={{
-          padding: '10px 24px',
-          background: '#3B82F6',
-          color: '#fff',
-          borderRadius: 8,
-          textDecoration: 'none',
-          fontSize: 14,
-          fontWeight: 500,
-          marginTop: 8,
-          display: 'inline-block',
-        }}
-      >
-        Go to Dashboard
+      <Link href="/" className="btn stamp" style={{ marginTop: 28 }}>
+        Back to dashboard
       </Link>
     </div>
   );

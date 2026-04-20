@@ -24,10 +24,10 @@ import { useToast } from "@/components/ui/toast";
 import type { Account } from "@/types";
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
   overflow: 'hidden',
 };
 
@@ -36,7 +36,7 @@ const sectionLabel: React.CSSProperties = {
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
-  color: '#64748B',
+  color: 'var(--ink-3)',
 };
 
 const bigNumber: React.CSSProperties = {
@@ -44,16 +44,16 @@ const bigNumber: React.CSSProperties = {
   fontWeight: 800,
   fontVariantNumeric: 'tabular-nums',
   letterSpacing: '-0.02em',
-  color: '#0F172A',
+  color: 'var(--ink)',
   fontFamily: 'Inter, sans-serif',
 };
 
 const TYPE_CONFIG: Record<Account['type'], { label: string; icon: React.ElementType; color: string; bgColor: string; borderColor: string }> = {
-  asset: { label: 'Assets', icon: Wallet, color: '#059669', bgColor: '#ECFDF5', borderColor: '#059669' },
-  liability: { label: 'Liabilities', icon: CreditCard, color: '#EF4444', bgColor: '#FEF2F2', borderColor: '#EF4444' },
-  equity: { label: 'Equity', icon: Landmark, color: '#7C3AED', bgColor: '#F5F3FF', borderColor: '#7C3AED' },
-  revenue: { label: 'Revenue', icon: TrendingUp, color: '#0284C7', bgColor: '#F0F9FF', borderColor: '#0284C7' },
-  expense: { label: 'Expenses', icon: TrendingDown, color: '#D97706', bgColor: '#FFFBEB', borderColor: '#D97706' },
+  asset: { label: 'Assets', icon: Wallet, color: 'var(--pencil)', bgColor: '#DDE4EC', borderColor: '#1C3A5B' },
+  liability: { label: 'Liabilities', icon: CreditCard, color: 'var(--stamp)', bgColor: '#F5E0D9', borderColor: '#B33A1F' },
+  equity: { label: 'Equity', icon: Landmark, color: 'var(--stamp)', bgColor: '#F5E0D9', borderColor: '#B33A1F' },
+  revenue: { label: 'Revenue', icon: TrendingUp, color: 'var(--pencil)', bgColor: '#F0F9FF', borderColor: '#1C3A5B' },
+  expense: { label: 'Expenses', icon: TrendingDown, color: 'var(--ai)', bgColor: '#F2E7D0', borderColor: '#8A5A1C' },
 };
 
 const ACCOUNT_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const;
@@ -160,9 +160,9 @@ export default function AccountsPage() {
   }, [accounts]);
 
   const summaryCards = [
-    { label: 'Total Assets', value: totals.asset, borderColor: '#059669', icon: Wallet },
-    { label: 'Total Liabilities', value: totals.liability, borderColor: '#EF4444', icon: CreditCard },
-    { label: 'Total Equity', value: totals.equity, borderColor: '#7C3AED', icon: Landmark },
+    { label: 'Total Assets', value: totals.asset, borderColor: '#1C3A5B', icon: Wallet },
+    { label: 'Total Liabilities', value: totals.liability, borderColor: '#B33A1F', icon: CreditCard },
+    { label: 'Total Equity', value: totals.equity, borderColor: '#B33A1F', icon: Landmark },
   ];
 
   return (
@@ -170,8 +170,8 @@ export default function AccountsPage() {
       {/* Page Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', fontFamily: 'Inter, sans-serif' }}>Chart of Accounts</h1>
-          <p style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)', fontFamily: 'Inter, sans-serif' }}>Chart of Accounts</h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>
             Manage your financial accounts and track balances
           </p>
         </div>
@@ -240,7 +240,7 @@ export default function AccountsPage() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 borderBottom: '2px solid #E2E8F0',
-                background: '#F8FAFC',
+                background: 'var(--paper)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
@@ -255,8 +255,8 @@ export default function AccountsPage() {
                     <Icon style={{ width: 18, height: 18, color: config.color }} />
                   </div>
                   <div>
-                    <h2 style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>{config.label}</h2>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{accts.length} account{accts.length !== 1 ? 's' : ''}</span>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{config.label}</h2>
+                    <span style={{ fontSize: 12, color: 'var(--ink-4)' }}>{accts.length} account{accts.length !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
                 <span style={{
@@ -280,11 +280,11 @@ export default function AccountsPage() {
                     gap: 12,
                     padding: '14px 20px',
                     borderBottom: i < accts.length - 1 ? '1px solid #F1F5F9' : 'none',
-                    background: i % 2 === 1 ? '#FAFBFC' : 'transparent',
+                    background: i % 2 === 1 ? '#EFE7D5' : 'transparent',
                     transition: 'background 0.15s',
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = i % 2 === 1 ? '#FAFBFC' : 'transparent')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = i % 2 === 1 ? '#EFE7D5' : 'transparent')}
                 >
                   <Link
                     href="/transactions"
@@ -297,9 +297,9 @@ export default function AccountsPage() {
                     {/* Active indicator */}
                     <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                       {account.is_active ? (
-                        <CheckCircle2 style={{ width: 16, height: 16, color: '#059669' }} />
+                        <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--pencil)' }} />
                       ) : (
-                        <XCircle style={{ width: 16, height: 16, color: '#94A3B8' }} />
+                        <XCircle style={{ width: 16, height: 16, color: 'var(--ink-4)' }} />
                       )}
                     </div>
 
@@ -333,7 +333,7 @@ export default function AccountsPage() {
                         )}
                       </div>
                       {!account.is_active && (
-                        <span style={{ fontSize: 11, color: '#94A3B8', marginTop: 1, display: 'block' }}>Inactive</span>
+                        <span style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 1, display: 'block' }}>Inactive</span>
                       )}
                     </div>
 
@@ -350,10 +350,10 @@ export default function AccountsPage() {
                   </Link>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 12 }}>
-                    <button onClick={() => openEdit(account)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', transition: 'all 0.15s' }}>
+                    <button onClick={() => openEdit(account)} title="Edit" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--paper-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)', transition: 'all 0.15s' }}>
                       <Pencil style={{ width: 13, height: 13 }} />
                     </button>
-                    <button onClick={() => setDeletingId(account.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #FECACA', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', transition: 'all 0.15s' }}>
+                    <button onClick={() => setDeletingId(account.id)} title="Delete" className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--stamp-soft)', background: 'var(--stamp-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stamp)', transition: 'all 0.15s' }}>
                       <Trash2 style={{ width: 13, height: 13 }} />
                     </button>
                   </div>
@@ -378,16 +378,16 @@ export default function AccountsPage() {
           <div style={{
             width: 56,
             height: 56,
-            borderRadius: 16,
-            background: '#F5F3FF',
+            borderRadius: 8,
+            background: 'var(--stamp-soft)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <Building2 style={{ width: 28, height: 28, color: '#7C3AED' }} />
+            <Building2 style={{ width: 28, height: 28, color: 'var(--stamp)' }} />
           </div>
-          <h3 style={{ fontSize: 16, fontWeight: 600, color: '#0F172A' }}>No accounts yet</h3>
-          <p style={{ fontSize: 13, color: '#64748B', maxWidth: 320 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>No accounts yet</h3>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)', maxWidth: 320 }}>
             Create your first account to start building your chart of accounts.
           </p>
           <Button onClick={() => setShowAddDialog(true)} className="cursor-pointer" style={{ marginTop: 8, padding: '0 20px' }}>
@@ -404,7 +404,7 @@ export default function AccountsPage() {
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Account Name</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Account Name</label>
               <Input
                 placeholder="e.g., Business Checking"
                 value={form.name}
@@ -412,7 +412,7 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Account Type</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Account Type</label>
               <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                 <option value="asset">Asset</option>
                 <option value="liability">Liability</option>
@@ -422,13 +422,13 @@ export default function AccountsPage() {
               </Select>
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Sub-Type (optional)</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Sub-Type (optional)</label>
               <Input
                 placeholder="e.g., Cash, Bank, Accounts Receivable"
                 value={form.sub_type}
                 onChange={(e) => setForm({ ...form, sub_type: e.target.value })}
               />
-              <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>
+              <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 4 }}>
                 Further classify this account within its type
               </p>
             </div>
@@ -454,7 +454,7 @@ export default function AccountsPage() {
           <DialogTitle>Delete Account</DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
             Are you sure you want to delete this account? This cannot be undone.
           </p>
         </DialogContent>
@@ -464,7 +464,7 @@ export default function AccountsPage() {
             onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 w-full cursor-pointer"
-            style={{ background: '#EF4444', borderColor: '#EF4444' }}
+            style={{ background: 'var(--stamp)', borderColor: '#B33A1F' }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

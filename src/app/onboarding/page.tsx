@@ -36,8 +36,8 @@ const COA_TEMPLATES: {
     desc: "For most businesses",
     accounts: 45,
     icon: Building2,
-    color: "#7C3AED",
-    bg: "#F5F3FF",
+    color: "#B33A1F",
+    bg: "#F5E0D9",
   },
   {
     id: "service",
@@ -45,8 +45,8 @@ const COA_TEMPLATES: {
     desc: "Consulting, agencies, freelancers",
     accounts: 38,
     icon: Briefcase,
-    color: "#2563EB",
-    bg: "#EFF6FF",
+    color: "#171510",
+    bg: "#DDE4EC",
   },
   {
     id: "retail",
@@ -54,8 +54,8 @@ const COA_TEMPLATES: {
     desc: "Products, inventory, shipping",
     accounts: 52,
     icon: ShoppingBag,
-    color: "#D97706",
-    bg: "#FFFBEB",
+    color: "#8A5A1C",
+    bg: "#F2E7D0",
   },
   {
     id: "nonprofit",
@@ -63,8 +63,8 @@ const COA_TEMPLATES: {
     desc: "Grants, donations, programs",
     accounts: 41,
     icon: Heart,
-    color: "#DC2626",
-    bg: "#FEF2F2",
+    color: "#922D15",
+    bg: "#F5E0D9",
   },
 ];
 
@@ -98,7 +98,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
     <div style={{ marginBottom: 32 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: "#7C3AED", letterSpacing: "0.04em", textTransform: "uppercase" }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: "#B33A1F", letterSpacing: "0.04em", textTransform: "uppercase" }}>
           Step {step} of {total}
         </span>
         <span style={{ fontSize: 12, color: "#9CA3AF" }}>
@@ -111,7 +111,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
         aria-valuemin={1}
         aria-valuemax={total}
         aria-label={`Step ${step} of ${total}`}
-        style={{ width: "100%", height: 4, borderRadius: 99, background: "#E5E7EB", overflow: "hidden" }}
+        style={{ width: "100%", height: 4, borderRadius: 99, background: "#E5DBC3", overflow: "hidden" }}
       >
         <motion.div
           animate={{ width: `${pct}%` }}
@@ -119,7 +119,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
           style={{
             height: "100%",
             borderRadius: 99,
-            background: "linear-gradient(90deg, #7C3AED, #9333EA)",
+            background: "var(--stamp)",
           }}
         />
       </div>
@@ -135,7 +135,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
               style={{
                 fontSize: 11,
                 fontWeight: active ? 600 : 400,
-                color: done ? "#059669" : active ? "#7C3AED" : "#9CA3AF",
+                color: done ? "#1C3A5B" : active ? "#B33A1F" : "#9CA3AF",
                 transition: "color 0.2s",
               }}
             >
@@ -178,7 +178,7 @@ function Step1({
           style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 8 }}
         >
           Company name
-          <span aria-hidden="true" style={{ color: "#DC2626", marginLeft: 2 }}>*</span>
+          <span aria-hidden="true" style={{ color: "#922D15", marginLeft: 2 }}>*</span>
           <span className="sr-only"> (required)</span>
         </label>
         <input
@@ -194,7 +194,7 @@ function Step1({
             width: "100%",
             padding: "12px 14px",
             borderRadius: 10,
-            border: "1.5px solid #D1D5DB",
+            border: "1.5px solid #CFBF9E",
             fontSize: 14,
             color: "#111827",
             background: "#FFFFFF",
@@ -204,11 +204,11 @@ function Step1({
             transition: "border-color 0.15s, box-shadow 0.15s",
           }}
           onFocus={(e) => {
-            e.currentTarget.style.borderColor = "#7C3AED";
+            e.currentTarget.style.borderColor = "#B33A1F";
             e.currentTarget.style.boxShadow = "0 0 0 3px rgba(124,58,237,0.12)";
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = "#D1D5DB";
+            e.currentTarget.style.borderColor = "#CFBF9E";
             e.currentTarget.style.boxShadow = "none";
           }}
         />
@@ -242,9 +242,9 @@ function Step1({
                   borderRadius: 10,
                   fontSize: 13,
                   fontWeight: selected ? 600 : 400,
-                  border: selected ? "1.5px solid #7C3AED" : "1.5px solid #E5E7EB",
-                  background: selected ? "#F5F3FF" : "#FAFAFA",
-                  color: selected ? "#7C3AED" : "#374151",
+                  border: selected ? "1.5px solid #B33A1F" : "1.5px solid #E5DBC3",
+                  background: selected ? "#F5E0D9" : "#FAFAFA",
+                  color: selected ? "#B33A1F" : "#374151",
                   textAlign: "left",
                   cursor: "pointer",
                   transition: "all 0.15s",
@@ -303,7 +303,7 @@ function Step2({
               style={{
                 padding: "18px 16px",
                 borderRadius: 14,
-                border: isSelected ? `2px solid ${tpl.color}` : "1.5px solid #E5E7EB",
+                border: isSelected ? `2px solid ${tpl.color}` : "1.5px solid #E5DBC3",
                 background: isSelected ? tpl.bg : "#FFFFFF",
                 cursor: "pointer",
                 textAlign: "left",
@@ -339,7 +339,7 @@ function Step2({
                   width: 40,
                   height: 40,
                   borderRadius: 10,
-                  background: isSelected ? `${tpl.color}22` : "#F3F4F6",
+                  background: isSelected ? `${tpl.color}22` : "#EFE7D5",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -395,9 +395,9 @@ function Step3({
         aria-pressed={loadSampleData}
         style={{
           padding: "14px 16px",
-          borderRadius: 12,
-          border: loadSampleData ? "2px solid #7C3AED" : "1.5px dashed #D1D5DB",
-          background: loadSampleData ? "#F5F3FF" : "#FAFAFA",
+          borderRadius: 8,
+          border: loadSampleData ? "2px solid #B33A1F" : "1.5px dashed #CFBF9E",
+          background: loadSampleData ? "#F5E0D9" : "#FAFAFA",
           display: "flex",
           alignItems: "center",
           gap: 14,
@@ -409,13 +409,13 @@ function Step3({
       >
         <div style={{
           width: 38, height: 38, borderRadius: 9,
-          background: loadSampleData ? "#EDE9FE" : "#F3F4F6",
+          background: loadSampleData ? "#F5E0D9" : "#EFE7D5",
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }} aria-hidden="true">
-          <FlaskConical style={{ width: 18, height: 18, color: loadSampleData ? "#7C3AED" : "#9CA3AF" }} />
+          <FlaskConical style={{ width: 18, height: 18, color: loadSampleData ? "#B33A1F" : "#9CA3AF" }} />
         </div>
         <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: loadSampleData ? "#7C3AED" : "#111827", marginBottom: 2 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: loadSampleData ? "#B33A1F" : "#111827", marginBottom: 2 }}>
             Load sample data to explore
           </p>
           <p style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.5 }}>
@@ -424,7 +424,7 @@ function Step3({
         </div>
         <div style={{
           width: 22, height: 22, borderRadius: "50%",
-          background: loadSampleData ? "#7C3AED" : "#E5E7EB",
+          background: loadSampleData ? "#B33A1F" : "#E5DBC3",
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
           transition: "all 0.15s",
         }} aria-hidden="true">
@@ -437,19 +437,19 @@ function Step3({
         {[
           {
             icon: Landmark,
-            iconColor: "#0284C7",
+            iconColor: "#1C3A5B",
             iconBg: "#F0F9FF",
             title: "Connect Your Bank",
             desc: "Auto-sync transactions via Plaid",
             badge: "Pro",
-            badgeColor: "#0284C7",
+            badgeColor: "#1C3A5B",
             disabled: true,
             onClick: () => {},
           },
           {
             icon: Upload,
-            iconColor: "#7C3AED",
-            iconBg: "#F5F3FF",
+            iconColor: "#B33A1F",
+            iconBg: "#F5E0D9",
             title: "Import Existing Data",
             desc: "Upload bank statements or CSV exports",
             badge: null,
@@ -458,8 +458,8 @@ function Step3({
           },
           {
             icon: ArrowRight,
-            iconColor: "#059669",
-            iconBg: "#ECFDF5",
+            iconColor: "#1C3A5B",
+            iconBg: "#DDE4EC",
             title: "Start Fresh",
             desc: "Go to your dashboard and add data manually",
             badge: null,
@@ -474,8 +474,8 @@ function Step3({
             onClick={item.onClick}
             style={{
               padding: "16px 18px",
-              borderRadius: 12,
-              border: "1.5px solid #E5E7EB",
+              borderRadius: 8,
+              border: "1.5px solid #E5DBC3",
               background: item.disabled ? "#FAFAFA" : "#FFFFFF",
               display: "flex",
               alignItems: "center",
@@ -488,13 +488,13 @@ function Step3({
             }}
             onMouseEnter={(e) => {
               if (!item.disabled) {
-                e.currentTarget.style.borderColor = "#C4B5FD";
+                e.currentTarget.style.borderColor = "#F5E0D9";
                 e.currentTarget.style.background = "#FAFAFA";
               }
             }}
             onMouseLeave={(e) => {
               if (!item.disabled) {
-                e.currentTarget.style.borderColor = "#E5E7EB";
+                e.currentTarget.style.borderColor = "#E5DBC3";
                 e.currentTarget.style.background = "#FFFFFF";
               }
             }}
@@ -541,9 +541,9 @@ function DoneScreen({ onNavigate }: { onNavigate: (path: string) => void }) {
         transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
         style={{
           width: 72, height: 72, borderRadius: "50%", margin: "0 auto 24px",
-          background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+          background: "var(--stamp)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 8px 24px rgba(124,58,237,0.4)",
+          boxShadow: "0 4px 12px rgba(179,58,31,0.2)",
         }}
         aria-hidden="true"
       >
@@ -560,8 +560,8 @@ function DoneScreen({ onNavigate }: { onNavigate: (path: string) => void }) {
           type="button"
           onClick={() => onNavigate("/transactions")}
           style={{
-            padding: "12px 24px", borderRadius: 12, minHeight: 44,
-            border: "1.5px solid #E5E7EB", background: "#FFFFFF",
+            padding: "12px 24px", borderRadius: 8, minHeight: 44,
+            border: "1.5px solid #E5DBC3", background: "#FFFFFF",
             color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer",
             transition: "all 0.15s",
           }}
@@ -572,12 +572,12 @@ function DoneScreen({ onNavigate }: { onNavigate: (path: string) => void }) {
           type="button"
           onClick={() => onNavigate("/invoices")}
           style={{
-            padding: "12px 24px", borderRadius: 12, minHeight: 44,
+            padding: "12px 24px", borderRadius: 8, minHeight: 44,
             border: "none",
-            background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+            background: "var(--stamp)",
             color: "#FFFFFF", fontSize: 14, fontWeight: 700, cursor: "pointer",
             transition: "all 0.15s",
-            boxShadow: "0 4px 14px rgba(124,58,237,0.35)",
+            boxShadow: "0 2px 6px rgba(179,58,31,0.25)",
             display: "flex", alignItems: "center", gap: 8,
           }}
         >
@@ -684,7 +684,7 @@ export default function OnboardingPage() {
             borderRadius: 20,
             padding: "40px 32px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
-            border: "1px solid #E5E7EB",
+            border: "1px solid #E5DBC3",
           }}
         >
           <DoneScreen onNavigate={(path) => router.push(path)} />
@@ -731,9 +731,9 @@ export default function OnboardingPage() {
               aria-hidden="true"
               style={{
                 width: 36, height: 36, borderRadius: 9,
-                background: "linear-gradient(135deg, #7C3AED, #9333EA)",
+                background: "var(--stamp)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 2px 8px rgba(124,58,237,0.3)",
+                boxShadow: "0 1px 3px rgba(179,58,31,0.2)",
               }}
             >
               <span style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>L</span>
@@ -810,9 +810,9 @@ export default function OnboardingPage() {
                 marginTop: 16,
                 padding: "10px 14px",
                 borderRadius: 10,
-                background: "#FEF2F2",
-                border: "1px solid #FECACA",
-                color: "#DC2626",
+                background: "#F5E0D9",
+                border: "1px solid #F5E0D9",
+                color: "#922D15",
                 fontSize: 13,
                 fontWeight: 500,
               }}
@@ -829,7 +829,7 @@ export default function OnboardingPage() {
               alignItems: "center",
               marginTop: 28,
               paddingTop: 20,
-              borderTop: "1px solid #F3F4F6",
+              borderTop: "1px solid #EFE7D5",
             }}
           >
             <button
@@ -840,7 +840,7 @@ export default function OnboardingPage() {
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "10px 18px", borderRadius: 10, minHeight: 44,
-                border: "1.5px solid #E5E7EB", background: "#FFFFFF",
+                border: "1.5px solid #E5DBC3", background: "#FFFFFF",
                 color: "#374151", fontSize: 14, fontWeight: 600,
                 cursor: step === 1 || saving ? "not-allowed" : "pointer",
                 opacity: step === 1 ? 0 : saving ? 0.5 : 1,
@@ -879,8 +879,8 @@ export default function OnboardingPage() {
                     padding: "10px 24px", borderRadius: 10, minHeight: 44,
                     border: "none",
                     background: step === 1 && !companyName.trim()
-                      ? "#E5E7EB"
-                      : "linear-gradient(135deg, #7C3AED, #9333EA)",
+                      ? "#E5DBC3"
+                      : "var(--stamp)",
                     color: step === 1 && !companyName.trim() ? "#9CA3AF" : "#FFFFFF",
                     fontSize: 14, fontWeight: 700,
                     cursor: step === 1 && !companyName.trim() ? "not-allowed" : "pointer",
@@ -903,7 +903,7 @@ export default function OnboardingPage() {
                   display: "flex", alignItems: "center", gap: 8,
                   padding: "10px 24px", borderRadius: 10, minHeight: 44,
                   border: "none",
-                  background: saving ? "#9CA3AF" : "linear-gradient(135deg, #7C3AED, #9333EA)",
+                  background: saving ? "#9CA3AF" : "var(--stamp)",
                   color: "#FFFFFF", fontSize: 14, fontWeight: 700,
                   cursor: saving ? "not-allowed" : "pointer",
                   transition: "all 0.15s",

@@ -20,9 +20,9 @@ import type { Transaction, Invoice, Account } from "@/types";
 const ITEMS_PER_PAGE = 30;
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
 };
 
@@ -109,23 +109,23 @@ const typeConfig: Record<
 > = {
   transaction: {
     icon: ArrowLeftRight,
-    color: "#7C3AED",
-    borderColor: "#7C3AED",
-    bgColor: "#F5F3FF",
+    color: "#B33A1F",
+    borderColor: "#B33A1F",
+    bgColor: "#F5E0D9",
     label: "Transactions",
   },
   invoice: {
     icon: FileText,
-    color: "#2563EB",
-    borderColor: "#2563EB",
-    bgColor: "#EFF6FF",
+    color: "#171510",
+    borderColor: "#171510",
+    bgColor: "#DDE4EC",
     label: "Invoices",
   },
   account: {
     icon: Landmark,
-    color: "#059669",
-    borderColor: "#059669",
-    bgColor: "#ECFDF5",
+    color: "#1C3A5B",
+    borderColor: "#1C3A5B",
+    bgColor: "#DDE4EC",
     label: "Accounts",
   },
 };
@@ -224,13 +224,13 @@ const filterTabs: { key: "all" | ActivityType; label: string }[] = [
 ];
 
 const ACTION_COLORS: Record<string, { bg: string; color: string }> = {
-  create: { bg: "#ECFDF5", color: "#059669" },
-  update: { bg: "#EFF6FF", color: "#2563EB" },
-  delete: { bg: "#FEF2F2", color: "#DC2626" },
-  login: { bg: "#EDE9FE", color: "#7C3AED" },
+  create: { bg: "#DDE4EC", color: "#1C3A5B" },
+  update: { bg: "#DDE4EC", color: "#171510" },
+  delete: { bg: "#F5E0D9", color: "#922D15" },
+  login: { bg: "#F5E0D9", color: "#B33A1F" },
   logout: { bg: "#F1F5F9", color: "#64748B" },
   export: { bg: "#FFF7ED", color: "#C2410C" },
-  import: { bg: "#ECFDF5", color: "#065F46" },
+  import: { bg: "#DDE4EC", color: "#065F46" },
 };
 
 interface AuditEntry {
@@ -348,7 +348,7 @@ export default function ActivityPage() {
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-            <Clock style={{ width: 20, height: 20, color: "#7C3AED" }} />
+            <Clock style={{ width: 20, height: 20, color: "#B33A1F" }} />
             <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.02em" }}>
               Activity Log
             </h1>
@@ -358,7 +358,7 @@ export default function ActivityPage() {
           </p>
         </div>
         {/* Main Tab Toggle */}
-        <div style={{ display: "flex", gap: 4, padding: 4, background: "#F1F5F9", borderRadius: 12 }}>
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--paper-3)", borderRadius: 12 }}>
           {([
             { key: "activity", label: "Activity", icon: Clock },
             { key: "system_log", label: "System Log", icon: ShieldCheck },
@@ -375,7 +375,7 @@ export default function ActivityPage() {
                   padding: "8px 16px", borderRadius: 8, fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? "#FFFFFF" : "#64748B",
-                  background: isActive ? "#7C3AED" : "transparent",
+                  background: isActive ? "#B33A1F" : "transparent",
                   border: "none", transition: "all 0.15s", whiteSpace: "nowrap",
                 }}
               >
@@ -392,9 +392,9 @@ export default function ActivityPage() {
       {/* Stats Row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
         {[
-          { label: "Total Events", value: stats.total, color: "#7C3AED" },
-          { label: "Today", value: stats.today, color: "#059669" },
-          { label: "This Week", value: stats.thisWeek, color: "#2563EB" },
+          { label: "Total Events", value: stats.total, color: "#B33A1F" },
+          { label: "Today", value: stats.today, color: "#1C3A5B" },
+          { label: "This Week", value: stats.thisWeek, color: "#171510" },
         ].map((stat) => (
           <div key={stat.label} style={{ ...card, padding: "16px 20px" }}>
             <p style={{ ...sectionLabel, color: "#94A3B8", marginBottom: 4 }}>{stat.label}</p>
@@ -408,7 +408,7 @@ export default function ActivityPage() {
       {/* Filter Bar */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 4, padding: 4, background: "#F1F5F9", borderRadius: 12, width: "fit-content" }}>
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--paper-3)", borderRadius: 8, width: "fit-content" }}>
           {filterTabs.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
@@ -422,7 +422,7 @@ export default function ActivityPage() {
                   fontSize: 13,
                   fontWeight: isActive ? 600 : 400,
                   color: isActive ? "#FFFFFF" : "#64748B",
-                  background: isActive ? "#7C3AED" : "transparent",
+                  background: isActive ? "#B33A1F" : "transparent",
                   border: "none",
                   transition: "all 0.15s",
                   whiteSpace: "nowrap",
@@ -482,7 +482,7 @@ export default function ActivityPage() {
           </div>
         ) : filteredActivities.length === 0 ? (
           <div style={{ padding: "48px 24px", textAlign: "center" }}>
-            <Filter style={{ width: 32, height: 32, color: "#CBD5E1", margin: "0 auto 12px" }} />
+            <Filter style={{ width: 32, height: 32, color: "#CFBF9E", margin: "0 auto 12px" }} />
             <p style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 4 }}>
               No activity found
             </p>
@@ -500,7 +500,7 @@ export default function ActivityPage() {
                 <div
                   style={{
                     padding: "12px 20px",
-                    background: "#F8FAFC",
+                    background: "var(--paper)",
                     borderTop: gi > 0 ? "1px solid #E2E8F0" : "none",
                     borderBottom: "1px solid #F1F5F9",
                     position: "sticky",
@@ -532,7 +532,7 @@ export default function ActivityPage() {
                         alignItems: "flex-start",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "#FAFBFC";
+                        e.currentTarget.style.background = "#EFE7D5";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = "transparent";
@@ -661,16 +661,16 @@ export default function ActivityPage() {
                     borderRadius: 10,
                     fontSize: 13,
                     fontWeight: 600,
-                    color: "#7C3AED",
-                    background: "#F5F3FF",
-                    border: "1px solid #EDE9FE",
+                    color: "#B33A1F",
+                    background: "#F5E0D9",
+                    border: "1px solid #F5E0D9",
                     transition: "all 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#EDE9FE";
+                    e.currentTarget.style.background = "#F5E0D9";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#F5F3FF";
+                    e.currentTarget.style.background = "#F5E0D9";
                   }}
                 >
                   <ChevronDown style={{ width: 14, height: 14 }} />
@@ -684,7 +684,7 @@ export default function ActivityPage() {
               style={{
                 padding: "12px 20px",
                 borderTop: "1px solid #E2E8F0",
-                background: "#F8FAFC",
+                background: "var(--paper)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -707,7 +707,7 @@ export default function ActivityPage() {
       {mainTab === "system_log" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Action filter */}
-          <div style={{ display: "flex", gap: 4, padding: 4, background: "#F1F5F9", borderRadius: 12, width: "fit-content", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--paper-3)", borderRadius: 8, width: "fit-content", flexWrap: "wrap" }}>
             {AUDIT_ACTIONS.map((a) => {
               const isActive = auditAction === a.key;
               return (
@@ -719,7 +719,7 @@ export default function ActivityPage() {
                     padding: "7px 14px", borderRadius: 8, fontSize: 12,
                     fontWeight: isActive ? 600 : 400,
                     color: isActive ? "#FFFFFF" : "#64748B",
-                    background: isActive ? "#7C3AED" : "transparent",
+                    background: isActive ? "#B33A1F" : "transparent",
                     border: "none", transition: "all 0.15s", whiteSpace: "nowrap",
                   }}
                 >
@@ -739,7 +739,7 @@ export default function ActivityPage() {
               </div>
             ) : !auditData?.entries?.length ? (
               <div style={{ padding: "48px 24px", textAlign: "center" }}>
-                <ShieldCheck style={{ width: 32, height: 32, color: "#CBD5E1", margin: "0 auto 12px" }} />
+                <ShieldCheck style={{ width: 32, height: 32, color: "#CFBF9E", margin: "0 auto 12px" }} />
                 <p style={{ fontSize: 15, fontWeight: 600, color: "#0F172A", marginBottom: 4 }}>
                   No audit entries yet
                 </p>
@@ -752,7 +752,7 @@ export default function ActivityPage() {
                 {/* Header row */}
                 <div style={{
                   display: "grid", gridTemplateColumns: "160px 100px 100px 1fr 120px",
-                  padding: "10px 20px", background: "#F8FAFC",
+                  padding: "10px 20px", background: "var(--paper)",
                   borderBottom: "1px solid #E2E8F0",
                   fontSize: 10, fontWeight: 700, textTransform: "uppercase",
                   letterSpacing: "0.08em", color: "#94A3B8", gap: 12,
@@ -775,7 +775,7 @@ export default function ActivityPage() {
                         borderBottom: isLast ? "none" : "1px solid #F1F5F9",
                         transition: "background 0.1s",
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#FAFBFC"; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#EFE7D5"; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                     >
                       <span style={{ fontSize: 12, color: "#64748B", whiteSpace: "nowrap" }}>
@@ -808,7 +808,7 @@ export default function ActivityPage() {
                 {/* Pagination footer */}
                 <div style={{
                   padding: "12px 20px", borderTop: "1px solid #E2E8F0",
-                  background: "#F8FAFC", display: "flex", alignItems: "center",
+                  background: "var(--paper)", display: "flex", alignItems: "center",
                   justifyContent: "space-between",
                 }}>
                   <p style={{ fontSize: 12, color: "#94A3B8" }}>
@@ -821,7 +821,7 @@ export default function ActivityPage() {
                       className="cursor-pointer"
                       style={{
                         padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
-                        border: "1px solid #E2E8F0", background: "#fff", color: auditOffset === 0 ? "#CBD5E1" : "#475569",
+                        border: "1px solid var(--rule)", background: "#fff", color: auditOffset === 0 ? "#CFBF9E" : "#475569",
                         cursor: auditOffset === 0 ? "not-allowed" : "pointer",
                       }}
                     >
@@ -833,8 +833,8 @@ export default function ActivityPage() {
                       className="cursor-pointer"
                       style={{
                         padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500,
-                        border: "1px solid #E2E8F0", background: "#fff",
-                        color: auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0) ? "#CBD5E1" : "#475569",
+                        border: "1px solid var(--rule)", background: "#fff",
+                        color: auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0) ? "#CFBF9E" : "#475569",
                         cursor: auditOffset + AUDIT_LIMIT >= (auditData.total ?? 0) ? "not-allowed" : "pointer",
                       }}
                     >

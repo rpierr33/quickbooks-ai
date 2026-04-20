@@ -14,17 +14,17 @@ import { Plus, Receipt, Trash2, CheckCircle2, Clock, AlertCircle, Search, X, Cal
 import type { Bill, BillItem } from "@/types";
 
 const card: React.CSSProperties = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
-  borderRadius: 16,
+  background: "var(--paper-2)",
+  border: "1px solid var(--rule)",
+  borderRadius: 8,
   boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
 };
 
 const statusConfig: Record<string, { bg: string; color: string; border: string; borderLeft: string; label: string; Icon: React.ComponentType<any> }> = {
   draft: { bg: "#F8FAFC", color: "#475569", border: "#E2E8F0", borderLeft: "#94A3B8", label: "Draft", Icon: Clock },
-  pending: { bg: "#EFF6FF", color: "#2563EB", border: "#BFDBFE", borderLeft: "#F59E0B", label: "Pending", Icon: Clock },
-  paid: { bg: "#ECFDF5", color: "#059669", border: "#A7F3D0", borderLeft: "#059669", label: "Paid", Icon: CheckCircle2 },
-  overdue: { bg: "#FEF2F2", color: "#DC2626", border: "#FECACA", borderLeft: "#EF4444", label: "Overdue", Icon: AlertCircle },
+  pending: { bg: "#DDE4EC", color: "#171510", border: "#DDE4EC", borderLeft: "#8A5A1C", label: "Pending", Icon: Clock },
+  paid: { bg: "#DDE4EC", color: "#1C3A5B", border: "#DDE4EC", borderLeft: "#1C3A5B", label: "Paid", Icon: CheckCircle2 },
+  overdue: { bg: "#F5E0D9", color: "#922D15", border: "#F5E0D9", borderLeft: "#B33A1F", label: "Overdue", Icon: AlertCircle },
 };
 
 const PAYMENT_TERMS_LABELS: Record<string, string> = {
@@ -248,17 +248,17 @@ export default function BillsPage() {
             <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748B" }}>Outstanding</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "#0F172A", marginTop: 4 }}>{formatCurrencyAmount(stats.outstanding, BASE_CURRENCY)}</p>
           </div>
-          <div style={{ ...card, borderLeft: "4px solid #F59E0B", padding: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#D97706" }}>Due This Week</p>
+          <div style={{ ...card, borderLeft: "4px solid #8A5A1C", padding: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#8A5A1C" }}>Due This Week</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "#0F172A", marginTop: 4 }}>{formatCurrencyAmount(stats.dueThisWeek, BASE_CURRENCY)}</p>
           </div>
           <div style={{ ...card, borderLeft: "4px solid #6366F1", padding: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#4F46E5" }}>Due This Month</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "#0F172A", marginTop: 4 }}>{formatCurrencyAmount(stats.dueThisMonth, BASE_CURRENCY)}</p>
           </div>
-          <div style={{ ...card, borderLeft: "4px solid #EF4444", padding: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#EF4444" }}>Overdue</p>
-            <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "#DC2626", marginTop: 4 }}>{formatCurrencyAmount(stats.overdue, BASE_CURRENCY)}</p>
+          <div style={{ ...card, borderLeft: "4px solid #B33A1F", padding: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#B33A1F" }}>Overdue</p>
+            <p style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "#922D15", marginTop: 4 }}>{formatCurrencyAmount(stats.overdue, BASE_CURRENCY)}</p>
           </div>
         </div>
       )}
@@ -325,18 +325,18 @@ export default function BillsPage() {
                   return (
                     <tr
                       key={bill.id}
-                      style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#FAFBFC" : "transparent", transition: "background 0.15s" }}
+                      style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#EFE7D5" : "transparent", transition: "background 0.15s" }}
                       onMouseEnter={e => (e.currentTarget.style.background = "#F1F5F9")}
-                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#FAFBFC" : "transparent")}
+                      onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? "#EFE7D5" : "transparent")}
                     >
                       <td style={{ padding: "14px 16px", fontFamily: "monospace", fontSize: 12, color: "#94A3B8" }}>{bill.bill_number}</td>
                       <td style={{ padding: "14px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <div style={{ width: 30, height: 30, borderRadius: 8, background: "#EDE9FE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <Building2 style={{ width: 14, height: 14, color: "#7C3AED" }} />
+                          <div style={{ width: 30, height: 30, borderRadius: 8, background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <Building2 style={{ width: 14, height: 14, color: "#B33A1F" }} />
                           </div>
                           <div>
-                            <Link href="/clients" onClick={e => e.stopPropagation()} style={{ fontWeight: 500, color: "#2563EB", textDecoration: "none" }}
+                            <Link href="/clients" onClick={e => e.stopPropagation()} style={{ fontWeight: 500, color: "#171510", textDecoration: "none" }}
                               onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
                               onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>{bill.vendor_name}</Link>
                             {bill.vendor_email && <p style={{ fontSize: 11, color: "#94A3B8" }}>{bill.vendor_email}</p>}
@@ -346,7 +346,7 @@ export default function BillsPage() {
                       <td style={{ padding: "14px 16px", color: "#64748B" }}>{formatDate(bill.bill_date)}</td>
                       <td style={{ padding: "14px 16px" }}>
                         {bill.due_date ? (
-                          <span style={{ color: isOD ? "#DC2626" : isPaid ? "#94A3B8" : "#64748B", fontWeight: isOD ? 600 : 400, textDecoration: isPaid ? "line-through" : "none" }}>
+                          <span style={{ color: isOD ? "#922D15" : isPaid ? "#94A3B8" : "#64748B", fontWeight: isOD ? 600 : 400, textDecoration: isPaid ? "line-through" : "none" }}>
                             {formatDate(bill.due_date)}
                           </span>
                         ) : "—"}
@@ -377,7 +377,7 @@ export default function BillsPage() {
                               onClick={() => payMutation.mutate(bill.id)}
                               disabled={payMutation.isPending}
                               className="cursor-pointer disabled:opacity-60"
-                              style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#059669", background: "#ECFDF5", border: "none" }}
+                              style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#1C3A5B", background: "#DDE4EC", border: "none" }}
                             >
                               <CheckCircle2 style={{ width: 11, height: 11 }} /> Pay
                             </button>
@@ -386,7 +386,7 @@ export default function BillsPage() {
                             <button
                               onClick={() => { setScheduleId(bill.id); setScheduleDate(bill.scheduled_payment_date ?? ""); }}
                               className="cursor-pointer"
-                              style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500, color: "#7C3AED", background: "#EDE9FE", border: "none" }}
+                              style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500, color: "#B33A1F", background: "#F5E0D9", border: "none" }}
                             >
                               <Calendar style={{ width: 11, height: 11 }} />
                               {bill.scheduled_payment_date ? "Rescheduled" : "Schedule"}
@@ -395,7 +395,7 @@ export default function BillsPage() {
                           <button
                             onClick={() => setDeletingId(bill.id)}
                             className="cursor-pointer"
-                            style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}
+                            style={{ width: 28, height: 28, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}
                           >
                             <Trash2 style={{ width: 12, height: 12 }} />
                           </button>
@@ -420,18 +420,18 @@ export default function BillsPage() {
                   style={{
                     padding: "14px 16px",
                     borderBottom: i < filteredBills.length - 1 ? "1px solid #F1F5F9" : "none",
-                    background: i % 2 === 1 ? "#FAFBFC" : "transparent",
+                    background: i % 2 === 1 ? "#EFE7D5" : "transparent",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        <Link href="/clients" style={{ fontSize: 13, fontWeight: 600, color: "#2563EB", textDecoration: "none" }}
+                        <Link href="/clients" style={{ fontSize: 13, fontWeight: 600, color: "#171510", textDecoration: "none" }}
                           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>{bill.vendor_name}</Link>
                         <span style={{ fontSize: 10, color: "#94A3B8", fontFamily: "monospace" }}>{bill.bill_number}</span>
                       </div>
-                      <p style={{ fontSize: 11, color: isOD ? "#DC2626" : "#64748B" }}>
+                      <p style={{ fontSize: 11, color: isOD ? "#922D15" : "#64748B" }}>
                         Due {bill.due_date ? formatDate(bill.due_date) : "—"}
                         {isOD && " · Overdue"}
                       </p>
@@ -452,14 +452,14 @@ export default function BillsPage() {
                         onClick={() => payMutation.mutate(bill.id)}
                         disabled={payMutation.isPending}
                         className="cursor-pointer disabled:opacity-60"
-                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "7px 0", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#059669", background: "#ECFDF5", border: "1px solid #A7F3D0" }}
+                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, padding: "7px 0", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "#1C3A5B", background: "#DDE4EC", border: "1px solid #DDE4EC" }}
                       >
                         <CheckCircle2 style={{ width: 13, height: 13 }} /> Pay Bill
                       </button>
                       <button
                         onClick={() => setDeletingId(bill.id)}
                         className="cursor-pointer"
-                        style={{ width: 36, height: 36, borderRadius: 6, border: "1px solid #FECACA", background: "#FEF2F2", display: "flex", alignItems: "center", justifyContent: "center", color: "#EF4444" }}
+                        style={{ width: 36, height: 36, borderRadius: 6, border: "1px solid #F5E0D9", background: "#F5E0D9", display: "flex", alignItems: "center", justifyContent: "center", color: "#B33A1F" }}
                       >
                         <Trash2 style={{ width: 14, height: 14 }} />
                       </button>
@@ -480,7 +480,7 @@ export default function BillsPage() {
           </DialogTitle>
           <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
             {[1, 2, 3].map(s => (
-              <div key={s} style={{ height: 4, flex: 1, borderRadius: 99, background: step >= s ? "#7C3AED" : "#E2E8F0" }} />
+              <div key={s} style={{ height: 4, flex: 1, borderRadius: 99, background: step >= s ? "#B33A1F" : "#E2E8F0" }} />
             ))}
           </div>
         </DialogHeader>
@@ -526,8 +526,8 @@ export default function BillsPage() {
                 </div>
               </div>
               {form.currency !== BASE_CURRENCY && (
-                <div style={{ padding: "10px 14px", borderRadius: 8, background: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-                  <p style={{ fontSize: 12, color: "#2563EB" }}>
+                <div style={{ padding: "10px 14px", borderRadius: 8, background: "#DDE4EC", border: "1px solid #DDE4EC" }}>
+                  <p style={{ fontSize: 12, color: "#171510" }}>
                     Exchange rate: 1 {form.currency} = {getExchangeRate(form.currency, BASE_CURRENCY).toFixed(4)} {BASE_CURRENCY} (hardcoded MVP rates)
                   </p>
                 </div>
@@ -542,7 +542,7 @@ export default function BillsPage() {
           {step === 2 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {form.items.map((item, i) => (
-                <div key={i} style={{ borderRadius: 8, padding: 14, display: "flex", flexDirection: "column", gap: 10, background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                <div key={i} style={{ borderRadius: 8, padding: 14, display: "flex", flexDirection: "column", gap: 10, background: "var(--paper)", border: "1px solid var(--rule)" }}>
                   <div className="grid grid-cols-2 gap-3">
                     <div style={{ gridColumn: "1 / -1" }}>
                       <Input value={item.description} onChange={e => updateItem(i, "description", e.target.value)} placeholder="Item description" />
@@ -585,7 +585,7 @@ export default function BillsPage() {
 
           {step === 3 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ borderRadius: 8, padding: 16, display: "flex", flexDirection: "column", gap: 10, background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+              <div style={{ borderRadius: 8, padding: 16, display: "flex", flexDirection: "column", gap: 10, background: "var(--paper)", border: "1px solid var(--rule)" }}>
                 <div className="flex justify-between text-sm">
                   <span style={{ color: "#64748B" }}>Vendor</span>
                   <span style={{ fontWeight: 600, color: "#0F172A" }}>{form.vendor_name}</span>
@@ -704,7 +704,7 @@ export default function BillsPage() {
             onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             disabled={deleteMutation.isPending}
             className="flex-1 w-full cursor-pointer"
-            style={{ background: "#EF4444", borderColor: "#EF4444" }}
+            style={{ background: "#B33A1F", borderColor: "#B33A1F" }}
           >
             {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>

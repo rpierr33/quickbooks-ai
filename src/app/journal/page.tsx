@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import Link from "next/link";
 import type { Account } from "@/types";
 
-const card: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,0.05)', overflow: 'hidden' };
+const card: React.CSSProperties = { background: 'var(--paper-2)', border: '1px solid var(--rule)', borderRadius: 8, boxShadow: 'var(--shadow-sm)', overflow: 'hidden' };
 
 interface JournalLine { accountId: string; accountName: string; debit: number; credit: number; }
 interface JournalEntry { id: string; date: string; memo: string; lines: JournalLine[]; status?: string; voided_at?: string; created_at: string; }
@@ -93,7 +93,7 @@ export default function JournalPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-        <p style={{ fontSize: 14, color: '#64748B' }}>{entries.length} journal {entries.length === 1 ? 'entry' : 'entries'}</p>
+        <p style={{ fontSize: 14, color: 'var(--ink-3)' }}>{entries.length} journal {entries.length === 1 ? 'entry' : 'entries'}</p>
         <Button onClick={() => setShowCreate(true)} className="cursor-pointer">
           <Plus style={{ width: 16, height: 16, marginRight: 6 }} /> New Journal Entry
         </Button>
@@ -106,9 +106,9 @@ export default function JournalPage() {
         </div>
       ) : entries.length === 0 ? (
         <div style={{ ...card, padding: 48, textAlign: 'center' }}>
-          <BookOpen style={{ width: 40, height: 40, color: '#CBD5E1', margin: '0 auto 12px' }} />
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>No journal entries yet</p>
-          <p style={{ fontSize: 13, color: '#94A3B8', marginBottom: 16 }}>Journal entries are used for manual double-entry adjustments — depreciation, accruals, corrections, etc.</p>
+          <BookOpen style={{ width: 40, height: 40, color: 'var(--ink-4)', margin: '0 auto 12px' }} />
+          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>No journal entries yet</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-4)', marginBottom: 16 }}>Journal entries are used for manual double-entry adjustments — depreciation, accruals, corrections, etc.</p>
           <Button onClick={() => setShowCreate(true)} size="sm" className="cursor-pointer"><Plus style={{ width: 14, height: 14, marginRight: 6 }} /> Create Entry</Button>
         </div>
       ) : (
@@ -119,20 +119,20 @@ export default function JournalPage() {
             <div key={entry.id} style={{ ...card, padding: 20, opacity: isVoided ? 0.6 : 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', textDecoration: isVoided ? 'line-through' : 'none' }}>{entry.memo}</p>
-                  <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{formatDate(entry.date)}</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', textDecoration: isVoided ? 'line-through' : 'none' }}>{entry.memo}</p>
+                  <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>{formatDate(entry.date)}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {isVoided ? (
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>Voided</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: 'var(--stamp-soft)', color: 'var(--stamp-2)', border: '1px solid var(--stamp-soft)' }}>Voided</span>
                   ) : (
                     <>
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#ECFDF5', color: '#059669' }}>Balanced</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: 'var(--pencil-soft)', color: 'var(--pencil)' }}>Balanced</span>
                       <button
                         onClick={() => setVoidingId(entry.id)}
                         className="cursor-pointer"
                         title="Void this entry"
-                        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, color: 'var(--stamp-2)', background: 'var(--stamp-soft)', border: '1px solid var(--stamp-soft)' }}
                       >
                         <Ban style={{ width: 12, height: 12 }} /> Void
                       </button>
@@ -143,30 +143,30 @@ export default function JournalPage() {
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse', minWidth: 300 }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #E2E8F0' }}>
-                      <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8' }}>Account</th>
-                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Debit</th>
-                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#94A3B8', width: 100 }}>Credit</th>
+                    <tr style={{ borderBottom: '1px solid var(--rule)' }}>
+                      <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)' }}>Account</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', width: 100 }}>Debit</th>
+                      <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-4)', width: 100 }}>Credit</th>
                     </tr>
                   </thead>
                   <tbody>
                     {entry.lines.map((line, li) => (
-                      <tr key={li} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                        <td style={{ padding: '8px', color: '#0F172A', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>
-                          <Link href="/accounts" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 500 }}
+                      <tr key={li} style={{ borderBottom: '1px solid var(--rule-soft)' }}>
+                        <td style={{ padding: '8px', color: 'var(--ink)', fontWeight: 500, paddingLeft: line.credit > 0 ? 24 : 8 }}>
+                          <Link href="/accounts" style={{ color: 'var(--stamp)', textDecoration: 'none', fontWeight: 500 }}
                             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
                             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}>
                             {line.accountName}
                           </Link>
                         </td>
-                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.debit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.debit > 0 ? 600 : 400 }}>{line.debit > 0 ? formatCurrency(line.debit) : '—'}</td>
-                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.credit > 0 ? '#0F172A' : '#CBD5E1', fontWeight: line.credit > 0 ? 600 : 400 }}>{line.credit > 0 ? formatCurrency(line.credit) : '—'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.debit > 0 ? '#0F172A' : '#CFBF9E', fontWeight: line.debit > 0 ? 600 : 400 }}>{line.debit > 0 ? formatCurrency(line.debit) : '—'}</td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: line.credit > 0 ? '#0F172A' : '#CFBF9E', fontWeight: line.credit > 0 ? 600 : 400 }}>{line.credit > 0 ? formatCurrency(line.credit) : '—'}</td>
                       </tr>
                     ))}
                     <tr style={{ fontWeight: 700 }}>
-                      <td style={{ padding: '8px', color: '#64748B', fontSize: 11, textTransform: 'uppercase' }}>Total</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.debit, 0))}</td>
-                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#0F172A' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.credit, 0))}</td>
+                      <td style={{ padding: '8px', color: 'var(--ink-3)', fontSize: 11, textTransform: 'uppercase' }}>Total</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--ink)' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.debit, 0))}</td>
+                      <td style={{ padding: '8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--ink)' }}>{formatCurrency(entry.lines.reduce((s, l) => s + l.credit, 0))}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -183,7 +183,7 @@ export default function JournalPage() {
           <DialogTitle>Void Journal Entry</DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569' }}>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)' }}>
             Voiding this entry will mark it as invalid. The entry will remain visible in the audit trail but will be struck through. This cannot be undone.
           </p>
         </DialogContent>
@@ -193,7 +193,7 @@ export default function JournalPage() {
             onClick={() => { if (voidingId) voidMutation.mutate(voidingId); }}
             disabled={voidMutation.isPending}
             className="flex-1 w-full cursor-pointer"
-            style={{ background: '#EF4444', color: '#FFFFFF' }}
+            style={{ background: 'var(--stamp)', color: '#FFFFFF' }}
           >
             {voidMutation.isPending ? "Voiding..." : "Void Entry"}
           </Button>
@@ -204,17 +204,17 @@ export default function JournalPage() {
       <Dialog open={showCreate} onClose={resetForm}>
         <DialogHeader>
           <DialogTitle>New Journal Entry</DialogTitle>
-          <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Debits must equal credits for the entry to balance.</p>
+          <p style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 4 }}>Debits must equal credits for the entry to balance.</p>
         </DialogHeader>
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div className="grid grid-cols-2" style={{ gap: 12 }}>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Date</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Date</label>
                 <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Memo</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Memo</label>
                 <Input value={memo} onChange={e => setMemo(e.target.value)} placeholder="e.g., Depreciation - March" />
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function JournalPage() {
             {/* Lines */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Lines</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)' }}>Lines</label>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {lines.map((line, i) => (
@@ -240,7 +240,7 @@ export default function JournalPage() {
                       <Input type="number" step="0.01" placeholder="Credit" value={line.credit} onChange={e => updateLine(i, 'credit', e.target.value)} />
                     </div>
                     {lines.length > 2 && (
-                      <button onClick={() => removeLine(i)} className="cursor-pointer" style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <button onClick={() => removeLine(i)} className="cursor-pointer" style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--ink-4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Trash2 style={{ width: 14, height: 14 }} />
                       </button>
                     )}
@@ -255,16 +255,16 @@ export default function JournalPage() {
             {/* Balance check */}
             <div style={{
               padding: '12px 16px', borderRadius: 8,
-              background: isBalanced ? '#ECFDF5' : totalDebits > 0 || totalCredits > 0 ? '#FEF2F2' : '#F8FAFC',
-              border: `1px solid ${isBalanced ? '#A7F3D0' : totalDebits > 0 || totalCredits > 0 ? '#FECACA' : '#E2E8F0'}`,
+              background: isBalanced ? '#DDE4EC' : totalDebits > 0 || totalCredits > 0 ? '#F5E0D9' : '#F8FAFC',
+              border: `1px solid ${isBalanced ? '#DDE4EC' : totalDebits > 0 || totalCredits > 0 ? '#F5E0D9' : '#E2E8F0'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#64748B' }}>Debits: <span style={{ color: '#0F172A' }}>{formatCurrency(totalDebits)}</span></span>
-                <ArrowRight style={{ width: 14, height: 14, color: '#CBD5E1' }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#64748B' }}>Credits: <span style={{ color: '#0F172A' }}>{formatCurrency(totalCredits)}</span></span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-3)' }}>Debits: <span style={{ color: 'var(--ink)' }}>{formatCurrency(totalDebits)}</span></span>
+                <ArrowRight style={{ width: 14, height: 14, color: 'var(--ink-4)' }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-3)' }}>Credits: <span style={{ color: 'var(--ink)' }}>{formatCurrency(totalCredits)}</span></span>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 600, color: isBalanced ? '#059669' : '#EF4444' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: isBalanced ? '#1C3A5B' : '#B33A1F' }}>
                 {isBalanced ? 'Balanced' : totalDebits === 0 && totalCredits === 0 ? 'Enter amounts' : `Off by ${formatCurrency(Math.abs(totalDebits - totalCredits))}`}
               </span>
             </div>

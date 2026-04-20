@@ -31,7 +31,7 @@ interface TabsListProps {
 
 function TabsList({ children, className, value, onValueChange }: TabsListProps) {
   return (
-    <div className={cn("inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1", className)}>
+    <div className={cn("filter-tabs", className)}>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, { activeValue: value, onValueChange });
@@ -54,11 +54,8 @@ function TabsTrigger({ value, children, className, activeValue, onValueChange }:
   const isActive = activeValue === value;
   return (
     <button
-      className={cn(
-        "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer",
-        isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700",
-        className
-      )}
+      type="button"
+      className={cn(isActive && "active", className)}
       onClick={() => onValueChange?.(value)}
     >
       {children}
@@ -72,9 +69,9 @@ interface TabsContentProps {
   className?: string;
 }
 
-function TabsContent({ value, children, className, ...props }: TabsContentProps & { [key: string]: any }) {
+function TabsContent({ value, children, className }: TabsContentProps) {
   return (
-    <div className={cn("mt-5", className)} data-tab-value={value}>
+    <div className={cn(className)} data-tab-value={value} style={{ marginTop: 24 }}>
       {children}
     </div>
   );

@@ -6,848 +6,65 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { GettingStartedChecklist } from "@/components/ui/getting-started-checklist";
 import { ProductTour } from "@/components/ui/product-tour";
-import {
-  Sparkles,
-  AlertTriangle,
-  Lightbulb,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Receipt,
-  ArrowUpRight,
-  ArrowDownRight,
-  FileText,
-  Activity,
-  Clock,
-  Zap,
-  Plus,
-  ScanLine,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import type { DashboardStats, CashFlowForecast } from "@/types";
 
-// ── Chart tooltip shared style ────────────────────────────────────────────────
-const tooltipStyle: React.CSSProperties = {
-  borderRadius: 8,
-  border: '1px solid #E2E8F0',
-  fontSize: 12,
-  fontWeight: 500,
-  boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-  backgroundColor: '#FFFFFF',
-  padding: '8px 12px',
+type DashboardStatsExt = DashboardStats & {
+  bills_due_soon?: number;
+  unreconciled_count?: number;
+  invoice_outstanding?: number;
+  invoice_overdue_count?: number;
+  invoice_outstanding_count?: number;
 };
 
-// ── Skeleton block ─────────────────────────────────────────────────────────────
-function Skeleton({ height = 24, width = '100%', className = '' }: { height?: number; width?: number | string; className?: string }) {
-  return (
-    <div
-      className={`animate-shimmer rounded-lg ${className}`}
-      style={{ height, width, borderRadius: 8 }}
-      aria-hidden="true"
-    />
-  );
-}
-
-// ── KPI Card skeleton ─────────────────────────────────────────────────────────
-function KpiSkeleton() {
-  return (
-    <div className="card" style={{ padding: '18px 20px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <Skeleton height={30} width={30} />
-        <Skeleton height={11} width={80} />
-      </div>
-      <Skeleton height={32} width="70%" className="mb-2" />
-      <Skeleton height={11} width="50%" />
-    </div>
-  );
-}
-
-// ── KPI Card ──────────────────────────────────────────────────────────────────
-interface KpiCardProps {
-  label: string;
-  value: string;
-  subtext?: React.ReactNode;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-  accentLeft?: string;
-  footer?: React.ReactNode;
-  href?: string;
-}
-
-function KpiCard({ label, value, subtext, icon: Icon, iconBg, iconColor, accentLeft, footer, href }: KpiCardProps) {
-  const inner = (
-    <div
-      className="card"
-      style={{
-        padding: '18px 20px 16px',
-        borderLeft: accentLeft ? `3px solid ${accentLeft}` : undefined,
-        cursor: href ? 'pointer' : 'default',
-        transition: 'box-shadow 150ms ease, transform 150ms ease',
-      }}
-      onMouseEnter={href ? (e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.10)';
-        (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
-      } : undefined}
-      onMouseLeave={href ? (e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '';
-        (e.currentTarget as HTMLDivElement).style.transform = '';
-      } : undefined}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <div
-          aria-hidden="true"
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            background: iconBg,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Icon style={{ width: 14, height: 14, color: iconColor }} />
-        </div>
-        <span style={{
-          fontSize: 10,
-          fontWeight: 600,
-          textTransform: 'uppercase' as const,
-          letterSpacing: '0.08em',
-          color: '#64748B',
-        }}>
-          {label}
-        </span>
-        {href && (
-          <span style={{ marginLeft: 'auto', fontSize: 10, color: '#94A3B8', display: 'flex', alignItems: 'center', gap: 2 }}>
-            View <ChevronRight style={{ width: 10, height: 10 }} />
-          </span>
-        )}
-      </div>
-
-      <p className="tabular-nums" style={{
-        fontSize: 28,
-        fontWeight: 800,
-        color: '#0F172A',
-        letterSpacing: '-0.02em',
-        lineHeight: 1.1,
-      }}>
-        {value}
-      </p>
-
-      {subtext && (
-        <div style={{ marginTop: 6 }}>{subtext}</div>
-      )}
-      {footer && (
-        <div style={{ marginTop: 10 }}>{footer}</div>
-      )}
-    </div>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-        {inner}
-      </Link>
-    );
-  }
-  return inner;
-}
-
-// ── Trend badge ───────────────────────────────────────────────────────────────
-function TrendBadge({ change, inverse = false }: { change: number; inverse?: boolean }) {
-  // inverse=true: for expenses, DOWN is good
-  const isPositive = inverse ? change <= 0 : change >= 0;
-  const color  = isPositive ? '#059669' : '#EF4444';
-  const Icon   = change >= 0 ? TrendingUp : TrendingDown;
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span className="tabular-nums" style={{
-        fontSize: 12,
-        fontWeight: 600,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 3,
-        color,
-      }}>
-        <Icon aria-hidden="true" style={{ width: 12, height: 12 }} />
-        {Math.abs(change)}%
-      </span>
-      <span style={{ fontSize: 11, color: '#94A3B8' }}>vs last month</span>
-    </div>
-  );
-}
-
-// ── Needs Attention section ───────────────────────────────────────────────────
-function NeedsAttention({ data }: { data: DashboardStats & { bills_due_soon?: number; unreconciled_count?: number } }) {
-  const items: { label: string; value: string; urgency: 'high' | 'medium' | 'low'; href: string }[] = [];
-
-  if ((data.invoice_overdue ?? 0) > 0) {
-    items.push({ label: 'Overdue invoices', value: formatCurrency(data.invoice_overdue ?? 0), urgency: 'high', href: '/invoices' });
-  }
-  if ((data.bills_due_soon ?? 0) > 0) {
-    items.push({ label: 'Bills due soon', value: formatCurrency(data.bills_due_soon ?? 0), urgency: 'medium', href: '/bills' });
-  }
-  if ((data.unreconciled_count ?? 0) > 0) {
-    items.push({ label: 'Unreconciled transactions', value: `${data.unreconciled_count}`, urgency: 'low', href: '/reconciliation' });
-  }
-
-  const urgencyColor = {
-    high:   { dot: '#EF4444', bg: '#FEF2F2', text: '#DC2626' },
-    medium: { dot: '#D97706', bg: '#FFFBEB', text: '#B45309' },
-    low:    { dot: '#64748B', bg: '#F1F5F9', text: '#475569' },
-  };
-
-  return (
-    <div className="card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            aria-hidden="true"
-            style={{ width: 28, height: 28, borderRadius: 7, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <AlertTriangle style={{ width: 13, height: 13, color: '#EF4444' }} />
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Needs Attention</span>
-        </div>
-        {items.length > 0 && (
-          <span style={{
-            fontSize: 10,
-            fontWeight: 700,
-            padding: '2px 7px',
-            borderRadius: 99,
-            background: '#FEF2F2',
-            color: '#EF4444',
-          }}>
-            {items.length}
-          </span>
-        )}
-      </div>
-
-      {items.length === 0 ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
-          <CheckCircle2 style={{ width: 18, height: 18, color: '#059669', flexShrink: 0 }} />
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A' }}>All caught up</p>
-            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>No overdue invoices or upcoming bills</p>
-          </div>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {items.map((item, i) => {
-            const style = urgencyColor[item.urgency];
-            return (
-              <Link
-                key={i}
-                href={item.href}
-                className="cursor-pointer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '10px 12px',
-                  borderRadius: 8,
-                  background: style.bg,
-                  textDecoration: 'none',
-                  transition: 'opacity 150ms ease',
-                  gap: 8,
-                }}
-                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.opacity = '0.8'}
-                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.opacity = '1'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span
-                    aria-hidden="true"
-                    style={{ width: 6, height: 6, borderRadius: '50%', background: style.dot, flexShrink: 0 }}
-                  />
-                  <span style={{ fontSize: 12, fontWeight: 500, color: style.text }}>{item.label}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span className="tabular-nums" style={{ fontSize: 12, fontWeight: 700, color: style.text }}>{item.value}</span>
-                  <ArrowRight style={{ width: 12, height: 12, color: style.text, opacity: 0.6 }} />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Recent activity ───────────────────────────────────────────────────────────
-function RecentActivity({ data }: { data: DashboardStats }) {
-  const router = useRouter();
-  const txs = data.recent_transactions?.slice(0, 6) ?? [];
-
-  return (
-    <div className="card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            aria-hidden="true"
-            style={{ width: 28, height: 28, borderRadius: 7, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Activity style={{ width: 13, height: 13, color: '#2563EB' }} />
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Recent Activity</span>
-        </div>
-        <Link
-          href="/transactions"
-          className="cursor-pointer"
-          style={{ fontSize: 12, fontWeight: 500, color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}
-        >
-          View all <ChevronRight style={{ width: 13, height: 13 }} />
-        </Link>
-      </div>
-
-      {txs.length === 0 ? (
-        <div style={{ textAlign: 'center' as const, padding: '24px 0' }}>
-          <Receipt style={{ width: 28, height: 28, color: '#CBD5E1', margin: '0 auto 8px' }} />
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', marginBottom: 2 }}>No transactions yet</p>
-          <p style={{ fontSize: 12, color: '#94A3B8' }}>Add your first transaction to start tracking</p>
-        </div>
-      ) : (
-        <div>
-          {txs.map((tx, i) => (
-            <div
-              key={tx.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => router.push('/transactions')}
-              onKeyDown={e => e.key === 'Enter' && router.push('/transactions')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 8,
-                padding: '9px 6px',
-                borderBottom: i < txs.length - 1 ? '1px solid #F1F5F9' : 'none',
-                cursor: 'pointer',
-                borderRadius: 6,
-                transition: 'background 120ms ease',
-              }}
-              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = '#F8FAFC'}
-              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'transparent'}
-            >
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {tx.description}
-                </p>
-                <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{formatDate(tx.date)}</p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                <span
-                  className="tabular-nums"
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: tx.type === 'income' ? '#059669' : '#EF4444',
-                  }}
-                >
-                  {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                </span>
-                <ChevronRight style={{ width: 12, height: 12, color: '#CBD5E1' }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Monthly Overview chart ────────────────────────────────────────────────────
-function MonthlyOverviewChart({ data }: { data: DashboardStats }) {
-  const router = useRouter();
-
-  const handleBarClick = (barData: { period?: string } | null) => {
-    if (!barData?.period) return;
-    // period is like "Jan 2026" or "2026-01" — convert to YYYY-MM
-    // Try to detect format
-    const raw = barData.period;
-    let month = '';
-    if (/^\d{4}-\d{2}$/.test(raw)) {
-      month = raw;
-    } else {
-      // "Jan 2026" style
-      const parsed = new Date(`${raw} 1`);
-      if (!isNaN(parsed.getTime())) {
-        const y = parsed.getFullYear();
-        const m = String(parsed.getMonth() + 1).padStart(2, '0');
-        month = `${y}-${m}`;
-      }
-    }
-    if (month) {
-      router.push(`/transactions?month=${month}`);
-    } else {
-      router.push('/transactions');
-    }
-  };
-
-  return (
-    <div className="card lg:col-span-2" style={{ padding: '20px 20px 16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div>
-          <h3 style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Monthly Overview</h3>
-          <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>Revenue vs expenses — click a bar to drill down</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 11, color: '#64748B' }}>
-          <LegendDot color="#059669" label="Revenue" />
-          <LegendDot color="#EF4444" label="Expenses" />
-          <Link
-            href="/reports"
-            style={{ fontSize: 11, fontWeight: 500, color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 6 }}
-          >
-            Full report <ChevronRight style={{ width: 11, height: 11 }} />
-          </Link>
-        </div>
-      </div>
-      {data.monthly_data?.length > 0 ? (
-        <div style={{ height: 220 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data.monthly_data}
-              barCategoryGap="28%"
-              barGap={3}
-              margin={{ left: 0, right: 0, top: 4, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-              <XAxis
-                dataKey="period"
-                tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#94A3B8', fontFamily: 'inherit' }}
-                axisLine={false}
-                tickLine={false}
-                width={52}
-                tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
-              />
-              <Tooltip
-                formatter={value => [formatCurrency(Number(value)), '']}
-                contentStyle={tooltipStyle}
-                cursor={{ fill: '#F8FAFC' }}
-              />
-              <Bar
-                dataKey="income"
-                name="Revenue"
-                fill="#059669"
-                radius={[4, 4, 0, 0]}
-                style={{ cursor: 'pointer' }}
-                onClick={(barData) => handleBarClick(barData as { period?: string })}
-              />
-              <Bar
-                dataKey="expenses"
-                name="Expenses"
-                fill="#EF4444"
-                radius={[4, 4, 0, 0]}
-                opacity={0.75}
-                style={{ cursor: 'pointer' }}
-                onClick={(barData) => handleBarClick(barData as { period?: string })}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      ) : (
-        <ChartEmptyState label="Add transactions to see monthly trends" />
-      )}
-    </div>
-  );
-}
-
-// ── AI Insights panel ─────────────────────────────────────────────────────────
-function AiInsights({ data }: { data: DashboardStats }) {
-  const insights = data.insights?.slice(0, 4) ?? [];
-
-  const insightIcon = (type: string) => {
-    switch (type) {
-      case 'anomaly':    return <AlertTriangle style={{ width: 14, height: 14, color: '#D97706', flexShrink: 0 }} />;
-      case 'suggestion': return <Lightbulb     style={{ width: 14, height: 14, color: '#7C3AED', flexShrink: 0 }} />;
-      default:           return <Sparkles      style={{ width: 14, height: 14, color: '#2563EB', flexShrink: 0 }} />;
-    }
-  };
-
-  return (
-    <div className="card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            aria-hidden="true"
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 7,
-              background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Sparkles style={{ width: 13, height: 13, color: '#fff' }} />
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>AI Insights</span>
-        </div>
-        <Link
-          href="/ai"
-          className="cursor-pointer"
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            color: '#2563EB',
-            background: '#EFF6FF',
-            padding: '4px 10px',
-            borderRadius: 99,
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 3,
-            transition: 'background 150ms ease',
-          }}
-          onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#DBEAFE'}
-          onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = '#EFF6FF'}
-        >
-          Ask AI <ChevronRight style={{ width: 11, height: 11 }} />
-        </Link>
-      </div>
-
-      {insights.length === 0 ? (
-        <div style={{ textAlign: 'center' as const, padding: '24px 0' }}>
-          <Sparkles style={{ width: 24, height: 24, color: '#CBD5E1', margin: '0 auto 8px' }} />
-          <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12 }}>Add transactions to get AI-powered insights</p>
-          <Link
-            href="/transactions"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              fontSize: 12, fontWeight: 600, color: '#2563EB',
-              background: '#EFF6FF', padding: '6px 14px', borderRadius: 8,
-              textDecoration: 'none',
-            }}
-          >
-            <Plus style={{ width: 12, height: 12 }} /> Add Transaction
-          </Link>
-        </div>
-      ) : (
-        <div>
-          {insights.map((insight, i) => {
-            const insightHref = insight.type === 'anomaly'
-              ? '/transactions'
-              : insight.type === 'suggestion'
-                ? '/ai'
-                : '/reports';
-            return (
-              <Link
-                key={insight.id || i}
-                href={insightHref}
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  padding: '10px 8px',
-                  borderBottom: i < insights.length - 1 ? '1px solid #F8FAFC' : 'none',
-                  textDecoration: 'none',
-                  borderRadius: 6,
-                  transition: 'background 150ms ease',
-                }}
-                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.background = '#F8FAFC'}
-                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'}
-              >
-                <div style={{ marginTop: 1, flexShrink: 0 }}>{insightIcon(insight.type)}</div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: '#0F172A',
-                    lineHeight: 1.4,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>
-                    {insight.title}
-                  </p>
-                  <p style={{
-                    fontSize: 11,
-                    marginTop: 2,
-                    lineHeight: 1.5,
-                    color: '#64748B',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical' as const,
-                    overflow: 'hidden',
-                  }}>
-                    {insight.description}
-                  </p>
-                </div>
-                <ChevronRight style={{ width: 12, height: 12, color: '#94A3B8', flexShrink: 0, marginTop: 4 }} />
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Cash Flow Forecast ────────────────────────────────────────────────────────
-function CashFlowForecastCard({ forecast }: { forecast: CashFlowForecast }) {
-  const periods = [
-    { label: '30 days', value: forecast.forecast_30d, accent: '#2563EB' },
-    { label: '60 days', value: forecast.forecast_60d, accent: '#7C3AED' },
-    { label: '90 days', value: forecast.forecast_90d, accent: '#059669' },
-  ];
-
-  const runwayBadge = () => {
-    if (forecast.months_of_runway >= 999) return null;
-    const color = forecast.months_of_runway > 12
-      ? { bg: '#F0FDF4', text: '#059669' }
-      : forecast.months_of_runway > 6
-        ? { bg: '#FFFBEB', text: '#D97706' }
-        : { bg: '#FEF2F2', text: '#EF4444' };
-    return (
-      <span style={{
-        fontSize: 11,
-        fontWeight: 600,
-        padding: '3px 10px',
-        borderRadius: 99,
-        background: color.bg,
-        color: color.text,
-      }}>
-        {forecast.months_of_runway} mo. runway
-      </span>
-    );
-  };
-
-  return (
-    <div className="card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            aria-hidden="true"
-            style={{ width: 28, height: 28, borderRadius: 7, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Zap style={{ width: 13, height: 13, color: '#2563EB' }} />
-          </div>
-          <div>
-            <Link href="/reports" style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', display: 'block', textDecoration: 'none' }}>
-              Cash Flow Forecast <ChevronRight style={{ width: 11, height: 11, display: 'inline-block', verticalAlign: 'middle', marginLeft: 2 }} />
-            </Link>
-            <span style={{ fontSize: 10, color: '#94A3B8' }}>AI projection based on your history</span>
-          </div>
-        </div>
-        {runwayBadge()}
-      </div>
-
-      <div className="grid grid-cols-3" style={{ gap: 10, marginBottom: 16 }}>
-        {periods.map(p => (
-          <Link
-            key={p.label}
-            href="/reports"
-            style={{
-              display: 'block',
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              borderTop: `3px solid ${p.accent}`,
-              borderRadius: 10,
-              padding: '12px 14px',
-              textDecoration: 'none',
-              color: 'inherit',
-              transition: 'box-shadow 150ms ease',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'}
-            onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.boxShadow = ''}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
-              <Clock style={{ width: 11, height: 11, color: p.accent, flexShrink: 0 }} />
-              <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#64748B' }}>
-                {p.label}
-              </span>
-            </div>
-            <p className="tabular-nums" style={{
-              fontSize: 20,
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: p.value >= 0 ? '#0F172A' : '#EF4444',
-            }}>
-              {formatCurrency(p.value)}
-            </p>
-            <p style={{ fontSize: 10, color: '#94A3B8', marginTop: 3 }}>
-              {p.value >= forecast.current_balance ? '+' : ''}{formatCurrency(p.value - forecast.current_balance)} from now
-            </p>
-          </Link>
-        ))}
-      </div>
-
-      {forecast.insights.length > 0 && (
-        <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 12 }}>
-          {forecast.insights.slice(0, 2).map((insight, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                gap: 8,
-                padding: '7px 0',
-                borderBottom: i < 1 && forecast.insights.length > 1 ? '1px solid #F8FAFC' : 'none',
-              }}
-            >
-              <Zap style={{ width: 12, height: 12, color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
-              <p style={{ fontSize: 12, lineHeight: 1.5, color: '#64748B' }}>{insight}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Invoice summary ───────────────────────────────────────────────────────────
-function InvoiceSummary({ data }: { data: DashboardStats }) {
-  return (
-    <div className="card" style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
-            aria-hidden="true"
-            style={{ width: 28, height: 28, borderRadius: 7, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <FileText style={{ width: 13, height: 13, color: '#7C3AED' }} />
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Invoices</span>
-        </div>
-        <Link
-          href="/invoices"
-          className="cursor-pointer"
-          style={{ fontSize: 12, fontWeight: 500, color: '#7C3AED', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}
-        >
-          View all <ChevronRight style={{ width: 13, height: 13 }} />
-        </Link>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Link
-          href="/invoices"
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          <div
-            style={{
-              background: '#FEF2F2',
-              border: '1px solid #FECACA',
-              borderRadius: 10,
-              padding: '12px 14px',
-              cursor: 'pointer',
-              transition: 'box-shadow 150ms ease',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(239,68,68,0.12)'}
-            onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = ''}
-          >
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#EF4444' }}>Overdue</p>
-            <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#DC2626', marginTop: 4 }}>
-              {formatCurrency(data.invoice_overdue ?? 0)}
-            </p>
-          </div>
-        </Link>
-        <Link
-          href="/invoices"
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          <div
-            style={{
-              background: '#F0FDF4',
-              border: '1px solid #BBF7D0',
-              borderRadius: 10,
-              padding: '12px 14px',
-              cursor: 'pointer',
-              transition: 'box-shadow 150ms ease',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(5,150,105,0.12)'}
-            onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow = ''}
-          >
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', color: '#059669' }}>Paid (30d)</p>
-            <p className="tabular-nums" style={{ fontSize: 20, fontWeight: 700, color: '#059669', marginTop: 4 }}>
-              {formatCurrency(data.invoice_paid_30d ?? 0)}
-            </p>
-          </div>
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-// ── Dashboard loading skeleton ────────────────────────────────────────────────
-function DashboardSkeleton() {
-  return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Welcome bar skeleton */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <Skeleton height={22} width={200} className="mb-2" />
-          <Skeleton height={14} width={130} />
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Skeleton height={34} width={140} />
-          <Skeleton height={34} width={130} />
-          <Skeleton height={34} width={125} />
-        </div>
-      </div>
-      {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 14 }}>
-        {Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)}
-      </div>
-      {/* Chart row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 14 }}>
-        <div className="animate-shimmer card lg:col-span-2" style={{ height: 300 }} />
-        <div className="animate-shimmer card" style={{ height: 300 }} />
-      </div>
-      {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 14 }}>
-        <div className="animate-shimmer card" style={{ height: 200 }} />
-        <div className="animate-shimmer card" style={{ height: 200 }} />
-      </div>
-    </div>
-  );
-}
-
-// ── Greeting ──────────────────────────────────────────────────────────────────
 function greeting() {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
 }
 
-function todayFormatted() {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+function monthOfNow() {
+  return new Date().toLocaleDateString("en-US", { month: "long" });
 }
 
-// ── Main Dashboard ────────────────────────────────────────────────────────────
+function formatMoneyParts(n: number) {
+  const neg = n < 0;
+  const abs = Math.abs(n);
+  const s = abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const [whole, cents] = s.split(".");
+  return { neg, whole, cents };
+}
+
+function DashboardSkeleton() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div className="animate-shimmer" style={{ height: 120 }} />
+      <div className="animate-shimmer" style={{ height: 260 }} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        {[0, 1, 2, 3].map((i) => <div key={i} className="animate-shimmer" style={{ height: 96 }} />)}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const firstName = session?.user?.name?.split(' ')[0] ?? 'there';
+  const router = useRouter();
+  const firstName = session?.user?.name?.split(" ")[0] ?? "there";
 
-  const { data, isLoading, isError } = useQuery<DashboardStats>({
-    queryKey: ['dashboard'],
-    queryFn: () => fetch('/api/dashboard').then(r => {
-      if (!r.ok) throw new Error('Dashboard data unavailable');
-      return r.json();
-    }),
+  const { data, isLoading, isError } = useQuery<DashboardStatsExt>({
+    queryKey: ["dashboard"],
+    queryFn: () =>
+      fetch("/api/dashboard").then((r) => {
+        if (!r.ok) throw new Error("Dashboard data unavailable");
+        return r.json();
+      }),
   });
 
   const { data: forecast } = useQuery<CashFlowForecast>({
-    queryKey: ['forecast'],
-    queryFn: () => fetch('/api/ai/forecast').then(r => r.json()),
+    queryKey: ["forecast"],
+    queryFn: () => fetch("/api/ai/forecast").then((r) => r.json()),
     retry: false,
   });
 
@@ -855,264 +72,333 @@ export default function DashboardPage() {
 
   if (isError || !data) {
     return (
-      <div className="card animate-fade-in" style={{ padding: 48, textAlign: 'center' as const }}>
-        <AlertTriangle style={{ width: 32, height: 32, color: '#EF4444', margin: '0 auto 12px' }} />
-        <p style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>Could not load dashboard</p>
-        <p style={{ fontSize: 13, color: '#64748B' }}>Check your connection and try refreshing the page.</p>
+      <div className="empty" style={{ padding: "60px 20px" }}>
+        <div className="eyebrow-stamp" style={{ marginBottom: 12 }}>Dashboard</div>
+        <h1 className="h1">Couldn't load your data</h1>
+        <p style={{ fontFamily: "var(--sans)", color: "var(--ink-3)", marginTop: 14 }}>
+          Check your connection and refresh.
+        </p>
       </div>
     );
   }
 
-  const incomeChange  = data.income_change  ?? 0;
+  const incomeChange = data.income_change ?? 0;
   const expenseChange = data.expense_change ?? 0;
-  const incomeRatio   = data.total_income + data.total_expenses > 0
-    ? Math.round((data.total_income / (data.total_income + data.total_expenses)) * 100)
-    : 50;
+
+  const attention: { mark: string; title: string; sub: string; href: string; tone?: "warn" | "info" }[] = [];
+  if ((data.invoice_overdue ?? 0) > 0) {
+    attention.push({
+      mark: "1",
+      title: `Overdue receivable${(data.invoice_overdue ?? 0) > 1 ? "s" : ""}`,
+      sub: `${formatCurrency(data.invoice_overdue ?? 0)} outstanding`,
+      href: "/invoices",
+    });
+  }
+  if ((data.bills_due_soon ?? 0) > 0) {
+    attention.push({
+      mark: String(attention.length + 1),
+      title: "Bills due soon",
+      sub: `${formatCurrency(data.bills_due_soon ?? 0)} on the horizon`,
+      href: "/bills",
+      tone: "warn",
+    });
+  }
+  if ((data.unreconciled_count ?? 0) > 0) {
+    attention.push({
+      mark: String(attention.length + 1),
+      title: `${data.unreconciled_count} unreconciled entries`,
+      sub: "Match against your bank statement",
+      href: "/reconciliation",
+      tone: "info",
+    });
+  }
+
+  const months = data.monthly_data ?? [];
+  const maxBar = Math.max(1, ...months.map((m) => Math.max(m.income ?? 0, m.expenses ?? 0)));
+
+  const txns = (data.recent_transactions ?? []).slice(0, 7);
+  const insights = (data.insights ?? []).slice(0, 4);
+  const cash = formatMoneyParts(data.cash_balance ?? 0);
 
   return (
-    <div className="animate-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-      {/* ── Welcome bar ───────────────────────────────────────────────────── */}
-      <div data-tour="welcome-bar" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {/* Header */}
+      <div className="dash-head" data-tour="welcome-bar">
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
-            {greeting()}, {firstName}
-          </h2>
-          <p style={{ fontSize: 12, color: '#94A3B8', marginTop: 3 }}>{todayFormatted()}</p>
+          <div className="eyebrow-stamp">{monthOfNow()} overview</div>
+          <h1 className="display-h1" style={{ marginTop: 10 }}>
+            {greeting()},<br /><em>{firstName}.</em>
+          </h1>
         </div>
-        <div data-tour="quick-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <QuickActionButton href="/transactions" icon={Plus} label="Transaction" />
-          <QuickActionButton href="/invoices/new" icon={FileText} label="Invoice" />
-          <QuickActionButton href="/scanner" icon={ScanLine} label="Scan Receipt" accent />
+        <div className="folio-block">
+          <span>{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
         </div>
       </div>
 
-      {/* ── Getting Started checklist (first 60 days) ─────────────────────── */}
-      <GettingStartedChecklist
-        hasTransactions={(data.transaction_count ?? 0) > 0}
-        hasInvoices={(data.invoice_count ?? 0) > 0}
-        hasVisitedReports={false}
-      />
+      {(data.transaction_count ?? 0) === 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <GettingStartedChecklist
+            hasTransactions={(data.transaction_count ?? 0) > 0}
+            hasInvoices={(data.invoice_count ?? 0) > 0}
+            hasVisitedReports={false}
+          />
+        </div>
+      )}
 
-      {/* ── KPI strip ─────────────────────────────────────────────────────── */}
-      <div data-tour="kpi-cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 14 }}>
-        <KpiCard
-          label="Cash Balance"
-          value={formatCurrency(data.cash_balance)}
-          subtext={<p style={{ fontSize: 11, color: '#94A3B8' }}>Current available</p>}
-          icon={DollarSign}
-          iconBg="#EFF6FF"
-          iconColor="#2563EB"
-          href="/accounts"
-        />
-        <KpiCard
-          label="Revenue"
-          value={formatCurrency(data.total_income)}
-          subtext={<TrendBadge change={incomeChange} />}
-          icon={ArrowUpRight}
-          iconBg="#F0FDF4"
-          iconColor="#059669"
-          href="/transactions?type=income"
-        />
-        <KpiCard
-          label="Expenses"
-          value={formatCurrency(data.total_expenses)}
-          subtext={<TrendBadge change={expenseChange} inverse />}
-          icon={ArrowDownRight}
-          iconBg="#FEF2F2"
-          iconColor="#EF4444"
-          href="/transactions?type=expense"
-        />
-        <KpiCard
-          label="Net Profit"
-          value={formatCurrency(data.net_profit)}
-          icon={data.net_profit >= 0 ? TrendingUp : TrendingDown}
-          iconBg={data.net_profit >= 0 ? '#F0FDF4' : '#FEF2F2'}
-          iconColor={data.net_profit >= 0 ? '#059669' : '#EF4444'}
-          accentLeft={data.net_profit >= 0 ? '#059669' : '#EF4444'}
-          href="/reports"
-          footer={
+      {/* Hero */}
+      <div className="hero-grid" data-tour="kpi-cards">
+        <div className="hero-balance">
+          <div className="label">Cash on hand — all accounts</div>
+          <div className="hero-num">
+            <span className="cur">US$</span>
+            {cash.neg && "−"}{Number(cash.whole).toLocaleString()}<span className="cents">.{cash.cents}</span>
+          </div>
+          <div className="hero-foot">
+            {incomeChange !== 0 && (
+              <span>
+                <span className={incomeChange >= 0 ? "delta-up" : "delta-dn"}>
+                  {incomeChange >= 0 ? "↑" : "↓"} {Math.abs(incomeChange)}%
+                </span> revenue vs. last period
+              </span>
+            )}
+            {forecast && forecast.months_of_runway < 999 && (
+              <span>Runway <b>{forecast.months_of_runway} months</b></span>
+            )}
+            <span style={{ color: "var(--ink-4)" }}>Updated just now</span>
+          </div>
+        </div>
+
+        <div className="attention-col">
+          <div className="eyebrow-stamp">Needs attention</div>
+          <h3>{attention.length === 0 ? "All clear." : `${attention.length} ${attention.length === 1 ? "item" : "items"}`}</h3>
+          {attention.length === 0 ? (
+            <p style={{ fontFamily: "var(--sans)", color: "var(--ink-3)", fontSize: 14, lineHeight: 1.5 }}>
+              Nothing overdue. Books look tidy.
+            </p>
+          ) : (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 500, color: '#94A3B8', marginBottom: 4 }}>
-                <span>Revenue {incomeRatio}%</span>
-                <span>Expenses {100 - incomeRatio}%</span>
-              </div>
-              <div style={{ display: 'flex', height: 5, borderRadius: 99, overflow: 'hidden', background: '#F1F5F9' }}>
-                <div style={{ background: '#059669', width: `${incomeRatio}%`, transition: 'width 600ms ease' }} />
-                <div style={{ background: '#EF4444', width: `${100 - incomeRatio}%` }} />
-              </div>
+              {attention.map((a, i) => (
+                <Link key={i} href={a.href} className="attention-item">
+                  <span className={"mark " + (a.tone ?? "")}>{a.mark}</span>
+                  <span>
+                    <div className="title">{a.title}</div>
+                    <div className="sub">{a.sub}</div>
+                  </span>
+                  <span className="amt">→</span>
+                </Link>
+              ))}
             </div>
-          }
-        />
+          )}
+        </div>
       </div>
 
-      {/* ── Charts row ────────────────────────────────────────────────────── */}
-      <div data-tour="chart-row" className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 14 }}>
-
-        {/* Monthly bar chart */}
-        <MonthlyOverviewChart data={data} />
-
-        {/* AI Insights */}
-        <div data-tour="ai-insights"><AiInsights data={data} /></div>
+      {/* Summary strip */}
+      <div className="summary-strip" style={{ marginTop: 28 }}>
+        <Link href="/transactions?type=income" className="cell">
+          <div className="label">Revenue · {monthOfNow()}</div>
+          <div className="n">{formatCurrency(data.total_income ?? 0)}</div>
+          <div className="delta">
+            {incomeChange >= 0 ? "↑" : "↓"} {Math.abs(incomeChange)}% vs. prior
+          </div>
+        </Link>
+        <Link href="/transactions?type=expense" className="cell">
+          <div className="label">Expenses · {monthOfNow()}</div>
+          <div className="n">{formatCurrency(data.total_expenses ?? 0)}</div>
+          <div className="delta">
+            {expenseChange >= 0 ? "↑" : "↓"} {Math.abs(expenseChange)}% vs. prior
+          </div>
+        </Link>
+        <div className="cell" style={{ cursor: "default" }}>
+          <div className="label">Net profit</div>
+          <div className="n">{formatCurrency(data.net_profit ?? 0)}</div>
+          <div className="delta">
+            {data.total_income > 0 ? Math.round(((data.net_profit ?? 0) / data.total_income) * 100) : 0}% margin
+          </div>
+        </div>
+        <Link href="/invoices" className="cell">
+          <div className="label">Receivable</div>
+          <div className="n">{formatCurrency((data.invoice_overdue ?? 0) + (data.invoice_outstanding ?? 0))}</div>
+          <div className="delta">
+            {data.invoice_overdue_count ?? 0} overdue
+          </div>
+        </Link>
       </div>
 
-      {/* ── Cash Flow Forecast ─────────────────────────────────────────────── */}
-      {forecast && <CashFlowForecastCard forecast={forecast} />}
-
-      {/* ── Action items + Recent activity ────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 14 }}>
-        <NeedsAttention data={data} />
-        <div data-tour="recent-activity"><RecentActivity data={data} /></div>
+      {/* Chart */}
+      <div className="chart-section" data-tour="chart-row">
+        <div className="chart-head">
+          <div>
+            <div className="eyebrow-stamp" style={{ marginBottom: 6 }}>12 months</div>
+            <h3>Revenue &amp; <em>expenses</em></h3>
+          </div>
+          <div style={{ display: "flex", gap: 20, fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)" }}>
+            <span>
+              <span style={{ display: "inline-block", width: 10, height: 10, background: "var(--ink)", marginRight: 6, verticalAlign: "middle", borderRadius: 2 }} />
+              Revenue
+            </span>
+            <span>
+              <span style={{ display: "inline-block", width: 10, height: 10, background: "var(--stamp)", opacity: 0.7, marginRight: 6, verticalAlign: "middle", borderRadius: 2 }} />
+              Expenses
+            </span>
+          </div>
+        </div>
+        {months.length === 0 ? (
+          <div className="empty">No monthly data yet. Add transactions to see trends.</div>
+        ) : (
+          <div className="bar-chart">
+            {months.map((m, i) => {
+              const rev = m.income ?? 0;
+              const exp = m.expenses ?? 0;
+              const label = String(m.period ?? "").slice(0, 3);
+              return (
+                <button
+                  key={i}
+                  className="bar-col"
+                  onClick={() => router.push("/transactions")}
+                  aria-label={`${label}: revenue ${formatCurrency(rev)}, expenses ${formatCurrency(exp)}`}
+                >
+                  <div className="stack">
+                    <div className="bar" style={{ height: `${(rev / maxBar) * 100}%` }} />
+                    <div className="bar exp" style={{ height: `${(exp / maxBar) * 100}%` }} />
+                  </div>
+                  <div className="mo">{label}</div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* ── Invoice summary ────────────────────────────────────────────────── */}
-      <InvoiceSummary data={data} />
+      {/* Two-column: recent + insights */}
+      <div className="insights-section">
+        <div>
+          <div className="section-head">
+            <div className="kicker">Recent activity</div>
+            <h2>Latest <em>entries</em></h2>
+          </div>
+          {txns.length === 0 ? (
+            <div className="empty">No entries yet.</div>
+          ) : (
+            <div className="lcard" style={{ overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 110px 110px", padding: "12px 16px", fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", borderBottom: "1px solid var(--rule)", background: "var(--paper-3)", fontWeight: 500 }}>
+                <span>Date</span>
+                <span>Description</span>
+                <span style={{ textAlign: "right" }}>Debit</span>
+                <span style={{ textAlign: "right" }}>Credit</span>
+              </div>
+              {txns.map((t, i) => {
+                const amt = Number(t.amount) || 0;
+                const isDebit = t.type === "expense";
+                return (
+                  <div
+                    key={t.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "80px 1fr 110px 110px",
+                      padding: "12px 16px",
+                      borderBottom: i < txns.length - 1 ? "1px solid var(--rule)" : "none",
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>
+                      {new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
+                    </span>
+                    <span style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink)" }}>
+                      {t.description}
+                    </span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 13, textAlign: "right", color: isDebit ? "var(--stamp)" : "var(--ink-4)" }}>
+                      {isDebit ? amt.toFixed(2) : "—"}
+                    </span>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 13, textAlign: "right", color: !isDebit ? "var(--pencil)" : "var(--ink-4)" }}>
+                      {!isDebit ? amt.toFixed(2) : "—"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <Link href="/transactions" className="btn ghost" style={{ marginTop: 14 }}>
+            See all transactions →
+          </Link>
+        </div>
 
-      {/* ── Dashboard product tour ─────────────────────────────────────────── */}
+        <div data-tour="ai-insights">
+          <div className="section-head">
+            <div className="kicker">Ledgr insights</div>
+            <h2>Worth <em>noting</em></h2>
+          </div>
+          {insights.length === 0 ? (
+            <div className="empty">Add more transactions and I'll surface insights here.</div>
+          ) : (
+            <div>
+              {insights.map((ins, i) => {
+                const href =
+                  ins.type === "anomaly" ? "/transactions"
+                  : ins.type === "suggestion" ? "/ai"
+                  : "/reports";
+                return (
+                  <Link key={ins.id ?? i} href={href} className="insight-item">
+                    <span className="n">{String(i + 1).padStart(2, "0")}</span>
+                    <span>
+                      <div className="title">{ins.title}</div>
+                      <div className="sub">{ins.description}</div>
+                    </span>
+                    <span className="arr">→</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+          <Link href="/ai" className="btn" style={{ marginTop: 16 }}>
+            Ask Ledgr →
+          </Link>
+        </div>
+      </div>
+
+      {/* Cash flow forecast */}
+      {forecast && forecast.insights && forecast.insights.length > 0 && (
+        <div style={{ padding: "32px 0", borderBottom: "1px solid var(--rule)" }}>
+          <div className="eyebrow-stamp" style={{ marginBottom: 6 }}>Projection</div>
+          <h2 className="h2" style={{ marginBottom: 20 }}>Cash flow <em>forecast</em></h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+            {[
+              { label: "30 days", value: forecast.forecast_30d },
+              { label: "60 days", value: forecast.forecast_60d },
+              { label: "90 days", value: forecast.forecast_90d },
+            ].map((p) => (
+              <div key={p.label} className="lcard" style={{ padding: "18px 20px" }}>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", fontWeight: 500, marginBottom: 10 }}>
+                  {p.label}
+                </div>
+                <div style={{ fontFamily: "var(--display)", fontSize: 32, lineHeight: 1, letterSpacing: "-0.02em", color: p.value >= 0 ? "var(--ink)" : "var(--stamp)" }}>
+                  {formatCurrency(p.value)}
+                </div>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-3)", marginTop: 8 }}>
+                  {p.value >= forecast.current_balance ? "↑" : "↓"} {formatCurrency(Math.abs(p.value - forecast.current_balance))} from now
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="lcard" style={{ padding: "16px 20px" }}>
+            {forecast.insights.slice(0, 2).map((ins, i) => (
+              <div key={i} style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--ink-2)", padding: "8px 0", borderBottom: i === 0 && forecast.insights.length > 1 ? "1px solid var(--rule)" : "none", lineHeight: 1.5 }}>
+                {ins}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <ProductTour
         tourId="dashboard"
         delay={1200}
         steps={[
-          {
-            element: '[data-tour="welcome-bar"]',
-            popover: {
-              title: 'Welcome to Ledgr',
-              description: 'This is your financial command center. You can see your greeting, today\'s date, and key stats at a glance.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="quick-actions"]',
-            popover: {
-              title: 'Quick Actions',
-              description: 'Add a transaction, create an invoice, or scan a receipt — your three most common actions, one click away.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="kpi-cards"]',
-            popover: {
-              title: 'Key Financial Metrics',
-              description: 'Your cash balance, revenue, expenses, and net profit — all updated in real time. Click any card to drill into the details.',
-              side: 'bottom',
-            },
-          },
-          {
-            element: '[data-tour="chart-row"]',
-            popover: {
-              title: 'Monthly Overview',
-              description: 'Revenue vs. expenses month-by-month. Click any bar to see the transactions for that period.',
-              side: 'top',
-            },
-          },
-          {
-            element: '[data-tour="ai-insights"]',
-            popover: {
-              title: 'AI Insights',
-              description: 'Ledgr\'s AI analyses your transactions and surfaces anomalies, spending trends, and money-saving suggestions automatically.',
-              side: 'left',
-            },
-          },
-          {
-            element: '[data-tour="recent-activity"]',
-            popover: {
-              title: 'Recent Activity',
-              description: 'Your latest transactions appear here. Click any row or "View all" to open the full transaction history.',
-              side: 'top',
-            },
-          },
+          { element: '[data-tour="welcome-bar"]', popover: { title: "Welcome to Ledgr", description: "Your dashboard — greeting, key stats, what needs attention, all at a glance.", side: "bottom" } },
+          { element: '[data-tour="kpi-cards"]', popover: { title: "Cash on hand", description: "The headline number — what's in every account right now.", side: "bottom" } },
+          { element: '[data-tour="chart-row"]', popover: { title: "Revenue vs expenses", description: "Twelve months at a glance. Click any bar to drill in.", side: "top" } },
+          { element: '[data-tour="ai-insights"]', popover: { title: "Ledgr insights", description: "Anomalies, trends, and suggestions Ledgr has surfaced from your data.", side: "left" } },
         ]}
       />
     </div>
-  );
-}
-
-// ── Small shared sub-components ───────────────────────────────────────────────
-
-function QuickActionButton({
-  href,
-  icon: Icon,
-  label,
-  accent = false,
-}: {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  accent?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="cursor-pointer"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '7px 14px',
-        borderRadius: 8,
-        fontSize: 12,
-        fontWeight: 600,
-        textDecoration: 'none',
-        transition: 'all 150ms ease',
-        background: accent ? '#2563EB' : '#F1F5F9',
-        color: accent ? '#FFFFFF' : '#334155',
-        border: accent ? 'none' : '1px solid #E2E8F0',
-        boxShadow: accent ? '0 1px 3px rgba(37, 99, 235, 0.25)' : 'none',
-        whiteSpace: 'nowrap' as const,
-      }}
-      onMouseEnter={e => {
-        const el = e.currentTarget as HTMLAnchorElement;
-        el.style.background = accent ? '#1D4ED8' : '#E2E8F0';
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget as HTMLAnchorElement;
-        el.style.background = accent ? '#2563EB' : '#F1F5F9';
-      }}
-    >
-      <Icon aria-hidden="true" style={{ width: 13, height: 13 }} />
-      {label}
-    </Link>
-  );
-}
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-  return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-      <span
-        aria-hidden="true"
-        style={{ width: 8, height: 8, borderRadius: 2, background: color, display: 'inline-block' }}
-      />
-      {label}
-    </span>
-  );
-}
-
-function ChartEmptyState({ label }: { label: string }) {
-  return (
-    <div style={{
-      height: 220,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column',
-      gap: 8,
-      background: '#F8FAFC',
-      borderRadius: 8,
-      border: '1px dashed #E2E8F0',
-    }}>
-      <BarChart3EmptyIcon />
-      <p style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center' as const }}>{label}</p>
-    </div>
-  );
-}
-
-// Simple placeholder icon for empty chart state
-function BarChart3EmptyIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3"  y="12" width="4" height="9" rx="1" fill="#E2E8F0" />
-      <rect x="10" y="7"  width="4" height="14" rx="1" fill="#E2E8F0" />
-      <rect x="17" y="4"  width="4" height="17" rx="1" fill="#E2E8F0" />
-    </svg>
   );
 }

@@ -7,11 +7,7 @@ interface EmptyStateProps {
   title: string;
   description: string;
   action?: React.ReactNode;
-  /**
-   * Compact variant for use inside cards or panels.
-   * Full variant (default) is centered with generous vertical padding.
-   */
-  variant?: 'full' | 'compact';
+  variant?: "full" | "compact";
   className?: string;
 }
 
@@ -20,61 +16,68 @@ export function EmptyState({
   title,
   description,
   action,
-  variant = 'full',
+  variant = "full",
   className,
 }: EmptyStateProps) {
-  const isCompact = variant === 'compact';
+  const isCompact = variant === "compact";
 
   return (
     <div
-      className={cn(
-        'flex flex-col items-center justify-center text-center',
-        isCompact ? 'py-8 px-4' : 'py-16 px-6',
-        className
-      )}
+      className={cn(className)}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        textAlign: "center",
+        padding: isCompact ? "28px 20px" : "60px 24px",
+      }}
     >
-      {/* Icon container */}
       <div
         aria-hidden="true"
-        className={cn(
-          'rounded-2xl flex items-center justify-center mb-4',
-          isCompact ? 'w-10 h-10 rounded-xl' : 'w-14 h-14',
-        )}
-        style={{ background: '#F1F5F9' }}
+        style={{
+          border: "1px solid var(--rule)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 18,
+          width: isCompact ? 40 : 56,
+          height: isCompact ? 40 : 56,
+          background: "var(--paper-2)",
+        }}
       >
         <Icon
-          className={cn(isCompact ? 'w-5 h-5' : 'w-6 h-6')}
-          style={{ color: '#94A3B8' }}
+          style={{ width: isCompact ? 18 : 22, height: isCompact ? 18 : 22, color: "var(--ink-3)" }}
           aria-hidden="true"
         />
       </div>
-
-      {/* Title */}
       <h3
-        className={cn(
-          'font-semibold text-slate-900 mb-1.5',
-          isCompact ? 'text-sm' : 'text-[15px]'
-        )}
+        style={{
+          fontFamily: "var(--display)",
+          fontSize: isCompact ? 22 : 28,
+          fontStyle: "italic",
+          fontWeight: 400,
+          color: "var(--ink)",
+          margin: 0,
+          letterSpacing: "-0.015em",
+          lineHeight: 1.05,
+        }}
       >
         {title}
       </h3>
-
-      {/* Description */}
       <p
-        className={cn(
-          'text-slate-500 max-w-[280px] leading-relaxed',
-          isCompact ? 'text-xs' : 'text-sm',
-        )}
+        style={{
+          fontFamily: "var(--serif)",
+          fontStyle: "italic",
+          color: "var(--ink-3)",
+          maxWidth: "42ch",
+          lineHeight: 1.5,
+          marginTop: 10,
+          fontSize: isCompact ? 13 : 15,
+        }}
       >
         {description}
       </p>
-
-      {/* Action */}
-      {action && (
-        <div className={cn('flex items-center justify-center', isCompact ? 'mt-4' : 'mt-6')}>
-          {action}
-        </div>
-      )}
+      {action && <div style={{ marginTop: isCompact ? 18 : 24 }}>{action}</div>}
     </div>
   );
 }

@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E2E8F0',
-  borderRadius: 16,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+  background: 'var(--paper-2)',
+  border: '1px solid var(--rule)',
+  borderRadius: 8,
+  boxShadow: 'var(--shadow-sm)',
   overflow: 'hidden',
 };
 
@@ -153,10 +153,10 @@ export default function ContractorsPage() {
   const yearOptions = [currentYear, currentYear - 1, currentYear - 2].map(y => String(y));
 
   const statCards = [
-    { label: 'Total Contractors', value: String(stats?.total_contractors ?? 0), icon: Users, color: '#7C3AED', bg: '#EDE9FE' },
-    { label: 'Total Paid YTD', value: formatCurrency(stats?.total_paid_ytd ?? 0), icon: DollarSign, color: '#059669', bg: '#ECFDF5' },
-    { label: 'Over $600 Threshold', value: String(stats?.over_threshold_count ?? 0), icon: AlertTriangle, color: '#D97706', bg: '#FFFBEB' },
-    { label: '1099s to File', value: String(stats?.over_threshold_count ?? 0), icon: FileText, color: '#2563EB', bg: '#EFF6FF' },
+    { label: 'Total Contractors', value: String(stats?.total_contractors ?? 0), icon: Users, color: 'var(--stamp)', bg: '#F5E0D9' },
+    { label: 'Total Paid YTD', value: formatCurrency(stats?.total_paid_ytd ?? 0), icon: DollarSign, color: 'var(--pencil)', bg: '#DDE4EC' },
+    { label: 'Over $600 Threshold', value: String(stats?.over_threshold_count ?? 0), icon: AlertTriangle, color: 'var(--ai)', bg: '#F2E7D0' },
+    { label: '1099s to File', value: String(stats?.over_threshold_count ?? 0), icon: FileText, color: 'var(--stamp)', bg: '#DDE4EC' },
   ];
 
   return (
@@ -164,8 +164,8 @@ export default function ContractorsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: 0 }}>1099 Contractors</h1>
-          <p style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Track contractor payments and 1099-NEC filings</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>1099 Contractors</h1>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>Track contractor payments and 1099-NEC filings</p>
         </div>
         <div className="flex gap-2">
           <Select value={yearFilter} onChange={e => setYearFilter(e.target.value)} style={{ width: 100 }}>
@@ -182,20 +182,20 @@ export default function ContractorsPage() {
         {statCards.map((s) => (
           <div key={s.label} style={{ ...card, padding: 20, overflow: 'visible' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B' }}>{s.label}</p>
+              <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)' }}>{s.label}</p>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <s.icon style={{ width: 16, height: 16, color: s.color }} />
               </div>
             </div>
-            <p style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: 0 }}>{isLoading ? '—' : s.value}</p>
+            <p style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>{isLoading ? '—' : s.value}</p>
           </div>
         ))}
       </div>
 
       {/* $600 alert banner */}
       {(stats?.over_threshold_count ?? 0) > 0 && (
-        <div style={{ borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12, background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-          <AlertTriangle style={{ width: 18, height: 18, color: '#D97706', flexShrink: 0 }} />
+        <div style={{ borderRadius: 8, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--ai-soft)', border: '1px solid var(--ai-soft)' }}>
+          <AlertTriangle style={{ width: 18, height: 18, color: 'var(--ai)', flexShrink: 0 }} />
           <p style={{ fontSize: 13, color: '#92400E', margin: 0 }}>
             <strong>{stats?.over_threshold_count}</strong> contractor{(stats?.over_threshold_count ?? 0) > 1 ? 's have' : ' has'} exceeded the ${THRESHOLD} 1099-NEC reporting threshold for {yearFilter}. Review and generate forms below.
           </p>
@@ -204,7 +204,7 @@ export default function ContractorsPage() {
 
       {/* Search */}
       <div style={{ position: 'relative', maxWidth: 384 }}>
-        <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94A3B8', pointerEvents: 'none' }} />
+        <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--ink-4)', pointerEvents: 'none' }} />
         <Input placeholder="Search contractors..." value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
       </div>
 
@@ -229,7 +229,7 @@ export default function ContractorsPage() {
                 <thead>
                   <tr style={{ borderBottom: '2px solid #E2E8F0' }}>
                     {['Contractor', 'Tax ID', 'Rate', 'YTD Paid', '1099 Status', 'Status', ''].map((h, i) => (
-                      <th key={i} style={{ padding: '12px 16px', textAlign: i > 2 ? 'center' : 'left', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748B' }}>{h}</th>
+                      <th key={i} style={{ padding: '12px 16px', textAlign: i > 2 ? 'center' : 'left', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -240,38 +240,38 @@ export default function ContractorsPage() {
                     return (
                       <tr
                         key={c.id}
-                        style={{ borderBottom: '1px solid #F1F5F9', background: i % 2 === 1 ? '#FAFBFC' : 'transparent' }}
+                        style={{ borderBottom: '1px solid var(--rule-soft)', background: i % 2 === 1 ? '#EFE7D5' : 'transparent' }}
                         onMouseEnter={e => (e.currentTarget.style.background = '#F1F5F9')}
-                        onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? '#FAFBFC' : 'transparent')}
+                        onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 1 ? '#EFE7D5' : 'transparent')}
                       >
                         <td style={{ padding: '14px 16px' }}>
-                          <div style={{ fontWeight: 500, color: '#0F172A' }}>{c.name}</div>
-                          <div style={{ fontSize: 11, color: '#94A3B8' }}>{c.email ?? '—'}</div>
+                          <div style={{ fontWeight: 500, color: 'var(--ink)' }}>{c.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--ink-4)' }}>{c.email ?? '—'}</div>
                         </td>
-                        <td style={{ padding: '14px 16px', color: '#64748B', fontFamily: 'monospace', fontSize: 12 }}>
+                        <td style={{ padding: '14px 16px', color: 'var(--ink-3)', fontFamily: 'monospace', fontSize: 12 }}>
                           {c.tax_id_last4 ? `***-**-${c.tax_id_last4}` : '—'}
-                          {c.tax_id_last4 && <span style={{ marginLeft: 6, fontSize: 10, color: '#94A3B8' }}>({c.tax_id_type})</span>}
+                          {c.tax_id_last4 && <span style={{ marginLeft: 6, fontSize: 10, color: 'var(--ink-4)' }}>({c.tax_id_type})</span>}
                         </td>
-                        <td style={{ padding: '14px 16px', color: '#64748B', fontSize: 12 }}>
+                        <td style={{ padding: '14px 16px', color: 'var(--ink-3)', fontSize: 12 }}>
                           {c.rate != null ? `${formatCurrency(c.rate)}/${c.rate_type === 'hourly' ? 'hr' : 'project'}` : '—'}
                         </td>
-                        <td style={{ padding: '14px 16px', textAlign: 'center', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: over ? '#D97706' : '#0F172A' }}>
+                        <td style={{ padding: '14px 16px', textAlign: 'center', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: over ? '#8A5A1C' : '#0F172A' }}>
                           {formatCurrency(ytd)}
-                          {over && <div style={{ fontSize: 10, color: '#D97706', fontWeight: 500 }}>Over threshold</div>}
+                          {over && <div style={{ fontSize: 10, color: 'var(--ai)', fontWeight: 500 }}>Over threshold</div>}
                         </td>
                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                           {over ? (
-                            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#FFFBEB', color: '#D97706', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: 'var(--ai-soft)', color: 'var(--ai)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                               <AlertTriangle style={{ width: 10, height: 10 }} /> Required
                             </span>
                           ) : (
-                            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: '#F1F5F9', color: '#64748B' }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: 'var(--paper-3)', color: 'var(--ink-3)' }}>
                               Under ${THRESHOLD}
                             </span>
                           )}
                         </td>
                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: c.is_active ? '#ECFDF5' : '#F1F5F9', color: c.is_active ? '#059669' : '#64748B' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: c.is_active ? '#DDE4EC' : '#F1F5F9', color: c.is_active ? '#1C3A5B' : '#64748B' }}>
                             {c.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
@@ -281,18 +281,18 @@ export default function ContractorsPage() {
                               <button
                                 onClick={() => setShowing1099Id(c.id)}
                                 className="cursor-pointer"
-                                style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#2563EB', display: 'flex', alignItems: 'center', gap: 4 }}
+                                style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: 'var(--pencil-soft)', border: '1px solid var(--pencil-soft)', color: 'var(--stamp)', display: 'flex', alignItems: 'center', gap: 4 }}
                               >
                                 <FileText style={{ width: 11, height: 11 }} /> 1099
                               </button>
                             )}
-                            <button onClick={() => openEdit(c)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                            <button onClick={() => openEdit(c)} className="cursor-pointer" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--paper-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)' }}>
                               <Pencil style={{ width: 13, height: 13 }} />
                             </button>
                             <button
                               onClick={() => setDeactivatingId(c.id)}
                               className="cursor-pointer"
-                              style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: c.is_active ? '#FEF2F2' : '#F0FDF4', border: `1px solid ${c.is_active ? '#FECACA' : '#BBF7D0'}`, color: c.is_active ? '#EF4444' : '#059669' }}
+                              style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6, background: c.is_active ? '#F5E0D9' : '#DDE4EC', border: `1px solid ${c.is_active ? '#F5E0D9' : '#DDE4EC'}`, color: c.is_active ? '#B33A1F' : '#1C3A5B' }}
                             >
                               {c.is_active ? 'Deactivate' : 'Reactivate'}
                             </button>
@@ -315,16 +315,16 @@ export default function ContractorsPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <p style={{ fontWeight: 500, color: '#0F172A', fontSize: 13, margin: 0 }}>{c.name}</p>
-                          {over && <AlertTriangle style={{ width: 13, height: 13, color: '#D97706' }} />}
+                          <p style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 13, margin: 0 }}>{c.name}</p>
+                          {over && <AlertTriangle style={{ width: 13, height: 13, color: 'var(--ai)' }} />}
                         </div>
-                        <p style={{ fontSize: 11, color: '#94A3B8', margin: '2px 0' }}>{c.email ?? '—'}</p>
-                        <p style={{ fontSize: 12, color: over ? '#D97706' : '#64748B', fontWeight: over ? 600 : 400, margin: '4px 0 0' }}>
+                        <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '2px 0' }}>{c.email ?? '—'}</p>
+                        <p style={{ fontSize: 12, color: over ? '#8A5A1C' : '#64748B', fontWeight: over ? 600 : 400, margin: '4px 0 0' }}>
                           YTD: {formatCurrency(ytd)}
                         </p>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button onClick={() => openEdit(c)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #E2E8F0', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                        <button onClick={() => openEdit(c)} className="cursor-pointer" style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--rule)', background: 'var(--paper-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)' }}>
                           <Pencil style={{ width: 12, height: 12 }} />
                         </button>
                       </div>
@@ -345,47 +345,47 @@ export default function ContractorsPage() {
         <DialogContent>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Full Name / Business Name</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Full Name / Business Name</label>
               <Input placeholder="e.g., Alex Torres" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Email</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Email</label>
               <Input type="email" placeholder="contractor@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Business Address</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Business Address</label>
               <Input placeholder="123 Main St, City, State ZIP" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Tax ID Type</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Tax ID Type</label>
                 <Select value={form.tax_id_type} onChange={e => setForm({ ...form, tax_id_type: e.target.value as 'SSN' | 'EIN' })}>
                   <option value="SSN">SSN</option>
                   <option value="EIN">EIN</option>
                 </Select>
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Last 4 Digits</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Last 4 Digits</label>
                 <Input placeholder="1234" maxLength={4} value={form.tax_id_last4} onChange={e => setForm({ ...form, tax_id_last4: e.target.value.replace(/\D/g, '').slice(0, 4) })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Rate Type</label>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Rate Type</label>
                 <Select value={form.rate_type} onChange={e => setForm({ ...form, rate_type: e.target.value as 'hourly' | 'project' })}>
                   <option value="hourly">Hourly</option>
                   <option value="project">Per Project</option>
                 </Select>
               </div>
               <div>
-                <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>
                   {form.rate_type === 'hourly' ? 'Hourly Rate' : 'Project Rate'}
                 </label>
                 <Input type="number" step="0.01" placeholder={form.rate_type === 'hourly' ? '125.00' : '5000.00'} value={form.rate} onChange={e => setForm({ ...form, rate: e.target.value })} />
               </div>
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Payment Terms</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Payment Terms</label>
               <Select value={form.payment_terms} onChange={e => setForm({ ...form, payment_terms: e.target.value })}>
                 <option value="immediate">Immediate</option>
                 <option value="net15">Net 15</option>
@@ -394,7 +394,7 @@ export default function ContractorsPage() {
               </Select>
             </div>
             <div>
-              <label style={{ fontSize: 13, fontWeight: 500, color: '#475569', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
+              <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
               <Input placeholder="Specialization, project notes..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
             </div>
           </div>
@@ -418,7 +418,7 @@ export default function ContractorsPage() {
           </DialogTitle>
         </DialogHeader>
         <DialogContent>
-          <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
             {(() => {
               const c = contractors.find(x => x.id === deactivatingId);
               return c?.is_active
@@ -453,19 +453,19 @@ export default function ContractorsPage() {
           {contractor1099 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ borderRadius: 10, border: '2px solid #E2E8F0', overflow: 'hidden' }}>
-                <div style={{ background: '#F8FAFC', padding: '12px 16px', borderBottom: '1px solid #E2E8F0' }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Form 1099-NEC — Nonemployee Compensation</p>
-                  <p style={{ fontSize: 11, color: '#94A3B8', margin: '2px 0 0' }}>Tax Year {yearFilter}</p>
+                <div style={{ background: 'var(--paper)', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Form 1099-NEC — Nonemployee Compensation</p>
+                  <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '2px 0 0' }}>Tax Year {yearFilter}</p>
                 </div>
                 <div style={{ padding: '16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 4px' }}>Recipient Name</p>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0 }}>{contractor1099.name}</p>
+                      <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '0 0 4px' }}>Recipient Name</p>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{contractor1099.name}</p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 4px' }}>Taxpayer ID Number</p>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0, fontFamily: 'monospace' }}>
+                      <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '0 0 4px' }}>Taxpayer ID Number</p>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0, fontFamily: 'monospace' }}>
                         {contractor1099.tax_id_last4
                           ? (contractor1099.tax_id_type === 'SSN'
                             ? `***-**-${contractor1099.tax_id_last4}`
@@ -474,18 +474,18 @@ export default function ContractorsPage() {
                       </p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 4px' }}>Address</p>
-                      <p style={{ fontSize: 13, color: '#475569', margin: 0 }}>{contractor1099.address ?? 'Not on file'}</p>
+                      <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '0 0 4px' }}>Address</p>
+                      <p style={{ fontSize: 13, color: 'var(--ink-2)', margin: 0 }}>{contractor1099.address ?? 'Not on file'}</p>
                     </div>
                     <div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 4px' }}>Box 1 — Nonemployee Compensation</p>
-                      <p style={{ fontSize: 22, fontWeight: 700, color: '#D97706', margin: 0 }}>{formatCurrency(parseFloat(String(contractor1099.total_paid_ytd ?? 0)))}</p>
+                      <p style={{ fontSize: 11, color: 'var(--ink-4)', margin: '0 0 4px' }}>Box 1 — Nonemployee Compensation</p>
+                      <p style={{ fontSize: 22, fontWeight: 700, color: 'var(--ai)', margin: 0 }}>{formatCurrency(parseFloat(String(contractor1099.total_paid_ytd ?? 0)))}</p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div style={{ borderRadius: 10, padding: 14, background: '#FFF7ED', border: '1px solid #FED7AA', display: 'flex', gap: 10 }}>
-                <AlertTriangle style={{ width: 16, height: 16, color: '#D97706', flexShrink: 0, marginTop: 1 }} />
+              <div style={{ borderRadius: 10, padding: 14, background: 'var(--ai-soft)', border: '1px solid #FED7AA', display: 'flex', gap: 10 }}>
+                <AlertTriangle style={{ width: 16, height: 16, color: 'var(--ai)', flexShrink: 0, marginTop: 1 }} />
                 <p style={{ fontSize: 12, color: '#92400E', margin: 0, lineHeight: 1.5 }}>
                   This is a preview only. You must file the actual 1099-NEC with the IRS by January 31st following the tax year. Use your payroll software or the IRS FIRE system to submit.
                 </p>

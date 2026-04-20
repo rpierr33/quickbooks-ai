@@ -153,7 +153,7 @@ export function GettingStartedChecklist({
     <div
       style={{
         background: "#fff",
-        borderRadius: 14,
+        borderRadius: 8,
         border: "1px solid #E2E8F0",
         boxShadow: "0 2px 8px rgba(15,23,42,0.06)",
         overflow: "hidden",
@@ -167,8 +167,8 @@ export function GettingStartedChecklist({
           padding: "16px 20px 14px",
           borderBottom: "1px solid #F1F5F9",
           background: allDone
-            ? "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)"
-            : "linear-gradient(135deg, #EFF6FF 0%, #F5F3FF 100%)",
+            ? "linear-gradient(135deg, #DDE4EC 0%, #DCFCE7 100%)"
+            : "linear-gradient(135deg, #DDE4EC 0%, #F5E0D9 100%)",
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "space-between",
@@ -181,7 +181,7 @@ export function GettingStartedChecklist({
               width: 34,
               height: 34,
               borderRadius: 10,
-              background: allDone ? "#059669" : "#3B82F6",
+              background: allDone ? "#1C3A5B" : "#171510",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -261,8 +261,8 @@ export function GettingStartedChecklist({
               width: `${progressPct}%`,
               borderRadius: 99,
               background: allDone
-                ? "#059669"
-                : "linear-gradient(90deg, #3B82F6, #7C3AED)",
+                ? "#1C3A5B"
+                : "linear-gradient(90deg, #171510, #B33A1F)",
               transition: "width 600ms ease",
             }}
           />
@@ -294,12 +294,12 @@ export function GettingStartedChecklist({
             <div style={{ flexShrink: 0, marginTop: 1 }}>
               {step.done ? (
                 <CheckCircle2
-                  style={{ width: 18, height: 18, color: "#059669" }}
+                  style={{ width: 18, height: 18, color: "#1C3A5B" }}
                   aria-hidden="true"
                 />
               ) : (
                 <Circle
-                  style={{ width: 18, height: 18, color: "#CBD5E1" }}
+                  style={{ width: 18, height: 18, color: "#CFBF9E" }}
                   aria-hidden="true"
                 />
               )}
@@ -314,7 +314,7 @@ export function GettingStartedChecklist({
                   color: step.done ? "#64748B" : "#0F172A",
                   margin: 0,
                   textDecoration: step.done ? "line-through" : "none",
-                  textDecorationColor: "#CBD5E1",
+                  textDecorationColor: "#CFBF9E",
                 }}
               >
                 {step.label}
@@ -336,8 +336,8 @@ export function GettingStartedChecklist({
                   gap: 3,
                   fontSize: 11,
                   fontWeight: 600,
-                  color: "#3B82F6",
-                  background: "#EFF6FF",
+                  color: "#171510",
+                  background: "#DDE4EC",
                   padding: "4px 10px",
                   borderRadius: 7,
                   textDecoration: "none",
@@ -346,10 +346,10 @@ export function GettingStartedChecklist({
                   transition: "background 150ms ease",
                 }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLAnchorElement).style.background = "#DBEAFE")
+                  ((e.currentTarget as HTMLAnchorElement).style.background = "#DDE4EC")
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLAnchorElement).style.background = "#EFF6FF")
+                  ((e.currentTarget as HTMLAnchorElement).style.background = "#DDE4EC")
                 }
               >
                 {step.cta}

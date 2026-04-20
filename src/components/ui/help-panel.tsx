@@ -145,7 +145,7 @@ export function HelpPanel() {
           width: 48,
           height: 48,
           borderRadius: "50%",
-          background: open ? "#1D4ED8" : "#3B82F6",
+          background: open ? "#3A352A" : "#171510",
           color: "#fff",
           border: "none",
           cursor: "pointer",
@@ -156,11 +156,11 @@ export function HelpPanel() {
           transition: "background 150ms ease, transform 150ms ease, box-shadow 150ms ease",
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = "#1D4ED8";
+          (e.currentTarget as HTMLButtonElement).style.background = "#3A352A";
           (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.07)";
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = open ? "#1D4ED8" : "#3B82F6";
+          (e.currentTarget as HTMLButtonElement).style.background = open ? "#3A352A" : "#171510";
           (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
         }}
       >
@@ -196,7 +196,7 @@ export function HelpPanel() {
           bottom: 0,
           zIndex: 52,
           width: "min(380px, 100vw)",
-          background: "#FFFFFF",
+          background: "var(--paper-2)",
           boxShadow: "-4px 0 32px rgba(15,23,42,0.12)",
           display: "flex",
           flexDirection: "column",
@@ -265,7 +265,7 @@ function PanelContent({
         style={{
           padding: "20px 20px 16px",
           borderBottom: "1px solid #F1F5F9",
-          background: "linear-gradient(135deg, #EFF6FF 0%, #F5F3FF 100%)",
+          background: "linear-gradient(135deg, #DDE4EC 0%, #F5E0D9 100%)",
           flexShrink: 0,
         }}
       >
@@ -277,7 +277,7 @@ function PanelContent({
                 fontWeight: 700,
                 letterSpacing: "0.10em",
                 textTransform: "uppercase",
-                color: "#3B82F6",
+                color: "#171510",
                 marginBottom: 4,
               }}
             >
@@ -332,7 +332,7 @@ function PanelContent({
             border: "1px solid rgba(59,130,246,0.15)",
           }}
         >
-          <p style={{ fontSize: 12, color: "#1D4ED8", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
+          <p style={{ fontSize: 12, color: "#3A352A", lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
             {content.benefit}
           </p>
         </div>
@@ -374,8 +374,8 @@ function PanelContent({
                     width: 26,
                     height: 26,
                     borderRadius: 8,
-                    background: "#EFF6FF",
-                    border: "1px solid #DBEAFE",
+                    background: "#DDE4EC",
+                    border: "1px solid #DDE4EC",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -397,8 +397,8 @@ function PanelContent({
                     style={{
                       fontSize: 10,
                       fontWeight: 700,
-                      color: "#3B82F6",
-                      background: "#EFF6FF",
+                      color: "#171510",
+                      background: "#DDE4EC",
                       padding: "1px 6px",
                       borderRadius: 4,
                     }}
@@ -438,14 +438,14 @@ function PanelContent({
                     display: "flex",
                     gap: 10,
                     padding: "10px 12px",
-                    background: "#FFFBEB",
+                    background: "#F2E7D0",
                     borderRadius: 10,
-                    border: "1px solid #FDE68A",
+                    border: "1px solid #E8D8B8",
                   }}
                 >
                   <Lightbulb
                     aria-hidden="true"
-                    style={{ width: 14, height: 14, color: "#D97706", flexShrink: 0, marginTop: 1 }}
+                    style={{ width: 14, height: 14, color: "#8A5A1C", flexShrink: 0, marginTop: 1 }}
                   />
                   <p style={{ fontSize: 12, color: "#92400E", lineHeight: 1.5, margin: 0 }}>{tip}</p>
                 </div>
@@ -463,7 +463,7 @@ function PanelContent({
             width: "100%",
             padding: "12px 16px",
             borderRadius: 10,
-            background: "#3B82F6",
+            background: "#171510",
             color: "#fff",
             border: "none",
             fontSize: 14,
@@ -475,8 +475,8 @@ function PanelContent({
             gap: 6,
             transition: "background 150ms ease",
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#1D4ED8")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#3B82F6")}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#3A352A")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#171510")}
         >
           Got it, let me explore
           <ChevronRight style={{ width: 15, height: 15 }} aria-hidden="true" />
@@ -518,7 +518,7 @@ function PanelContent({
         )}
 
         <p style={{ textAlign: "center", fontSize: 11, color: "#94A3B8", marginTop: 8 }}>
-          Click the <strong style={{ color: "#3B82F6" }}>?</strong> button anytime to reopen this guide
+          Click the <strong style={{ color: "#171510" }}>?</strong> button anytime to reopen this guide
         </p>
       </div>
     </>
@@ -568,7 +568,7 @@ function NoContentView({
       </div>
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ textAlign: "center" }}>
-          <HelpCircle style={{ width: 36, height: 36, color: "#CBD5E1", margin: "0 auto 12px" }} />
+          <HelpCircle style={{ width: 36, height: 36, color: "#CFBF9E", margin: "0 auto 12px" }} />
           <p style={{ fontSize: 14, fontWeight: 600, color: "#0F172A", marginBottom: 6 }}>
             No guide for this page yet
           </p>
@@ -582,9 +582,9 @@ function NoContentView({
                 marginTop: 16,
                 padding: "10px 20px",
                 borderRadius: 10,
-                background: "#EFF6FF",
-                color: "#2563EB",
-                border: "1px solid #BFDBFE",
+                background: "#DDE4EC",
+                color: "#171510",
+                border: "1px solid #DDE4EC",
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
