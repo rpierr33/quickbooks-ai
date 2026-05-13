@@ -1,9 +1,24 @@
 "use client";
 
-import React, { useState, Suspense, useId } from "react";
+import React, { useState, Suspense, useId, useRef, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+
+const SIGN_IN_TIMEOUT_MS = 12_000;
+
+type SignInOutcome = { error?: string } | undefined;
+
+// Wraps signIn() with a hard timeout so a stuck network doesn't trap the user
+// in a "Signing in…" spinner forever.
+async function signInWithTimeout(creds: { email: string; password: string }): Promise<SignInOutcome> {
+  return Promise.race<SignInOutcome>([
+    signIn("credentials", { ...creds, redirect: false }) as Promise<SignInOutcome>,
+    new Promise<SignInOutcome>((resolve) =>
+      setTimeout(() => resolve({ error: "timeout" }), SIGN_IN_TIMEOUT_MS),
+    ),
+  ]);
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -18,16 +33,48 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const formErrorId = useId();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  // Password managers / browser autofill can populate inputs without firing React's
+  // onChange. Read DOM values into state on mount and after a couple short delays
+  // so an autofilled value isn't lost when the user clicks Sign in.
+  useEffect(() => {
+    let cancelled = false;
+    const sync = () => {
+      if (cancelled) return;
+      const e = emailRef.current?.value;
+      const p = passwordRef.current?.value;
+      if (e) setEmail((cur) => (cur === e ? cur : e));
+      if (p) setPassword((cur) => (cur === p ? cur : p));
+    };
+    sync();
+    const t1 = setTimeout(sync, 400);
+    const t2 = setTimeout(sync, 1500);
+    return () => {
+      cancelled = true;
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) {
+    // Read directly from refs as a final safety net for autofill.
+    const e2 = email || emailRef.current?.value || "";
+    const p2 = password || passwordRef.current?.value || "";
+    if (!e2 || !p2) {
       setError("Enter your email and password to continue.");
       return;
     }
     setError("");
     setLoading(true);
-    const result = await signIn("credentials", { email, password, redirect: false });
+    const result = await signInWithTimeout({ email: e2, password: p2 });
+    if (result?.error === "timeout") {
+      setError("Sign-in is taking longer than expected. Check your connection and try again.");
+      setLoading(false);
+      return;
+    }
     if (result?.error) {
       setError("Email or password is incorrect. Try again.");
       setLoading(false);
@@ -40,11 +87,12 @@ function LoginForm() {
   async function handleDemoLogin() {
     setError("");
     setLoading(true);
-    const result = await signIn("credentials", {
-      email: "demo@ledgr.com",
-      password: "demo",
-      redirect: false,
-    });
+    const result = await signInWithTimeout({ email: "demo@ledgr.com", password: "demo" });
+    if (result?.error === "timeout") {
+      setError("Demo login is taking longer than expected. Check your connection and try again.");
+      setLoading(false);
+      return;
+    }
     if (result?.error) {
       setError("Demo login failed. Please try again.");
       setLoading(false);
@@ -94,6 +142,7 @@ function LoginForm() {
           <label htmlFor="email" className="field-label">Email</label>
           <input
             id="email"
+            ref={emailRef}
             type="email"
             className="input"
             value={email}
@@ -114,6 +163,7 @@ function LoginForm() {
           </div>
           <input
             id="password"
+            ref={passwordRef}
             type="password"
             className="input"
             value={password}

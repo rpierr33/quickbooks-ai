@@ -5,6 +5,17 @@ import { authConfig } from "./auth.config";
 import { rateLimit } from "./rate-limit";
 import type { UserRole } from "./roles";
 
+// Startup self-check: NextAuth 5 beta needs AUTH_SECRET to validate CSRF.
+// Missing → silent MissingCSRF on every sign-in. Fail loud at boot instead.
+// (Skip in test env where mocks may override.)
+if (!process.env.AUTH_SECRET && process.env.NODE_ENV !== "test") {
+  throw new Error(
+    "AUTH_SECRET is not set. NextAuth 5 needs this to sign session tokens and CSRF cookies. " +
+      "Add to .env.local: AUTH_SECRET=$(openssl rand -hex 32) and AUTH_TRUST_HOST=true. " +
+      "See CLAUDE.md workaround #4.",
+  );
+}
+
 /**
  * NextAuth v5 beta — Credentials provider backed by the user store in
  * `src/lib/users.ts`. Passwords are hashed via scrypt; see users.ts.
